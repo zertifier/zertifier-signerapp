@@ -35,10 +35,14 @@ export class SignerService {
     console.log(" > Hashing: document canonized");
     // Usar Web Crypto API nativa
     const msgBuffer = new TextEncoder().encode(canonized);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    let uint8Array = new Uint8Array(hashBuffer);
-    console.log(" > Hashing: finish with uint8Array:", uint8Array);
-    return uint8Array;
+    const shaHash = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const shaHashArray = Array.from(new Uint8Array(shaHash));
+    const shaHashHex = shaHashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const hash = new TextEncoder().encode(shaHashHex);
+
+    console.log(" > Hashing: finish with uint8Array:", hash);
+
+    return hash;
   }
 
   async #sign(hash: Uint8Array, pKey: CryptoKey) {
