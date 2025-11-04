@@ -1,4 +1,4 @@
-import {effect, inject, Injectable, OnDestroy, OnInit, signal} from '@angular/core';
+import {computed, effect, inject, Injectable, OnDestroy, OnInit, signal} from '@angular/core';
 import {
   ClearingHouseApiService,
   ClearingHouses,
@@ -23,7 +23,9 @@ export class CredentialsProvider{
   legalRegistrationNumber = signal<VerifiableCredentialV1 | null>(null);
   legalParticipant = signal<VerifiableCredentialV1 | null>(null);
   termsAndConditions = signal<VerifiableCredentialV1 | null>(null);
+  isSignedTermsAndConditions = computed(()=> !!this.termsAndConditions()?.["proof"]);
   verifiablePresentation = signal<VerifiablePresentation | null>(null);
+  isSignedLegalParticipant = computed(()=> !!this.legalParticipant()?.["proof"]);
   complianceVerifiableCredentials = signal<Object | null>(null);
 
   constructor() {
