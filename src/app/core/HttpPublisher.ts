@@ -3,13 +3,17 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {catchError, forkJoin, map, tap, throwError} from 'rxjs';
 import {environment} from '../../environments/environment';
 
+
 @Injectable({providedIn: 'root'})
 export class FilePublisherService {
   #httpClient = inject(HttpClient);
+  #zertifierFileApiUrl = environment.zertifierFileApiUrl || (() => {throw new Error("Zertifier File API URL not configured")})();
+  #zertifierFileApiToken = environment.zertifierFileApiToken || (() => {throw new Error("Zertifier File API Token not configured")})();
 
   publish(files: ZertifierPublishFileApiModel[],
-          url: string = environment.zertifierFileApiUrl,
-          token: string = environment.zertifierFileApiToken) {
+          url: string = this.#zertifierFileApiUrl ,
+          token: string = this.#zertifierFileApiToken ) {
+
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -23,9 +27,9 @@ export class FilePublisherService {
     );
   }
 
-  validateFiles(files: ZertifierPublishFileApiModel[], baseUrl: string = environment.zertifierFileApiUrl) {
+  validateFiles(files: ZertifierPublishFileApiModel[], baseUrl: string = this.#zertifierFileApiUrl) {
     const validations = files.map(file =>
-      this.#validateContent(`${baseUrl}${encodeURIComponent(file.path)}`, file.content).pipe(
+      this.#validateContent(`${baseUrl}/${file.path}`, file.content).pipe(
         tap(isValid => {
           if (!isValid) console.error(`❌ Validation failed for file: ${file.path}`);
         })
@@ -43,7 +47,10 @@ export class FilePublisherService {
 
   #validateContent(url: string, content: string) {
     return this.#httpClient.get(url, {responseType: 'text'}).pipe(
-      map(resp => resp === content),
+      map(resp => {
+        console.log("Validating: ", url, resp, content)
+        return resp === content
+      }),
       catchError(err => {
         console.error(`❌ Network error validating ${url}:`, err);
         return throwError(() => err);
