@@ -1,0 +1,20 @@
+{
+  "/gaia_lnr": {
+    "target": "https://registrationnumber.notary.lab.gaia-x.eu/v1-staging",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/gaia_lnr": ""
+    }
+  },
+  "/arsys_lnr": {
+    "target": "https://gx-notary.arsys.es/v1",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/arsys_lnr": ""
+    }
+  }
+}
