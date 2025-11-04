@@ -16,5 +16,14 @@
     "pathRewrite": {
       "^/arsys_lnr": ""
     }
+  },
+  "/zertifier_file_api": {
+    "target": "https://www.zertifier.com/docs/index.php",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/zertifier_file_api": ""
+    }
   }
 }
