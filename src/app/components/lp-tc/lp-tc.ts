@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@a
 import { CommonModule } from '@angular/common';
 import { CredentialsProvider } from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
+import {FilePublisherService, ZertifierPublishFileApiModel} from '../../core/HttpPublisher';
+import {map, switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-lp-tc',
@@ -27,6 +29,10 @@ export class LpTc {
   readonly tcExpanded = signal(false);
 
   readonly showCertModal = signal(false);
+
+  readonly httpPublisher = inject(FilePublisherService);
+
+  readonly filePath = 'signedTest/';
 
   // Derived UI state for post-decrypt info
   readonly fileName = computed(() => this.credentialsProvider.certificateProvider.certificateFile()?.name ?? '');
@@ -102,7 +108,9 @@ export class LpTc {
   }
 
   build(): void {
-    if (!this.didUrl() || !this.name() || !this.countryCode() || !this.urlLegalParticipant() || !this.urlTermsAndConditions()) {
+    let lnr = this.credentialsProvider.legalRegistrationNumber();
+
+    if (!this.didUrl() || !this.name() || !this.countryCode() || !this.urlLegalParticipant() || !this.urlTermsAndConditions() || !lnr) {
       this.toast.error('Por favor completa todos los campos requeridos.');
       return;
     }
@@ -111,7 +119,7 @@ export class LpTc {
       this.credentialsProvider.buildLegalParticipant(this.didUrl(), {
         url: this.urlLegalParticipant(),
         // TODO WHAT IS LRN?? LRN url is not LP url, missing field
-        legalRegistrationNumberSubjectUrl: `${this.urlLegalParticipant()}#subject`,
+        legalRegistrationNumberSubjectUrl: `${lnr["id"]}#subject`,
         countryCode: this.countryCode(),
         legalName: this.name()
       });
@@ -151,5 +159,47 @@ export class LpTc {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+
+  publishDid() {
+
+  }
+
+  publishCert() {
+    if(!this.credentialsProvider.isSignedTermsAndConditions() || !this.credentialsProvider.isSignedLegalParticipant()) {
+      console.error('Creds not ready')
+      return
+    }
+    const tac = JSON.stringify(this.credentialsProvider.termsAndConditions()!)
+    const lp = JSON.stringify(this.credentialsProvider.legalParticipant()!)
+
+
+    const files: ZertifierPublishFileApiModel[] = [
+      {
+      "path": `${this.filePath}termsAndConditions.json`,
+      "content": tac
+    },
+      {
+        "path": `${this.filePath}legalParticipant.json`,
+        "content": lp
+      }
+    ]
+    this.httpPublisher.publish(files).pipe(
+      switchMap((resp) => {
+        return this.httpPublisher.validateFiles(files)
+      })
+    ).subscribe({
+      next: (resp) => {
+        console.log("files published and validated")
+      },
+      error: (err) => {
+        console.error('files not validate: ', err);
+      }
+    })
+  }
+
+  publishCreds() {
+
   }
 }
