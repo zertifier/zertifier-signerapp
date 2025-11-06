@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, OnDestroy, OnInit, signal} from '@angular/core';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {
   ClearingHouseApiService,
   ClearingHouses,
@@ -13,12 +13,15 @@ import {
   TermsAndConditionsInputData,
   VerifiableCredentialV1
 } from './CredentialsBuilder';
+import { ToastService } from './ToastService';
+import { finalize } from 'rxjs';
 
 @Injectable()
 export class CredentialsProvider{
   #clearingHouseApiService = inject(ClearingHouseApiService);
   #signerService = inject(SignerService);
   #credentialsBuilder = inject(CredentialsBuilder);
+  #toast = inject(ToastService);
   certificateProvider = inject(CertificateProvider);
   legalRegistrationNumber = signal<VerifiableCredentialV1 | null>(null);
   legalParticipant = signal<VerifiableCredentialV1 | null>(null);
@@ -26,7 +29,8 @@ export class CredentialsProvider{
   isSignedTermsAndConditions = computed(()=> !!this.termsAndConditions()?.["proof"]);
   verifiablePresentation = signal<VerifiablePresentation | null>(null);
   isSignedLegalParticipant = computed(()=> !!this.legalParticipant()?.["proof"]);
-  complianceVerifiableCredentials = signal<Object | null>(null);
+  complianceVerifiableCredentials = signal<object | null>(null);
+  isOffering = signal<boolean>(false);
 
   constructor() {
     console.log("New CredentialsProvider constructed")
@@ -43,17 +47,17 @@ export class CredentialsProvider{
   }
 
   async signTermsAndConditions(didUrl: string){
-    let vc = this.termsAndConditions();
+    const vc = this.termsAndConditions();
     if(!vc) throw new Error("Credentials not ready!");
-    let res = await this.signVerifiableCredential(vc, didUrl);
+    const res = await this.signVerifiableCredential(vc, didUrl);
     this.termsAndConditions.set(res);
     return res;
   }
 
   async signLegalParticipant(didUrl: string){
-    let vc = this.legalParticipant();
+    const vc = this.legalParticipant();
     if(!vc) throw new Error("Credentials not ready!");
-    let res = await this.signVerifiableCredential(vc, didUrl);
+    const res = await this.signVerifiableCredential(vc, didUrl);
     this.legalParticipant.set(res);
     return res;
   }
@@ -74,30 +78,41 @@ export class CredentialsProvider{
 
   getLegalRegistrationNumber(legalRegistrationNumberInputData: LegalRegistrationNumberInputData, clearingHouse?: ClearingHouses) {
     this.#clearingHouseApiService.getLegalRegistrationNumber(legalRegistrationNumberInputData, clearingHouse)
-      .subscribe((value:Object) => {
+      .subscribe((value: object) => {
         console.log("fired fetch lnr")
         this.legalRegistrationNumber.set(value as VerifiableCredentialV1)
       });
   }
 
   offerPresentation(verifiablePresentationUrl: string){
+    if (this.isOffering()) return;
     const vp = this.verifiablePresentation();
-    // if(!vp?.verifiableCredential?.length || vp?.verifiableCredential?.length < 3) throw new Error()
     if(!vp || !this.legalParticipant() || !this.termsAndConditions() || !this.legalRegistrationNumber()){
       // Missing credentials
       console.log("Missing credentials");
       console.log(this.legalRegistrationNumber());
       console.log(this.legalParticipant());
       console.log(this.termsAndConditions());
-
+      this.#toast.error('Verifiable credentials not ready!');
       throw new Error("Verifiable credentials not ready!")
     }
     const inputData: VerifiablePresentationInputData ={
       verifiablePresentation: vp,
       url: verifiablePresentationUrl
     }
+    this.isOffering.set(true);
     this.#clearingHouseApiService.offerVerifiablePresentation(inputData)
-      .subscribe((res: Object)=> this.complianceVerifiableCredentials.set(res));
+      .pipe(finalize(() => this.isOffering.set(false)))
+      .subscribe({
+        next: (res: object) => {
+          this.complianceVerifiableCredentials.set(res);
+          this.#toast.success('Offer VP processed successfully.');
+        },
+        error: (err: unknown) => {
+          console.error('Offer VP failed', err);
+          this.#toast.error('Offer VP failed. Please try again.');
+        }
+      });
   }
 
 }
