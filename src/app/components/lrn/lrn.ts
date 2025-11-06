@@ -18,14 +18,46 @@ export class Lrn {
   #clearingHouseService = inject(ClearingHouseApiService);
   #toast = inject(ToastService);
 
+  // Tabs: real | test
+  mode = signal<'real' | 'test'>('real');
+
+  // Form state
   clearingHouse = signal('GAIA_X_V1_TEST');
   vatId = signal('');
   url = signal('');
   expanded = signal(false);
 
+  // Demo defaults
+  readonly demoVatId = 'ESB05303755';
+  readonly demoUrl = 'https://www.zertifier.com/docs/signedTest/legalRegistrationNumber.json';
+
+  // Derived state
   clearingHouses = computed(() =>
     Object.keys(this.#clearingHouseService.clearingHousesRegistrationNumberUrl) as ClearingHouses[]
   );
+
+  readonly canFetch = computed(() => {
+    const vat = (this.vatId() || '').trim();
+    const u = (this.url() || '').trim();
+    if (!vat || !u) return false;
+    try {
+      const parsed = new URL(u);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  });
+
+  setMode(mode: 'real' | 'test') {
+    this.mode.set(mode);
+    if (mode === 'test') {
+      this.vatId.set(this.demoVatId);
+      this.url.set(this.demoUrl);
+    } else {
+      this.vatId.set('');
+      this.url.set('');
+    }
+  }
 
   async copyJson(data: unknown): Promise<void> {
     try {
@@ -42,10 +74,10 @@ export class Lrn {
         document.execCommand('copy');
         document.body.removeChild(ta);
       }
-      this.#toast.success('JSON copiado al portapapeles.');
+      this.#toast.success('JSON copied to clipboard.');
     } catch (e) {
       console.error('Copy JSON failed', e);
-      this.#toast.error('No se pudo copiar el JSON.');
+      this.#toast.error('Could not copy JSON.');
     }
   }
 
@@ -58,6 +90,5 @@ export class Lrn {
     const clearingHouse = this.clearingHouse() as ClearingHouses;
 
     this.credentialsProvider.getLegalRegistrationNumber(inputData, clearingHouse);
-    this.expanded.set(true);
   }
 }
