@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import {ReactiveFormsModule, NonNullableFormBuilder, FormsModule} from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CredentialsProvider } from '../../core/CredentialsProvider';
 import { ClearingHouses, LegalRegistrationNumberInputData, ClearingHouseApiService } from '../../core/ClearingHouseApiService';
 import { JsonPipe } from '@angular/common';
 import { ToastService } from '../../core/ToastService';
+import { FilePublisherService, ZertifierPublishFileApiModel } from '../../core/HttpPublisher';
+import { finalize, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-lrn',
@@ -17,6 +19,13 @@ export class Lrn {
   protected credentialsProvider = inject(CredentialsProvider);
   #clearingHouseService = inject(ClearingHouseApiService);
   #toast = inject(ToastService);
+  #httpPublisher = inject(FilePublisherService);
+
+  // Loading state
+  isLoading = signal(false);
+
+  // Paths
+  readonly filePath = 'signedTest/';
 
   // Tabs: real | test
   mode = signal<'real' | 'test'>('real');
@@ -27,13 +36,19 @@ export class Lrn {
   url = signal('');
   expanded = signal(false);
 
+  #modeEffectRef = effect(() => {
+    const isTestMode = this.mode() === 'test';
+      this.vatId.set(isTestMode ? this.demoVatId : '');
+      this.url.set(isTestMode ? this.demoUrl : '');
+  });
+
   // Demo defaults
   readonly demoVatId = 'ESB05303755';
   readonly demoUrl = 'https://www.zertifier.com/docs/signedTest/legalRegistrationNumber.json';
 
   // Derived state
   clearingHouses = computed(() =>
-    Object.keys(this.#clearingHouseService.clearingHousesRegistrationNumberUrl) as ClearingHouses[]
+    Object.keys(this.#clearingHouseService.clearingHousesCredentialsOfferUrl) as ClearingHouses[]
   );
 
   readonly canFetch = computed(() => {
@@ -62,18 +77,7 @@ export class Lrn {
   async copyJson(data: unknown): Promise<void> {
     try {
       const text = JSON.stringify(data, null, 2);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
+      await navigator.clipboard.writeText(text);
       this.#toast.success('JSON copied to clipboard.');
     } catch (e) {
       console.error('Copy JSON failed', e);
@@ -90,5 +94,40 @@ export class Lrn {
     const clearingHouse = this.clearingHouse() as ClearingHouses;
 
     this.credentialsProvider.getLegalRegistrationNumber(inputData, clearingHouse);
+  }
+
+  // Enable publish only when LRN has been fetched and not loading
+  readonly canPublishLrn = computed(() => !!this.credentialsProvider.legalRegistrationNumber() && !this.isLoading());
+
+  publishLrn() {
+    const lrn = this.credentialsProvider.legalRegistrationNumber();
+    if (!lrn) {
+      this.#toast.error('The LRN has not been fetched yet. Fetch it before publishing.');
+      return;
+    }
+
+    const files: ZertifierPublishFileApiModel[] = [
+      {
+        path: `${this.filePath}legalRegistrationNumber.json`,
+        content: JSON.stringify(lrn)
+      }
+    ];
+
+    const lrnUrl = this.#httpPublisher.buildFileUrl(files[0].path);
+
+    this.isLoading.set(true);
+    this.#httpPublisher.publish(files).pipe(
+      switchMap(() => this.#httpPublisher.validateFiles(files)),
+      finalize(() => this.isLoading.set(false))
+    ).subscribe({
+      next: () => {
+        this.#toast.success(`LRN published and validated. URL:\n- ${lrnUrl}`);
+        console.log('LRN published and validated');
+      },
+      error: (err) => {
+        this.#toast.error(`Error publishing or validating the LRN. Check:\n- ${lrnUrl}`);
+        console.error('LRN not validated: ', err);
+      }
+    });
   }
 }

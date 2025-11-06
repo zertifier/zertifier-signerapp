@@ -70,13 +70,23 @@
       />
     </div>
 
-  <div class="flex items-center justify-end">
+  <div class="flex items-center justify-end gap-3">
     <button
       type="submit"
       [disabled]="!canFetch()"
       class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
     >
       Fetch
+    </button>
+
+    <!-- Publish DID after decrypting and having DID URL -->
+    <button
+      type="button"
+      (click)="publishLrn()"
+      [disabled]="!canPublishLrn()"
+      class="inline-flex items-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+    >
+      Publish LRN
     </button>
   </div>
 </form>
@@ -106,9 +116,7 @@
           <button type="button" (click)="copyJson(credentialsProvider.legalRegistrationNumber())" class="inline-flex items-center rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">Copy JSON</button>
         </div>
         <div class="w-full max-w-full max-h-96 overflow-x-auto overflow-y-auto rounded bg-gray-900 p-4">
-          <pre class="m-0 whitespace-pre text-sm text-gray-100">
-            <code>{{ credentialsProvider.legalRegistrationNumber() | json }}</code>
-          </pre>
+          <pre class="m-0 whitespace-pre text-sm text-gray-100"><code>{{ credentialsProvider.legalRegistrationNumber() | json }}</code></pre>
         </div>
       </div>
     }
