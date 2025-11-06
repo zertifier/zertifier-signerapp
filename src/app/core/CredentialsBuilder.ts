@@ -93,6 +93,7 @@ export class CredentialsBuilder{
 
   buildLegalParticipant(didUrl: string, inputData: LegalParticipantInputData){
     if(!didUrl || !inputData) throw new Error("Cant build credentials, received empty data!!!")
+    if(!inputData.legalRegistrationNumberSubjectUrl) throw new Error("Legal Registration Number Subject URL is required")
     return {
       ...LEGAL_PARTICIPANT_TEMPLATE,
       "id": inputData.url,
