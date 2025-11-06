@@ -75,18 +75,7 @@ export class LpTc {
   async copyJson(data: unknown): Promise<void> {
     try {
       const text = JSON.stringify(data, null, 2);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
+      await navigator.clipboard.writeText(text);
       this.toast.success('JSON copied to clipboard.');
     } catch (e) {
       console.error('Copy JSON failed', e);
@@ -155,12 +144,17 @@ export class LpTc {
       return;
     }
 
+    if (!lnr) {
+      this.toast.error('Legal Registration Number is required.');
+      return;
+    }
+
     try {
-      const legalRegistrationNumberSubjectUrl = lnr ? `${(lnr as any)["id"]}#subject` : undefined;
+      const legalRegistrationNumberSubjectUrl = `${(lnr as any)["id"]}#subject`;
 
       this.credentialsProvider.buildLegalParticipant(this.didUrl(), {
         url: this.urlLegalParticipant(),
-        ...(legalRegistrationNumberSubjectUrl ? { legalRegistrationNumberSubjectUrl } : {}),
+        legalRegistrationNumberSubjectUrl,
         countryCode: this.countryCode(),
         legalName: this.name()
       });
