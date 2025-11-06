@@ -5,6 +5,7 @@ export interface EnvironmentBase{
   configuration: EnvironmentType;
   zertifierFileApiToken?: string;
   zertifierFileApiUrl?: string;
+  zertifierProxyFileApiUrl?: string;
 }
 
 
