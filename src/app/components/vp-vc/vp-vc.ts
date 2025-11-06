@@ -2,6 +2,8 @@ import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core'
 import {JsonPipe} from '@angular/common';
 import {CredentialsProvider} from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
+import {FilePublisherService, ZertifierPublishFileApiModel} from '../../core/HttpPublisher';
+import {finalize, switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-vp-vc',
@@ -13,10 +15,16 @@ import { ToastService } from '../../core/ToastService';
 export class VpVc {
   credentialsProvider = inject(CredentialsProvider);
   #toast = inject(ToastService);
+  #httpPublisher = inject(FilePublisherService);
+
+  // Local state
+  publishingCompliance = signal<boolean>(false);
+  readonly filePath = 'signedTest/';
 
   // Accordion state (match LRN/LP-TC pattern)
   expandedVp = signal<boolean>(false);
   expandedVc = signal<Set<number>>(new Set());
+  expandedOffer = signal<boolean>(false);
 
   async copyJson(data: unknown): Promise<void> {
     try {
@@ -33,15 +41,19 @@ export class VpVc {
         document.execCommand('copy');
         document.body.removeChild(ta);
       }
-      this.#toast.success('JSON copiado al portapapeles.');
+      this.#toast.success('JSON copied to clipboard.');
     } catch (e) {
       console.error('Copy JSON failed', e);
-      this.#toast.error('No se pudo copiar el JSON.');
+      this.#toast.error('Could not copy JSON.');
     }
   }
 
   toggleVp() {
     this.expandedVp.update(v => !v);
+  }
+
+  toggleOffer() {
+    this.expandedOffer.update(v => !v);
   }
 
   isVcExpanded(i: number): boolean {
@@ -56,9 +68,59 @@ export class VpVc {
     });
   }
 
+  // Heuristic compliance detector for offer response
+  isCompliant(res: unknown): boolean | null {
+    const r = res as Record<string, unknown> | null;
+    if (!r) return null;
+    if (typeof r["isCompliant"] === 'boolean') return r["isCompliant"] as boolean;
+    if (typeof r["compliant"] === 'boolean') return r["compliant"] as boolean;
+    if (typeof r["status"] === 'string') {
+      const s = (r["status"] as string).toLowerCase();
+      if (s.includes('compliant') || s === 'ok' || s === 'success') return true;
+      if (s.includes('non') || s.includes('fail') || s.includes('error')) return false;
+    }
+    return null;
+  }
+
   onOffer() {
+    if (this.credentialsProvider.isOffering()) return;
     this.credentialsProvider.offerPresentation(
       'https://raw.githubusercontent.com/zertifier/zertifier-vc-presentation-dev/refs/heads/main/signerAppTest/legalRegistrationNumber.json'
     );
+  }
+
+  publishCompliance() {
+    const compliance = this.credentialsProvider.complianceVerifiableCredentials();
+    if (!compliance) {
+      this.#toast.error('No compliance response available to publish.');
+      return;
+    }
+
+    const content = JSON.stringify(compliance);
+    const files: ZertifierPublishFileApiModel[] = [
+      {
+        path: `${this.filePath}compliance.json`,
+        content
+      }
+    ];
+
+    const url = this.#httpPublisher.buildFileUrl(files[0].path);
+
+    this.publishingCompliance.set(true);
+    this.#httpPublisher
+      .publish(files)
+      .pipe(
+        switchMap(() => this.#httpPublisher.validateFiles(files)),
+        finalize(() => this.publishingCompliance.set(false))
+      )
+      .subscribe({
+        next: () => {
+          this.#toast.success(`Compliance published and validated. URL:\n${url}`);
+        },
+        error: (err) => {
+          console.error('Error publicando/validando compliance:', err);
+          this.#toast.error(`Error publishing or validating compliance. Check:\n- ${url}`);
+        }
+      });
   }
 }
