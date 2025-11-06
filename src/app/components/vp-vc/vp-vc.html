@@ -3,14 +3,29 @@
     Verifiable Presentation & Verifiable Credentials (VP-VC)
   </h1>
 
-  <div class="mb-4 flex items-center gap-2">
+
+  <div class="flex flex-wrap items-end gap-4 mb-4">
+    <!-- Clearinghouse -->
+    <div class="w-full sm:w-auto">
+      <label for="clearinghouse" class="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Clearing house</label>
+      <select
+        id="clearinghouse"
+        name="clearinghouse"
+        [(ngModel)]="clearingHouse"
+        class="w-full sm:w-auto rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+      >
+        @for (house of clearingHouses(); track house) {
+          <option [value]="house">{{ house }}</option>
+        }
+      </select>
+    </div>
     <button
       type="button"
       (click)="onOffer()"
       [disabled]="credentialsProvider.isOffering()"
       [attr.aria-busy]="credentialsProvider.isOffering()"
       [attr.aria-disabled]="credentialsProvider.isOffering()"
-      class="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      class="shrink-0 inline-flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
     >
       @if (credentialsProvider.isOffering()) {
         <svg aria-hidden="true" class="w-4 h-4 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,9 +64,7 @@
             <button type="button" (click)="copyJson(vp)" class="inline-flex items-center rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">Copy JSON</button>
           </div>
           <div class="w-full max-w-full max-h-96 overflow-x-auto overflow-y-auto rounded bg-gray-900 p-4">
-            <pre class="m-0 whitespace-pre text-sm text-gray-100">
-              <code>{{ vp | json }}</code>
-            </pre>
+            <pre class="m-0 whitespace-pre text-sm text-gray-100"><code>{{ vp | json }}</code></pre>
           </div>
         </div>
       }
@@ -112,9 +125,7 @@
               </div>
             </div>
             <div class="w-full max-w-full max-h-96 overflow-x-auto overflow-y-auto rounded bg-gray-900 p-4">
-              <pre class="m-0 whitespace-pre text-sm text-gray-100">
-                <code>{{ offer | json }}</code>
-              </pre>
+              <pre class="m-0 whitespace-pre text-sm text-gray-100"><code>{{ offer | json }}</code></pre>
             </div>
           </div>
         }
@@ -152,9 +163,7 @@
                 <button type="button" (click)="copyJson(credential)" class="inline-flex items-center rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">Copy JSON</button>
               </div>
               <div class="w-full max-w-full max-h-96 overflow-x-auto overflow-y-auto rounded bg-gray-900 p-4">
-                <pre class="m-0 whitespace-pre text-sm text-gray-100">
-                  <code>{{ credential | json }}</code>
-                </pre>
+                <pre class="m-0 whitespace-pre text-sm text-gray-100"><code>{{ credential | json }}</code></pre>
               </div>
             </div>
           }

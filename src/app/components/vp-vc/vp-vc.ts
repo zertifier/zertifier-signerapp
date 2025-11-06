@@ -1,13 +1,15 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
 import {JsonPipe} from '@angular/common';
 import {CredentialsProvider} from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
 import {FilePublisherService, ZertifierPublishFileApiModel} from '../../core/HttpPublisher';
 import {finalize, switchMap} from 'rxjs';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {ClearingHouseApiService, ClearingHouses} from '../../core/ClearingHouseApiService';
 
 @Component({
   selector: 'app-vp-vc',
-  imports: [JsonPipe],
+  imports: [JsonPipe, ReactiveFormsModule, FormsModule],
   templateUrl: './vp-vc.html',
   styleUrl: './vp-vc.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,6 +18,7 @@ export class VpVc {
   credentialsProvider = inject(CredentialsProvider);
   #toast = inject(ToastService);
   #httpPublisher = inject(FilePublisherService);
+  #clearingHouseService = inject(ClearingHouseApiService);
 
   // Local state
   publishingCompliance = signal<boolean>(false);
@@ -26,21 +29,18 @@ export class VpVc {
   expandedVc = signal<Set<number>>(new Set());
   expandedOffer = signal<boolean>(false);
 
+  // Form state
+  clearingHouse = signal('GAIA_X_V1_TEST');
+
+  // Derived state
+  clearingHouses = computed(() =>
+    Object.keys(this.#clearingHouseService.clearingHousesRegistrationNumberUrl) as ClearingHouses[]
+  );
+
   async copyJson(data: unknown): Promise<void> {
     try {
       const text = JSON.stringify(data, null, 2);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
+      await navigator.clipboard.writeText(text);
       this.#toast.success('JSON copied to clipboard.');
     } catch (e) {
       console.error('Copy JSON failed', e);
