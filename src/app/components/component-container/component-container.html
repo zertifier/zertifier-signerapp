@@ -1,0 +1,15 @@
+<div class="p-5 space-y-6">
+  <div class="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
+    <div class="flex-1 min-w-0">
+      <app-lrn [testMode]="testMode()"></app-lrn>
+    </div>
+    <div class="hidden md:block border-l border-gray-200 dark:border-gray-700"></div>
+    <div class="flex-1 min-w-0">
+      <app-lp-tc [testMode]="testMode()"></app-lp-tc>
+    </div>
+  </div>
+  <hr class="my-6 border-gray-200 dark:border-gray-700" />
+  <div>
+    <app-vp-vc></app-vp-vc>
+  </div>
+</div>
