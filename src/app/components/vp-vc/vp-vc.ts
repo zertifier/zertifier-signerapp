@@ -84,9 +84,15 @@ export class VpVc {
 
   onOffer() {
     if (this.credentialsProvider.isOffering()) return;
-    this.credentialsProvider.offerPresentation(
-      'https://raw.githubusercontent.com/zertifier/zertifier-vc-presentation-dev/refs/heads/main/signerAppTest/legalRegistrationNumber.json'
-    );
+
+    const lrn = this.credentialsProvider.legalRegistrationNumber();
+
+    if (!lrn || !lrn["id"]) {
+      this.#toast.error('No LRN available to offer. Fetch it first.');
+      return;
+    }
+
+    this.credentialsProvider.offerPresentation(lrn["id"]);
   }
 
   publishCompliance() {
