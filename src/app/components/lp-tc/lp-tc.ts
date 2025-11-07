@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed, effect, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CredentialsProvider } from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
@@ -16,11 +16,11 @@ import {map, switchMap, finalize} from 'rxjs';
   }
 })
 export class LpTc {
+  // External mode control from parent
+  readonly testMode = input(false);
+
   // State
   readonly isLoading = signal(false);
-
-  // Real/Test mode
-  readonly mode = signal<'real' | 'test'>('real');
 
   // Form fields
   readonly didUrl = signal('');
@@ -38,9 +38,10 @@ export class LpTc {
     urlTermsAndConditions: 'https://www.zertifier.com/docs/signedTest/termsAndConditions.json'
   } as const;
 
-  setMode(mode: 'real' | 'test') {
-    this.mode.set(mode);
-    if (mode === 'test') {
+  // Prefill form fields when testMode is active
+  #prefillEffectRef = effect(() => {
+    const isTest = this.testMode();
+    if (isTest) {
       this.didUrl.set(this.demo.didUrl);
       this.name.set(this.demo.name);
       this.countryCode.set(this.demo.countryCode);
@@ -53,7 +54,7 @@ export class LpTc {
       this.urlLegalParticipant.set('');
       this.urlTermsAndConditions.set('');
     }
-  }
+  });
 
   // Accordions state (LP and T&C)
   readonly lpExpanded = signal(false);
