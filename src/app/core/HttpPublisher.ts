@@ -89,6 +89,9 @@ export class FilePublisherService {
       'assertionMethod': [
         verificationMethodId,
       ],
+      'authentication': [
+        verificationMethodId,
+      ]
     };
   }
 }
