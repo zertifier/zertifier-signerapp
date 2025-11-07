@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CredentialsProvider } from '../../core/CredentialsProvider';
 import { ClearingHouses, LegalRegistrationNumberInputData, ClearingHouseApiService } from '../../core/ClearingHouseApiService';
@@ -21,14 +21,14 @@ export class Lrn {
   #toast = inject(ToastService);
   #httpPublisher = inject(FilePublisherService);
 
+  // External mode control from parent
+  readonly testMode = input(false);
+
   // Loading state
   isLoading = signal(false);
 
   // Paths
   readonly filePath = 'signedTest/';
-
-  // Tabs: real | test
-  mode = signal<'real' | 'test'>('real');
 
   // Form state
   clearingHouse = signal('GAIA_X_V1_TEST');
@@ -36,10 +36,11 @@ export class Lrn {
   url = signal('');
   expanded = signal(false);
 
-  #modeEffectRef = effect(() => {
-    const isTestMode = this.mode() === 'test';
-      this.vatId.set(isTestMode ? this.demoVatId : '');
-      this.url.set(isTestMode ? this.demoUrl : '');
+  // When testMode changes, prefill/clear demo values
+  #prefillEffectRef = effect(() => {
+    const isTest = this.testMode();
+    this.vatId.set(isTest ? this.demoVatId : '');
+    this.url.set(isTest ? this.demoUrl : '');
   });
 
   // Demo defaults
@@ -62,17 +63,6 @@ export class Lrn {
       return false;
     }
   });
-
-  setMode(mode: 'real' | 'test') {
-    this.mode.set(mode);
-    if (mode === 'test') {
-      this.vatId.set(this.demoVatId);
-      this.url.set(this.demoUrl);
-    } else {
-      this.vatId.set('');
-      this.url.set('');
-    }
-  }
 
   async copyJson(data: unknown): Promise<void> {
     try {

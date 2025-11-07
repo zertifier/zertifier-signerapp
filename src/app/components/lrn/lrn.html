@@ -2,32 +2,6 @@
   Legal Registration Number (LRN)
 </h1>
 
-<!-- Real/Test Tabs -->
-<div role="tablist" aria-label="LRN mode" class="mb-6 flex gap-2 border-b border-gray-200 dark:border-gray-700">
-  <button type="button"
-          role="tab"
-          [attr.aria-selected]="mode() === 'real'"
-          (click)="setMode('real')"
-          class="px-4 py-2 text-sm rounded-t-lg"
-          [class.bg-white]="mode() === 'real'"
-          [class.dark:bg-gray-800]="mode() === 'real'"
-          [class.font-semibold]="mode() === 'real'"
-          [class.text-gray-900]="mode() === 'real'"
-          [class.text-gray-600]="mode() !== 'real'"
-  >Real</button>
-  <button type="button"
-          role="tab"
-          [attr.aria-selected]="mode() === 'test'"
-          (click)="setMode('test')"
-          class="px-4 py-2 text-sm rounded-t-lg"
-          [class.bg-white]="mode() === 'test'"
-          [class.dark:bg-gray-800]="mode() === 'test'"
-          [class.font-semibold]="mode() === 'test'"
-          [class.text-gray-900]="mode() === 'test'"
-          [class.text-gray-600]="mode() !== 'test'"
-  >Test</button>
-</div>
-
 <form class="space-y-4 mb-6"  (ngSubmit)="onFetch()">
     <!-- Clearinghouse -->
     <div class="min-w-0">
