@@ -1,17 +1,30 @@
-<div class="p-5 space-y-6">
-  <div class="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
-    <div class="flex-1 min-w-0">
-      <app-lrn></app-lrn>
-    </div>
-    <div class="hidden md:block border-l border-gray-200 dark:border-gray-700"></div>
-    <div class="flex-1 min-w-0">
-      <app-lp-tc></app-lp-tc>
-    </div>
-  </div>
-  <hr class="my-6 border-gray-200 dark:border-gray-700" />
-  <div>
-    <app-vp-vc></app-vp-vc>
-  </div>
-</div>
+<!-- MAIN AREA -->
+<section aria-labelledby="main-form-title">
+  <app-component-container [testMode]="false"></app-component-container>
+</section>
+
+<!-- DEBUG TOGGLER BUTTON (bottom-right) -->
+<button
+  type="button"
+  class="fixed bottom-4 right-4 z-50 inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus-visible:ring-blue-800"
+  (click)="toggleTestArea()"
+  aria-label="Toggle debug panel"
+  title="Toggle debug panel"
+>
+  <!-- Debug logo (inline SVG from Flowbite icon set) -->
+  <svg class="w-6 h-6 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 19 20">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3 6 2V1m5 2 1-1V1M9 7v11M9 7a5 5 0 0 1 5 5M9 7a5 5 0 0 0-5 5m5-5a4.959 4.959 0 0 1 2.973 1H12V6a3 3 0 0 0-6 0v2h.027A4.959 4.959 0 0 1 9 7Zm-5 5H1m3 0v2a5 5 0 0 0 10 0v-2m3 0h-3m-9.975 4H2a1 1 0 0 0-1 1v2m13-3h2.025a1 1 0 0 1 1 1v2M13 9h2.025a1 1 0 0 0 1-1V6m-11 3H3a1 1 0 0 1-1-1V6"></path>
+  </svg>
+  <span class="sr-only">Toggle debug panel</span>
+</button>
+
+<!-- TEST AREA (shown when toggled) -->
+@if (showTestArea()) {
+  <section class="mt-6 border-t border-gray-200 bg-white" aria-labelledby="test-form-title">
+    <h2 class="text-4xl font-bold dark:text-white">Test Area</h2>
+    <app-component-container [testMode]="true"></app-component-container>
+  </section>
+}
+
 <app-toast-container></app-toast-container>
 <router-outlet />
