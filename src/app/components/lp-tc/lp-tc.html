@@ -98,7 +98,6 @@
         id="countryCode"
         name="countryCode"
         type="text"
-        maxlength="2"
         [value]="countryCode()"
         (input)="countryCode.set(($any($event.target).value || '').toUpperCase())"
         placeholder="ES"
