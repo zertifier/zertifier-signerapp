@@ -9,9 +9,6 @@ import {ComponentContainer} from './components/component-container/component-con
   selector: 'app-root',
   imports: [RouterOutlet, ToastContainer, ComponentContainer],
   templateUrl: './app.html',
-  providers:[
-    CredentialsProvider
-  ],
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

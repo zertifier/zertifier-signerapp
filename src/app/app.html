@@ -1,7 +1,27 @@
-<!-- MAIN AREA -->
-<section aria-labelledby="main-form-title">
-  <app-component-container [testMode]="false"></app-component-container>
-</section>
+<!-- SCROLLABLE CONTENT AREAS CONTAINER -->
+<div class="flex h-screen min-h-0" [class.flex-col]="!showTestArea()" [class.flex-row]="showTestArea()">
+  <!-- MAIN AREA -->
+  <section
+    aria-labelledby="main-form-title"
+    class="flex-1 min-h-0 min-w-0 h-full overflow-auto"
+  >
+    @if (showTestArea()) {
+        <h2 class="mt-2 ms-2 text-3xl font-bold dark:text-white">Real Area</h2>
+    }
+    <app-component-container [testMode]="false" [stackLayout]="showTestArea()"></app-component-container>
+  </section>
+
+  <!-- TEST AREA (shown when toggled) -->
+  @if (showTestArea()) {
+    <section
+      class="flex-1 min-h-0 min-w-0 h-full overflow-auto border-l border-gray-200 dark:bg-gray-950 bg-stone-100"
+      aria-labelledby="test-form-title"
+    >
+      <h2 class="mt-2 ms-2 text-3xl font-bold dark:text-white">Test Area</h2>
+      <app-component-container [testMode]="true"></app-component-container>
+    </section>
+  }
+</div>
 
 <!-- DEBUG TOGGLER BUTTON (bottom-right) -->
 <button
@@ -17,14 +37,6 @@
   </svg>
   <span class="sr-only">Toggle debug panel</span>
 </button>
-
-<!-- TEST AREA (shown when toggled) -->
-@if (showTestArea()) {
-  <section class="mt-6 border-t border-gray-200 bg-white" aria-labelledby="test-form-title">
-    <h2 class="text-4xl font-bold dark:text-white">Test Area</h2>
-    <app-component-container [testMode]="true"></app-component-container>
-  </section>
-}
 
 <app-toast-container></app-toast-container>
 <router-outlet />
