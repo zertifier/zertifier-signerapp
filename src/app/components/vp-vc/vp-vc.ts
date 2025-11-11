@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal, input} from '@angular/core';
 import {JsonPipe} from '@angular/common';
 import {CredentialsProvider} from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
@@ -15,6 +15,8 @@ import {ClearingHouseApiService, ClearingHouses} from '../../core/ClearingHouseA
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VpVc {
+  // External mode control from parent
+  readonly testMode = input(false);
   credentialsProvider = inject(CredentialsProvider);
   #toast = inject(ToastService);
   #httpPublisher = inject(FilePublisherService);
@@ -22,7 +24,7 @@ export class VpVc {
 
   // Local state
   publishingCompliance = signal<boolean>(false);
-  readonly filePath = 'signedTest/';
+  readonly filePath = computed(() => this.testMode() ? 'signedTest/test/' : 'signedTest/real/');
 
   // Accordion state (match LRN/LP-TC pattern)
   expandedVp = signal<boolean>(false);
@@ -105,7 +107,7 @@ export class VpVc {
     const content = JSON.stringify(compliance);
     const files: ZertifierPublishFileApiModel[] = [
       {
-        path: `${this.filePath}compliance.json`,
+        path: `${this.filePath()}compliance.json`,
         content
       }
     ];
