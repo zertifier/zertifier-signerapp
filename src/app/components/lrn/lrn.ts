@@ -28,7 +28,7 @@ export class Lrn {
   isLoading = signal(false);
 
   // Paths
-  readonly filePath = 'signedTest/';
+  readonly filePath = computed(() => this.testMode() ? 'signedTest/test/' : 'signedTest/real/');
 
   // Form state
   clearingHouse = signal('GAIA_X_V1_TEST');
@@ -45,7 +45,7 @@ export class Lrn {
 
   // Demo defaults
   readonly demoVatId = 'ESB05303755';
-  readonly demoUrl = 'https://www.zertifier.com/docs/signedTest/legalRegistrationNumber.json';
+  readonly demoUrl = 'https://www.zertifier.com/docs/signedTest/test/legalRegistrationNumber.json';
 
   // Derived state
   clearingHouses = computed(() =>
@@ -98,7 +98,7 @@ export class Lrn {
 
     const files: ZertifierPublishFileApiModel[] = [
       {
-        path: `${this.filePath}legalRegistrationNumber.json`,
+        path: `${this.filePath()}legalRegistrationNumber.json`,
         content: JSON.stringify(lrn)
       }
     ];
