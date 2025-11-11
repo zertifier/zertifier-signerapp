@@ -31,11 +31,11 @@ export class LpTc {
 
   // Demo defaults
   readonly demo = {
-    didUrl: 'did:web:www.zertifier.com:docs:signedTest',
+    didUrl: 'did:web:www.zertifier.com:docs:signedTest:test',
     name: 'Test',
     countryCode: 'ES-CT',
-    urlLegalParticipant: 'https://www.zertifier.com/docs/signedTest/legalParticipant.json',
-    urlTermsAndConditions: 'https://www.zertifier.com/docs/signedTest/termsAndConditions.json'
+    urlLegalParticipant: 'https://www.zertifier.com/docs/signedTest/test/legalParticipant.json',
+    urlTermsAndConditions: 'https://www.zertifier.com/docs/signedTest/test/termsAndConditions.json'
   } as const;
 
   // Prefill form fields when testMode is active
@@ -64,7 +64,7 @@ export class LpTc {
 
   readonly httpPublisher = inject(FilePublisherService);
 
-  readonly filePath = 'signedTest/';
+  readonly filePath = computed(() => this.testMode() ? 'signedTest/test/' : 'signedTest/real/');
 
   // Derived UI state for post-decrypt info
   readonly fileName = computed(() => this.credentialsProvider.certificateProvider.certificateFile()?.name ?? '');
@@ -219,7 +219,7 @@ export class LpTc {
 
     const files: ZertifierPublishFileApiModel[] = [
       {
-        path: `${this.filePath}did.json`,
+        path: `${this.filePath()}did.json`,
         content: JSON.stringify(didDoc)
       }
     ];
@@ -253,11 +253,11 @@ export class LpTc {
 
     const files: ZertifierPublishFileApiModel[] = [
       {
-        path: `${this.filePath}termsAndConditions.json`,
+        path: `${this.filePath()}termsAndConditions.json`,
         content: tac
       },
       {
-        path: `${this.filePath}legalParticipant.json`,
+        path: `${this.filePath()}legalParticipant.json`,
         content: lp
       }
     ];
@@ -291,7 +291,7 @@ export class LpTc {
 
     const files: ZertifierPublishFileApiModel[] = [
       {
-        path: `${this.filePath}cert.pem`,
+        path: `${this.filePath()}cert.pem`,
         content: pem
       }
     ];
