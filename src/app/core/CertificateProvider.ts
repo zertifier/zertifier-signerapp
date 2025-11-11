@@ -108,7 +108,7 @@ export class CertificateProvider{
       n: this.#hexToBase64Url(pksc1.n.toString(16)),
       e: this.#hexToBase64Url(pksc1.e.toString(16)),
       alg: 'RS256',
-      x5u: "https://www.zertifier.com/docs/signedTest/cert.pem"
+      x5u: "https://www.zertifier.com/docs/signedTest/test/cert.pem"
     };
   }
 
