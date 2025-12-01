@@ -117,11 +117,11 @@ export class CertificateProvider{
     const issuer: Record<string, string> = {};
     (cert.subject.attributes || []).forEach(a => {
       const key = (a as any).name ?? (a as any).type ?? (a as any).shortName;
-      if (typeof key === 'string' && key.length) subject[key] = String((a as any).value ?? '');
+      if (typeof key === 'string' && key.length) subject[key] = this.#fixMojibake(String((a as any).value ?? ''));
     });
     (cert.issuer.attributes || []).forEach(a => {
       const key = (a as any).name ?? (a as any).type ?? (a as any).shortName;
-      if (typeof key === 'string' && key.length) issuer[key] = String((a as any).value ?? '');
+      if (typeof key === 'string' && key.length) issuer[key] = this.#fixMojibake(String((a as any).value ?? ''));
     });
 
     // SHA-256 fingerprint of DER
@@ -146,6 +146,22 @@ export class CertificateProvider{
       sha256Fingerprint: fingerprint,
       keyUsage
     };
+  }
+
+  // Try to fix strings that look like UTF-8 interpreted as Latin-1 (e.g., "RepresentaciÃ³n" -> "Representación")
+  #fixMojibake(input: string): string {
+    // Quick check to avoid touching already-correct ASCII/Unicode strings
+    if (!/[ÃÂ]/.test(input)) return input;
+
+    try {
+      // Treat current string as a sequence of bytes (Latin-1) and decode as UTF-8
+      const bytes = new Uint8Array(Array.from(input, ch => ch.charCodeAt(0)));
+      const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+      return decoded;
+    } catch {
+      // Fallback: return original if decoding fails
+      return input;
+    }
   }
 
   #hexToBase64Url(hex: string) {
