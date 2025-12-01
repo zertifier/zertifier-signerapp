@@ -28,7 +28,30 @@ export class Lrn {
   isLoading = signal(false);
 
   // Paths
-  readonly filePath = computed(() => this.testMode() ? 'signedTest/test/' : 'signedTest/real/');
+  readonly filePath = computed(() => {
+    if (this.testMode()) {
+      return 'signedTest/test/';
+    }
+
+    // When not in test mode, extract path from URL
+    const urlValue = this.url();
+    if (!urlValue) return '';
+
+    try {
+      // Check if URL contains zertifier.com/docs
+      // Extract everything between /docs/ and the filename
+      const docsMatch = urlValue.match(/zertifier\.com\/docs\/(.+)\/[^\/]+\.json$/);
+      if (docsMatch && docsMatch[1]) {
+        // Extract path after /docs/ and before the filename
+        let path = docsMatch[1];
+        return path.endsWith('/') ? path : path + '/';
+      }
+    } catch (e) {
+      console.error('Error parsing URL for filePath:', e);
+    }
+
+    return '';
+  });
 
   // Form state
   clearingHouse = signal('GAIA_X_V1_TEST');
