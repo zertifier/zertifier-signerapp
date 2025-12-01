@@ -1,11 +1,11 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal, input} from '@angular/core';
-import {JsonPipe} from '@angular/common';
-import {CredentialsProvider} from '../../core/CredentialsProvider';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, input } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { CredentialsProvider } from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
-import {FilePublisherService, ZertifierPublishFileApiModel} from '../../core/HttpPublisher';
-import {finalize, switchMap} from 'rxjs';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ClearingHouseApiService, ClearingHouses} from '../../core/ClearingHouseApiService';
+import { FilePublisherService, ZertifierPublishFileApiModel } from '../../core/HttpPublisher';
+import { finalize, switchMap } from 'rxjs';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ClearingHouseApiService, ClearingHouses } from '../../core/ClearingHouseApiService';
 
 @Component({
   selector: 'app-vp-vc',
@@ -24,7 +24,37 @@ export class VpVc {
 
   // Local state
   publishingCompliance = signal<boolean>(false);
-  readonly filePath = computed(() => this.testMode() ? 'signedTest/test/' : 'signedTest/real/');
+  readonly filePath = computed(() => {
+    if (this.testMode()) {
+      return 'signedTest/test/';
+    }
+
+    // When not in test mode, extract path from DID URL
+    // DID format: did:web:www.zertifier.com:docs:signedTest:test
+    // Should become: signedTest/test/
+    const lp = this.credentialsProvider.legalParticipant();
+    if (!lp || !lp['id']) return '';
+
+    const didUrl = lp['id'] as string;
+
+    try {
+      // Check if DID contains zertifier.com and docs
+      if (didUrl.includes('zertifier.com') && didUrl.includes(':docs:')) {
+        // Extract everything after ':docs:'
+        const docsIndex = didUrl.indexOf(':docs:');
+        if (docsIndex !== -1) {
+          let path = didUrl.substring(docsIndex + 6); // +6 to skip ':docs:'
+          // Convert colons to slashes
+          path = path.replace(/:/g, '/');
+          return path.endsWith('/') ? path : path + '/';
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing DID URL for filePath:', e);
+    }
+
+    return '';
+  });
 
   // Accordion state (match LRN/LP-TC pattern)
   expandedVp = signal<boolean>(false);
