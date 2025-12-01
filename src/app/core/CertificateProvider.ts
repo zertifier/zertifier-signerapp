@@ -1,4 +1,4 @@
-import {effect, Injectable, signal} from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import * as forge from 'node-forge';
 import * as jose from 'jose';
 
@@ -18,7 +18,7 @@ export interface CertificateInfo {
 }
 
 @Injectable()
-export class CertificateProvider{
+export class CertificateProvider {
   privateKey = signal<CryptoKey | null>(null);
   publicKeyJwk = signal<JoseJsonWebKey | null>(null);
   pemCert = signal<string | null>(null);
@@ -73,7 +73,7 @@ export class CertificateProvider{
     this.certificateInfo.set(info);
   }
 
-  async #fileToCertificate(file: File, password: string){
+  async #fileToCertificate(file: File, password: string) {
     return forge.pkcs12
       .pkcs12FromAsn1(
         forge.asn1.fromDer(
@@ -81,28 +81,28 @@ export class CertificateProvider{
             await file.arrayBuffer())), password);
   }
 
-  async #PKSC1toCryptoKey(pksc1: forge.pki.rsa.PrivateKey){
+  async #PKSC1toCryptoKey(pksc1: forge.pki.rsa.PrivateKey) {
     const pkcs8Pem = forge.pki.privateKeyInfoToPem(
       forge.pki.wrapRsaPrivateKey(
         forge.pki.privateKeyToAsn1(pksc1)))
     return await jose.importPKCS8(pkcs8Pem, 'RS256');
   }
 
-  #extractX509CertificateFromP12(cert_p12: forge.pkcs12.Pkcs12Pfx){
+  #extractX509CertificateFromP12(cert_p12: forge.pkcs12.Pkcs12Pfx) {
     const certBags = cert_p12.getBags({ bagType: forge.pki.oids['certBag'] });
     const bag = certBags[forge.pki.oids["certBag"]]?.[0];
-    if(!certBags || !bag) throw new Error("Certificate in the certificated not found!!!");
+    if (!certBags || !bag) throw new Error("Certificate in the certificated not found!!!");
     return bag?.cert as forge.pki.Certificate;
   }
 
-  #extractPrivateKeyPKSC1FromCertificate(cert_p12: forge.pkcs12.Pkcs12Pfx){
+  #extractPrivateKeyPKSC1FromCertificate(cert_p12: forge.pkcs12.Pkcs12Pfx) {
     const keyBags = cert_p12.getBags({ bagType: forge.pki.oids['pkcs8ShroudedKeyBag'] });
     const bag = keyBags[forge.pki.oids["pkcs8ShroudedKeyBag"]]?.[0];
-    if(!keyBags || !bag) throw new Error("Key in the certificated not found!!!");
+    if (!keyBags || !bag) throw new Error("Key in the certificated not found!!!");
     return bag?.key as forge.pki.rsa.PrivateKey;
   }
 
-  #buildJwk(pksc1: forge.pki.rsa.PrivateKey): JoseJsonWebKey{
+  #buildJwk(pksc1: forge.pki.rsa.PrivateKey): JoseJsonWebKey {
     return {
       kty: 'RSA',
       n: this.#hexToBase64Url(pksc1.n.toString(16)),
@@ -110,6 +110,20 @@ export class CertificateProvider{
       alg: 'RS256',
       x5u: "https://www.zertifier.com/docs/signedTest/test/cert.pem"
     };
+  }
+
+  /**
+   * Update the x5u (certificate URL) in the public key JWK.
+   * This should be called after decryption to set the correct certificate URL.
+   */
+  updateCertificateUrl(certUrl: string): void {
+    const currentJwk = this.publicKeyJwk();
+    if (currentJwk) {
+      this.publicKeyJwk.set({
+        ...currentJwk,
+        x5u: certUrl
+      });
+    }
   }
 
   #buildCertificateInfo(cert: forge.pki.Certificate): CertificateInfo {
