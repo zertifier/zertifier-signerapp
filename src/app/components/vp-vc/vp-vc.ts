@@ -62,12 +62,10 @@ export class VpVc {
   expandedOffer = signal<boolean>(false);
 
   // Form state
-  clearingHouse = signal('GAIA_X_V1_TEST');
+  clearingHouse = signal<ClearingHouses>(ClearingHouses.DELTA_DAO);
 
   // Derived state
-  clearingHouses = computed(() =>
-    Object.keys(this.#clearingHouseService.clearingHousesRegistrationNumberUrl) as ClearingHouses[]
-  );
+  clearingHouses = signal(['guillem tonto']);
 
   async copyJson(data: unknown): Promise<void> {
     try {
@@ -124,7 +122,7 @@ export class VpVc {
       return;
     }
 
-    this.credentialsProvider.offerPresentation(lrn["id"]);
+    this.credentialsProvider.offerPresentation(lrn["id"], this.clearingHouse());
   }
 
   publishCompliance() {

@@ -84,7 +84,7 @@ export class CredentialsProvider{
       });
   }
 
-  offerPresentation(verifiablePresentationUrl: string){
+  offerPresentation(verifiablePresentationUrl: string, ch: ClearingHouses= ClearingHouses.DELTA_DAO){
     if (this.isOffering()) return;
     const vp = this.verifiablePresentation();
     if(!vp || !this.legalParticipant() || !this.termsAndConditions() || !this.legalRegistrationNumber()){
@@ -101,7 +101,7 @@ export class CredentialsProvider{
       url: verifiablePresentationUrl
     }
     this.isOffering.set(true);
-    this.#clearingHouseApiService.offerVerifiablePresentation(inputData)
+    this.#clearingHouseApiService.offerVerifiablePresentation(inputData, ch)
       .pipe(finalize(() => this.isOffering.set(false)))
       .subscribe({
         next: (res: object) => {
