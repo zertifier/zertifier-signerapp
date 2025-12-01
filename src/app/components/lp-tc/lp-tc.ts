@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed, effect, i
 import { CommonModule } from '@angular/common';
 import { CredentialsProvider } from '../../core/CredentialsProvider';
 import { ToastService } from '../../core/ToastService';
-import {FilePublisherService, ZertifierPublishFileApiModel} from '../../core/HttpPublisher';
-import {map, switchMap, finalize} from 'rxjs';
+import { FilePublisherService, ZertifierPublishFileApiModel } from '../../core/HttpPublisher';
+import { map, switchMap, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-lp-tc',
@@ -64,7 +64,30 @@ export class LpTc {
 
   readonly httpPublisher = inject(FilePublisherService);
 
-  readonly filePath = computed(() => this.testMode() ? 'signedTest/test/' : 'signedTest/real/');
+  readonly filePath = computed(() => {
+    if (this.testMode()) {
+      return 'signedTest/test/';
+    }
+
+    // When not in test mode, extract path from URL
+    const url = this.urlLegalParticipant() || this.urlTermsAndConditions();
+    if (!url) return '';
+
+    try {
+      // Check if URL contains zertifier.com/docs
+      // Extract everything between /docs/ and the filename
+      const docsMatch = url.match(/zertifier\.com\/docs\/(.+)\/[^\/]+\.json$/);
+      if (docsMatch && docsMatch[1]) {
+        // Extract path after /docs/ and before the filename
+        let path = docsMatch[1];
+        return path.endsWith('/') ? path : path + '/';
+      }
+    } catch (e) {
+      console.error('Error parsing URL for filePath:', e);
+    }
+
+    return '';
+  });
 
   // Derived UI state for post-decrypt info
   readonly fileName = computed(() => this.credentialsProvider.certificateProvider.certificateFile()?.name ?? '');
@@ -108,8 +131,14 @@ export class LpTc {
     try {
       this.isLoading.set(true);
       await this.credentialsProvider.certificateProvider.decrypt();
+
+      // Update the certificate URL (x5u) to match the actual location
+      const certUrl = this.httpPublisher.buildFileUrl(`${this.filePath()}cert.pem`);
+      this.credentialsProvider.certificateProvider.updateCertificateUrl(certUrl);
+
       const info = this.credentialsProvider.certificateProvider.certificateInfo();
       console.log('Certificate decrypted:', info);
+      console.log('Certificate URL set to:', certUrl);
       this.toast.success('Certificate decrypted successfully.');
     } catch (error) {
       console.error('Error decrypting certificate:', error);
@@ -151,6 +180,11 @@ export class LpTc {
     }
 
     try {
+      // Update the certificate URL (x5u) based on the URL fields
+      const certUrl = this.httpPublisher.buildFileUrl(`${this.filePath()}cert.pem`);
+      this.credentialsProvider.certificateProvider.updateCertificateUrl(certUrl);
+      console.log('Certificate URL updated to:', certUrl);
+
       const legalRegistrationNumberSubjectUrl = `${(lnr as any)["id"]}#subject`;
 
       this.credentialsProvider.buildLegalParticipant(this.didUrl(), {
@@ -243,7 +277,7 @@ export class LpTc {
   }
 
   publishCreds() {
-    if(!this.credentialsProvider.isSignedTermsAndConditions() || !this.credentialsProvider.isSignedLegalParticipant()) {
+    if (!this.credentialsProvider.isSignedTermsAndConditions() || !this.credentialsProvider.isSignedLegalParticipant()) {
       console.error('Creds not ready')
       this.toast.error('The credentials are not ready to publish.');
       return
@@ -282,7 +316,7 @@ export class LpTc {
   }
 
   publishCert() {
-    if(!this.credentialsProvider.certificateProvider.pemCert()) {
+    if (!this.credentialsProvider.certificateProvider.pemCert()) {
       console.error('Cert not ready')
       this.toast.error('The certificate is not ready to publish.');
       return
