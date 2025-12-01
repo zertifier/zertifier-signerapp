@@ -17,6 +17,15 @@
       "^/arsys_lnr": ""
     }
   },
+    "/delta_dao_offer": {
+    "target": "https://www.delta-dao.com/compliance/v1/api/credential-offers",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/delta_dao_offer": ""
+    }
+  },
   "/zertifier_file_api": {
     "target": "https://www.zertifier.com/docs/index.php",
     "secure": false,

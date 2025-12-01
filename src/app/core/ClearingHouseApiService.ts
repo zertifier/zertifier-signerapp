@@ -27,9 +27,9 @@ export class ClearingHouseApiService {
   #httpClient = inject(HttpClient);
   clearingHousesCredentialsOfferUrl: Record<ClearingHouses, string> = {
     GAIA_X_V1_TEST: "https://compliance.lab.gaia-x.eu/v1-staging/api/credential-offers",
-    ARSYS_V1: "ads",
-    DELTA_DAO:"",
-    ARUBA:"",
+    ARSYS_V1: "https://gx-compliance.arsys.es/v1/api/credential-offers",
+    DELTA_DAO:"/delta_dao_offer",
+    ARUBA:"https://gx-compliance.aruba.it/v1/api/credential-offers",
   }
 
   // We using proxy for some of the endpoints because of CORS issues, look at proxy.conf.json
