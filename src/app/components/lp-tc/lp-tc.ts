@@ -56,6 +56,24 @@ export class LpTc {
     }
   });
 
+  // Auto-populate from decrypted certificate
+  #certPopulateEffectRef = effect(() => {
+    const info = this.credentialsProvider.certificateProvider.certificateInfo();
+    if (info) {
+      // Auto-fill name if empty
+      if (!this.name() && (info.subject['organizationName'] || info.subject['commonName'])) {
+        this.name.set(info.subject['organizationName'] || info.subject['commonName']);
+      }
+
+      // Auto-fill country code if empty
+      if (!this.countryCode() && info.subject['countryName']) {
+        if (info.subject['countryName'].length === 2) {
+          this.countryCode.set(info.subject['countryName']);
+        }
+      }
+    }
+  });
+
   // Accordions state (LP and T&C)
   readonly lpExpanded = signal(false);
   readonly tcExpanded = signal(false);
@@ -248,7 +266,8 @@ export class LpTc {
       publicKey_e: (jwk.e as string) || 'AQAB',
       alg: (jwk.alg as string) || 'RS256',
       kty: (jwk.kty as string) || 'RSA',
-      verificationMethodId: 'verification'
+      verificationMethodId: 'verification',
+      certificateChain_x5c: jwk.x5c
     });
 
     const files: ZertifierPublishFileApiModel[] = [

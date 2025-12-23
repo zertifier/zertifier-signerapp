@@ -66,6 +66,22 @@ export class Lrn {
     this.url.set(isTest ? this.demoUrl : '');
   });
 
+  // Auto-populate from decrypted certificate
+  #certPopulateEffectRef = effect(() => {
+    const info = this.credentialsProvider.certificateProvider.certificateInfo();
+    if (info && info.organizationIdentifier) {
+      // Gaia-X usually wants the VAT ID.
+      // EIDAS identifiers like VATES-B12345678 should be stripped to B12345678
+      const rawId = info.organizationIdentifier;
+      const vatMatch = rawId.match(/^VATES-(.+)$/i);
+      const extractedVat = vatMatch ? vatMatch[1] : rawId;
+
+      if (!this.vatId()) {
+        this.vatId.set(extractedVat);
+      }
+    }
+  });
+
   // Demo defaults
   readonly demoVatId = 'ESB05303755';
   readonly demoUrl = 'https://www.zertifier.com/docs/signedTest/test/legalRegistrationNumber.json';
