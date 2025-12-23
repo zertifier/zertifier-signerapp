@@ -18,7 +18,7 @@ import { finalize } from 'rxjs';
 
 @Injectable()
 export class CredentialsProvider{
-  #clearingHouseApiService = inject(ClearingHouseApiService);
+  clearingHouseApiService = inject(ClearingHouseApiService);
   #signerService = inject(SignerService);
   #credentialsBuilder = inject(CredentialsBuilder);
   #toast = inject(ToastService);
@@ -77,14 +77,14 @@ export class CredentialsProvider{
   }
 
   getLegalRegistrationNumber(legalRegistrationNumberInputData: LegalRegistrationNumberInputData, clearingHouse?: ClearingHouses) {
-    this.#clearingHouseApiService.getLegalRegistrationNumber(legalRegistrationNumberInputData, clearingHouse)
+    this.clearingHouseApiService.getLegalRegistrationNumber(legalRegistrationNumberInputData, clearingHouse)
       .subscribe((value: object) => {
         console.log("fired fetch lnr")
         this.legalRegistrationNumber.set(value as VerifiableCredentialV1)
       });
   }
 
-  offerPresentation(verifiablePresentationUrl: string){
+  offerPresentation(verifiablePresentationUrl: string, ch: ClearingHouses= ClearingHouses.DELTA_DAO){
     if (this.isOffering()) return;
     const vp = this.verifiablePresentation();
     if(!vp || !this.legalParticipant() || !this.termsAndConditions() || !this.legalRegistrationNumber()){
@@ -101,7 +101,7 @@ export class CredentialsProvider{
       url: verifiablePresentationUrl
     }
     this.isOffering.set(true);
-    this.#clearingHouseApiService.offerVerifiablePresentation(inputData)
+    this.clearingHouseApiService.offerVerifiablePresentation(inputData, ch)
       .pipe(finalize(() => this.isOffering.set(false)))
       .subscribe({
         next: (res: object) => {
