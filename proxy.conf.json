@@ -17,6 +17,16 @@
       "^/arsys_lnr": ""
     }
   },
+  "/deltadao": {
+    "target": "https://www.delta-dao.com/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+    "^/deltadao": ""
+    }
+  },
+
   "/zertifier_file_api": {
     "target": "https://www.zertifier.com/docs/index.php",
     "secure": false,
