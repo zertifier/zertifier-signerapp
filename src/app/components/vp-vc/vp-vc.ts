@@ -24,6 +24,8 @@ export class VpVc {
 
   // Local state
   publishingCompliance = signal<boolean>(false);
+  // Optional custom path (folder or full file path) provided by the user
+  customPublishPath = signal<string>('');
   readonly filePath = computed(() => {
     if (this.testMode()) {
       return 'signedTest/test/';
@@ -56,18 +58,31 @@ export class VpVc {
     return '';
   });
 
+  // Target path for the compliance file, respecting user override when present
+  readonly targetCompliancePath = computed(() => {
+    const override = (this.customPublishPath() || '').trim();
+    if (override.length > 0) {
+      // If user provided a full filename, keep it. Otherwise, treat as folder and append compliance.json
+      const hasJson = /\.json$/i.test(override);
+      const normalized = override.replace(/\\/g, '/');
+      if (hasJson) return normalized;
+      return normalized.endsWith('/') ? `${normalized}compliance.json` : `${normalized}/compliance.json`;
+    }
+    return `${this.filePath()}compliance.json`;
+  });
+
+  readonly targetComplianceUrl = computed(() => this.#httpPublisher.buildFileUrl(this.targetCompliancePath()));
+
   // Accordion state (match LRN/LP-TC pattern)
   expandedVp = signal<boolean>(false);
   expandedVc = signal<Set<number>>(new Set());
   expandedOffer = signal<boolean>(false);
 
   // Form state
-  clearingHouse = signal('GAIA_X_V1_TEST');
+  clearingHouse = signal<ClearingHouses>(ClearingHouses.DELTA_DAO);
 
   // Derived state
-  clearingHouses = computed(() =>
-    Object.keys(this.#clearingHouseService.clearingHousesRegistrationNumberUrl) as ClearingHouses[]
-  );
+  clearingHouses = Object.keys(this.credentialsProvider.clearingHouseApiService.clearingHousesCredentialsOfferUrl) as ClearingHouses[];
 
   async copyJson(data: unknown): Promise<void> {
     try {
@@ -124,7 +139,7 @@ export class VpVc {
       return;
     }
 
-    this.credentialsProvider.offerPresentation(lrn["id"]);
+    this.credentialsProvider.offerPresentation(lrn["id"], this.clearingHouse());
   }
 
   publishCompliance() {
@@ -137,12 +152,12 @@ export class VpVc {
     const content = JSON.stringify(compliance);
     const files: ZertifierPublishFileApiModel[] = [
       {
-        path: `${this.filePath()}compliance.json`,
+        path: this.targetCompliancePath(),
         content
       }
     ];
 
-    const url = this.#httpPublisher.buildFileUrl(files[0].path);
+    const url = this.targetComplianceUrl();
 
     this.publishingCompliance.set(true);
     this.#httpPublisher
