@@ -28,7 +28,7 @@ export class ClearingHouseApiService {
   clearingHousesCredentialsOfferUrl: Record<ClearingHouses, string> = {
     GAIA_X_V1_TEST: "https://compliance.lab.gaia-x.eu/v1-staging/api/credential-offers",
     ARSYS_V1: "ads",
-    DELTA_DAO:"",
+    DELTA_DAO:"/deltadao/compliance/v1/api/credential-offers",
     ARUBA:"",
   }
 
@@ -36,7 +36,7 @@ export class ClearingHouseApiService {
   clearingHousesRegistrationNumberUrl: Record<ClearingHouses, string> = {
     GAIA_X_V1_TEST: '/gaia_lnr/registrationNumberVC',
     ARSYS_V1:"/arsys_lnr/registrationNumberVC",
-    DELTA_DAO:"https://www.delta-dao.com/notary/v1/registrationNumberVC",
+    DELTA_DAO:"/deltadao/notary/v1/registrationNumberVC",
     ARUBA:"https://gx-notary.aruba.it/v1/registrationNumberVC"
   }
 
