@@ -29,7 +29,7 @@ export class ClearingHouseApiService {
     GAIA_X_V1_TEST: "https://compliance.lab.gaia-x.eu/v1-staging/api/credential-offers",
     ARSYS_V1: "ads",
     DELTA_DAO:"/deltadao/compliance/v1/api/credential-offers",
-    ARUBA:"",
+    ARUBA:"https://gx-compliance.aruba.it/v1/api/credential-offers",
   }
 
   // We using proxy for some of the endpoints because of CORS issues, look at proxy.conf.json
@@ -37,7 +37,7 @@ export class ClearingHouseApiService {
     GAIA_X_V1_TEST: '/gaia_lnr/registrationNumberVC',
     ARSYS_V1:"/arsys_lnr/registrationNumberVC",
     DELTA_DAO:"/deltadao/notary/v1/registrationNumberVC",
-    ARUBA:"https://gx-notary.aruba.it/v1/registrationNumberVC"
+    ARUBA:"/aruba_lnr/registrationNumberVC"
   }
 
   getLegalRegistrationNumber(registrationNumberInputData: LegalRegistrationNumberInputData, clearingHouse: ClearingHouses = ClearingHouses.GAIA_X_V1_TEST) {

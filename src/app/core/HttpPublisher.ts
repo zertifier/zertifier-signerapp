@@ -83,6 +83,7 @@ export class FilePublisherService {
             'e': inputData.publicKey_e || 'AQAB',
             'alg': inputData.alg || 'RS256',
             'x5u': inputData.certificateUrl_x5u,
+            'x5c': inputData.certificateChain_x5c,
           },
         },
       ],

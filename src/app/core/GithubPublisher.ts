@@ -58,6 +58,7 @@ export class GithubFileUploadService {
             'e': inputData.publicKey_e || 'AQAB',
             'alg': inputData.alg || 'RS256',
             'x5u': inputData.certificateUrl_x5u,
+            'x5c': inputData.certificateChain_x5c,
           },
         },
       ],
@@ -71,6 +72,8 @@ export class GithubFileUploadService {
 export interface DidInputData {
   idDid: string;
   certificateUrl_x5u: string;
+  /** X.509 certificate chain (JWK `x5c`) */
+  certificateChain_x5c?: string[];
   publicKey_n: string;
   publicKey_e?: string;
   alg?: string;

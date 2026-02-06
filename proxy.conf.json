@@ -35,5 +35,15 @@
     "pathRewrite": {
       "^/zertifier_file_api": ""
     }
+  },
+
+  "/aruba_lnr": {
+    "target": "https://gx-notary.aruba.it/v1",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/aruba_lnr": ""
+    }
   }
 }
