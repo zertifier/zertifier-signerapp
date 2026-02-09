@@ -90,36 +90,37 @@ export class CertificateProvider {
       binary += String.fromCharCode(bytes[i]);
     }
 
+    const parsePkcs12 = (asn1Obj: forge.asn1.Asn1, stripMac = false) => {
+      const working = stripMac && Array.isArray(asn1Obj.value)
+        ? { ...asn1Obj, value: asn1Obj.value.slice(0, 2) }
+        : asn1Obj;
+      return forge.pkcs12.pkcs12FromAsn1(working, false, password);
+    };
+
+    const rawAsn1 = forge.asn1.fromDer(binary, false);
+
     try {
-      const asn1 = forge.asn1.fromDer(binary);
+      // First attempt: regular parse with MAC validation
+      return parsePkcs12(rawAsn1, false);
+    } catch (primaryError: any) {
+      const msg = primaryError?.message ?? '';
+      const macValidationFailed = msg.includes('macData field present') || msg.includes('MAC could not be verified');
 
-      // Diagnostic & Workaround: Handle MAC data
-      try {
-        if (Array.isArray(asn1.value) && asn1.value.length > 2) {
-          console.log('PKCS#12 MacData detected. Inspecting algorithm...');
-          const macData = asn1.value[2];
-          const macHex = (forge.asn1 as any).toDer(macData).toHex();
-
-          if (macHex.includes('2b0e03021a')) console.log('MAC Algorithm Detected: SHA-1');
-          else if (macHex.includes('608648016503040201')) console.log('MAC Algorithm Detected: SHA-256');
-          else console.log('Unknown MAC Algorithm. MacData Hex snippet:', macHex.substring(0, 100));
-
-          // WORKAROUND: Manually remove MacData to bypass forge's internal (and sometimes buggy) MAC check.
-          // This allows forge to proceed directly to decrypting the bags.
-          console.log('Bypassing MAC validation by stripping MacData child...');
-          asn1.value.splice(2, 1);
-        } else {
-          console.log('No MAC data found in PFX, proceeding...');
-        }
-      } catch (diagError) {
-        console.warn('Diagnostics / Workaround failed, trying normal parse:', diagError);
+      if (!macValidationFailed) {
+        console.error('Forge PKCS12 parsing error:', primaryError);
+        throw new Error(`Failed to decrypt PKCS#12. Please ensure the password is correct. (Detail: ${msg})`);
       }
 
-      // We still pass 'false' for strictness just in case, though MacData is now gone.
-      return forge.pkcs12.pkcs12FromAsn1(asn1, false, password);
-    } catch (e: any) {
-      console.error('Forge PKCS12 parsing error:', e);
-      throw new Error(`Failed to decrypt PKCS#12. Please ensure the password is correct. (Detail: ${e.message})`);
+      // Fallback: some PFX files include MacData that forge refuses to validate.
+      // Retry by stripping MacData so we can still read the key and certificate chain.
+      console.warn('PKCS#12 MAC validation failed, retrying without MacData...', primaryError);
+      try {
+        const asn1WithoutMac = forge.asn1.fromDer(binary, false);
+        return parsePkcs12(asn1WithoutMac, true);
+      } catch (fallbackError: any) {
+        console.error('Forge PKCS12 fallback parse failed:', fallbackError);
+        throw new Error(`Failed to decrypt PKCS#12 after skipping MAC validation. (Detail: ${fallbackError?.message ?? fallbackError})`);
+      }
     }
   }
 
