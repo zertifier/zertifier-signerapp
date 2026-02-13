@@ -90,28 +90,39 @@ export class CertificateProvider {
       binary += String.fromCharCode(bytes[i]);
     }
 
+    console.log(`[PKCS12-DEBUG] File: ${file.name}, size: ${bytes.byteLength} bytes, password length: ${password.length}`);
+
     // Helper: get a fresh ASN.1 tree each time to avoid mutation issues.
     // node-forge may modify ASN.1 nodes in-place during validation/capture,
     // so reusing the same object across attempts can corrupt subsequent tries.
     const freshAsn1 = (strict = false): forge.asn1.Asn1 => {
-      return forge.asn1.fromDer(binary, strict);
+      const asn1 = forge.asn1.fromDer(binary, strict);
+      console.log(`[PKCS12-DEBUG] Fresh ASN.1 parsed (strict=${strict}): type=${asn1.type}, tagClass=${asn1.tagClass}, value.length=${Array.isArray(asn1.value) ? asn1.value.length : 'N/A'}`);
+      return asn1;
     };
 
     // Helper: strip macData (3rd element) from a PFX ASN.1 SEQUENCE
     const stripMacData = (asn1Obj: forge.asn1.Asn1): forge.asn1.Asn1 => {
       if (Array.isArray(asn1Obj.value) && asn1Obj.value.length > 2) {
+        console.log(`[PKCS12-DEBUG] Stripping macData: original value.length=${asn1Obj.value.length}, stripping to 2`);
         return { ...asn1Obj, value: asn1Obj.value.slice(0, 2) };
       }
+      console.log(`[PKCS12-DEBUG] No macData to strip: value.length=${Array.isArray(asn1Obj.value) ? asn1Obj.value.length : 'N/A'}`);
       return asn1Obj;
     };
 
     // Validate that at least one ASN.1 parse mode works
+    console.log('[PKCS12-DEBUG] Validating ASN.1 parse...');
     try {
       freshAsn1(false);
+      console.log('[PKCS12-DEBUG] ASN.1 validation passed (non-strict)');
     } catch (errNonStrict: any) {
+      console.warn('[PKCS12-DEBUG] ASN.1 non-strict parse failed:', errNonStrict?.message);
       try {
         freshAsn1(true);
+        console.log('[PKCS12-DEBUG] ASN.1 validation passed (strict)');
       } catch (errStrict: any) {
+        console.error('[PKCS12-DEBUG] ASN.1 strict parse also failed:', errStrict?.message);
         throw new Error(
           `Failed to parse certificate file as ASN.1. The file may be corrupted or in an unsupported format.\n\n` +
           `Errors:\nNon-strict: ${errNonStrict?.message ?? errNonStrict}\nStrict: ${errStrict?.message ?? errStrict}`
@@ -141,25 +152,31 @@ export class CertificateProvider {
 
     const pkcs12Errors: string[] = [];
 
-    for (const strategy of strategies) {
+    console.log(`[PKCS12-DEBUG] Starting ${strategies.length} parse strategies...`);
+    for (let i = 0; i < strategies.length; i++) {
+      const strategy = strategies[i];
+      console.log(`[PKCS12-DEBUG] Strategy ${i + 1}/${strategies.length}: "${strategy.name}"...`);
       try {
         const result = strategy.parse();
-        console.log(`PKCS#12 parsed successfully with strategy: ${strategy.name}`);
+        console.log(`[PKCS12-DEBUG] ✅ Strategy "${strategy.name}" SUCCEEDED`);
+        console.log(`[PKCS12-DEBUG] Result: version=${result.version}, safeContents=${result.safeContents?.length ?? 0} bags`);
         return result;
       } catch (err: any) {
         const msg = err?.message ?? String(err);
         pkcs12Errors.push(`${strategy.name}: ${msg}`);
-        console.warn(`PKCS#12 parse (${strategy.name}) failed:`, msg);
+        console.warn(`[PKCS12-DEBUG] ❌ Strategy "${strategy.name}" FAILED:`, msg);
       }
     }
 
     // Check if any error suggests a password problem
+    console.error(`[PKCS12-DEBUG] All ${strategies.length} strategies failed. Errors:`, pkcs12Errors);
     const allErrors = pkcs12Errors.join(' ').toLowerCase();
     const passwordError = allErrors.includes('password') ||
       allErrors.includes('wrong password') ||
       allErrors.includes('bad decrypt');
 
     if (passwordError) {
+      console.error('[PKCS12-DEBUG] Likely a password issue');
       throw new Error(`Failed to decrypt PKCS#12. The password is likely incorrect.\n\nTried multiple strategies:\n${pkcs12Errors.join('\n')}`);
     }
 
