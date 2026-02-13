@@ -90,58 +90,81 @@ export class CertificateProvider {
       binary += String.fromCharCode(bytes[i]);
     }
 
-    const parsePkcs12 = (asn1Obj: forge.asn1.Asn1, stripMac = false, strict = false) => {
-      const working = stripMac && Array.isArray(asn1Obj.value)
-        ? { ...asn1Obj, value: asn1Obj.value.slice(0, 2) }
-        : asn1Obj;
-      return forge.pkcs12.pkcs12FromAsn1(working, strict, password);
+    // Helper: get a fresh ASN.1 tree each time to avoid mutation issues.
+    // node-forge may modify ASN.1 nodes in-place during validation/capture,
+    // so reusing the same object across attempts can corrupt subsequent tries.
+    const freshAsn1 = (strict = false): forge.asn1.Asn1 => {
+      return forge.asn1.fromDer(binary, strict);
     };
 
-    let rawAsn1: forge.asn1.Asn1;
-
-    try {
-      // Try parsing with strict=false to allow trailing bytes (common in some P12 files)
-      rawAsn1 = forge.asn1.fromDer(binary, false);
-    } catch (asn1Error: any) {
-      console.error('ASN.1 parsing error:', asn1Error);
-      throw new Error(`Failed to parse certificate file as ASN.1. The file may be corrupted or in an unsupported format. (Detail: ${asn1Error?.message ?? asn1Error})`);
-    }
-
-    try {
-      // First attempt: regular parse without MAC validation (strict=false)
-      // This is more lenient and works with most certificates
-      return parsePkcs12(rawAsn1, false, false);
-    } catch (primaryError: any) {
-      const msg = primaryError?.message ?? '';
-      const macValidationFailed = msg.includes('macData field present') ||
-        msg.includes('MAC could not be verified') ||
-        msg.includes('MAC was not validated');
-
-      if (!macValidationFailed) {
-        // If it's not a MAC validation error, check if it's a password error
-        const passwordError = msg.toLowerCase().includes('password') ||
-          msg.toLowerCase().includes('decrypt') ||
-          msg.toLowerCase().includes('invalid');
-
-        console.error('Forge PKCS12 parsing error:', primaryError);
-
-        if (passwordError) {
-          throw new Error(`Failed to decrypt PKCS#12. The password may be incorrect. (Detail: ${msg})`);
-        } else {
-          throw new Error(`Failed to decrypt PKCS#12. Please ensure the file format is correct. (Detail: ${msg})`);
-        }
+    // Helper: strip macData (3rd element) from a PFX ASN.1 SEQUENCE
+    const stripMacData = (asn1Obj: forge.asn1.Asn1): forge.asn1.Asn1 => {
+      if (Array.isArray(asn1Obj.value) && asn1Obj.value.length > 2) {
+        return { ...asn1Obj, value: asn1Obj.value.slice(0, 2) };
       }
+      return asn1Obj;
+    };
 
-      // Fallback: some PFX files include MacData that forge refuses to validate.
-      // Retry by stripping MacData so we can still read the key and certificate chain.
-      console.warn('PKCS#12 MAC validation failed, retrying without MacData...', primaryError);
+    // Validate that at least one ASN.1 parse mode works
+    try {
+      freshAsn1(false);
+    } catch (errNonStrict: any) {
       try {
-        return parsePkcs12(rawAsn1, true, false);
-      } catch (fallbackError: any) {
-        console.error('Forge PKCS12 fallback parse failed:', fallbackError);
-        throw new Error(`Failed to decrypt PKCS#12 after skipping MAC validation. The password may be incorrect or the file may be corrupted. (Detail: ${fallbackError?.message ?? fallbackError})`);
+        freshAsn1(true);
+      } catch (errStrict: any) {
+        throw new Error(
+          `Failed to parse certificate file as ASN.1. The file may be corrupted or in an unsupported format.\n\n` +
+          `Errors:\nNon-strict: ${errNonStrict?.message ?? errNonStrict}\nStrict: ${errStrict?.message ?? errStrict}`
+        );
       }
     }
+
+    // Define parse strategies — each gets a FRESH ASN.1 tree
+    const strategies: { name: string; parse: () => forge.pkcs12.Pkcs12Pfx }[] = [
+      {
+        name: 'Non-strict PKCS12',
+        parse: () => forge.pkcs12.pkcs12FromAsn1(freshAsn1(false), false, password)
+      },
+      {
+        name: 'Strip MAC + non-strict',
+        parse: () => forge.pkcs12.pkcs12FromAsn1(stripMacData(freshAsn1(false)), false, password)
+      },
+      {
+        name: 'Strict PKCS12',
+        parse: () => forge.pkcs12.pkcs12FromAsn1(freshAsn1(false), true, password)
+      },
+      {
+        name: 'Strip MAC + strict',
+        parse: () => forge.pkcs12.pkcs12FromAsn1(stripMacData(freshAsn1(false)), true, password)
+      }
+    ];
+
+    const pkcs12Errors: string[] = [];
+
+    for (const strategy of strategies) {
+      try {
+        const result = strategy.parse();
+        console.log(`PKCS#12 parsed successfully with strategy: ${strategy.name}`);
+        return result;
+      } catch (err: any) {
+        const msg = err?.message ?? String(err);
+        pkcs12Errors.push(`${strategy.name}: ${msg}`);
+        console.warn(`PKCS#12 parse (${strategy.name}) failed:`, msg);
+      }
+    }
+
+    // Check if any error suggests a password problem
+    const allErrors = pkcs12Errors.join(' ').toLowerCase();
+    const passwordError = allErrors.includes('password') ||
+      allErrors.includes('wrong password') ||
+      allErrors.includes('bad decrypt');
+
+    if (passwordError) {
+      throw new Error(`Failed to decrypt PKCS#12. The password is likely incorrect.\n\nTried multiple strategies:\n${pkcs12Errors.join('\n')}`);
+    }
+
+    // If we got here, all strategies failed
+    throw new Error(`Failed to decrypt PKCS#12 file. The file may be corrupted, the password may be incorrect, or the format may be unsupported.\n\nTried multiple strategies:\n${pkcs12Errors.join('\n')}`);
   }
 
   async #PKSC1toCryptoKey(pksc1: forge.pki.rsa.PrivateKey) {
