@@ -48,9 +48,12 @@ export class CertificateProvider {
   }
 
   async decrypt(): Promise<void> {
+    console.log('[PKCS12-DEBUG] === decrypt() CALLED ===');
     const certFile = this.certificateFile();
     const pass = this.certificatePassword();
+    console.log('[PKCS12-DEBUG] certFile:', certFile?.name ?? 'NULL', ', pass:', pass ? `(${pass.length} chars)` : 'NULL');
     if (!certFile || !pass) {
+      console.error('[PKCS12-DEBUG] Missing file or password, throwing early');
       throw new Error('Certificate file and password are required.');
     }
 
@@ -60,7 +63,9 @@ export class CertificateProvider {
     this.pemCert.set(null);
     this.certificateInfo.set(null);
 
+    console.log('[PKCS12-DEBUG] Calling #fileToCertificate...');
     const cert = await this.#fileToCertificate(certFile, pass);
+    console.log('[PKCS12-DEBUG] #fileToCertificate returned successfully');
 
     const pksc1 = this.#extractPrivateKeyPKSC1FromCertificate(cert);
     const chain = this.#extractX509ChainFromP12(cert, pksc1);

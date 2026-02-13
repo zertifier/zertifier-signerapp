@@ -146,9 +146,12 @@ export class LpTc {
   protected readonly toast = inject(ToastService);
 
   async decrypt(): Promise<void> {
+    console.log('[PKCS12-DEBUG] === lp-tc decrypt() ENTRY ===');
     try {
       this.isLoading.set(true);
+      console.log('[PKCS12-DEBUG] About to call certificateProvider.decrypt()...');
       await this.credentialsProvider.certificateProvider.decrypt();
+      console.log('[PKCS12-DEBUG] certificateProvider.decrypt() succeeded');
 
       // Update the certificate URL (x5u) to match the actual location
       const certUrl = this.httpPublisher.buildFileUrl(`${this.filePath()}cert.pem`);
@@ -159,6 +162,7 @@ export class LpTc {
       console.log('Certificate URL set to:', certUrl);
       this.toast.success('Certificate decrypted successfully.');
     } catch (error) {
+      console.error('[PKCS12-DEBUG] Error in lp-tc decrypt():', error);
       console.error('Error decrypting certificate:', error);
       this.toast.error('Could not decrypt the certificate. Check the file and password.');
     } finally {
