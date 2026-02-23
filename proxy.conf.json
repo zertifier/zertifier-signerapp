@@ -1,49 +1,38 @@
 {
+  "/aruba_lnr": {
+    "target": "https://gx-notary.aruba.it/v1",
+    "pathRewrite": {
+      "^/aruba_lnr": ""
+    },
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
   "/gaia_lnr": {
     "target": "https://registrationnumber.notary.lab.gaia-x.eu/v1-staging",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug",
     "pathRewrite": {
       "^/gaia_lnr": ""
-    }
-  },
-  "/arsys_lnr": {
-    "target": "https://gx-notary.arsys.es/v1",
+    },
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": {
-      "^/arsys_lnr": ""
-    }
+    "logLevel": "debug"
   },
   "/deltadao": {
     "target": "https://www.delta-dao.com/",
+    "pathRewrite": {
+      "^/deltadao": ""
+    },
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": {
-    "^/deltadao": ""
-    }
+    "logLevel": "debug"
   },
-
   "/zertifier_file_api": {
     "target": "https://www.zertifier.com/docs/index.php",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug",
     "pathRewrite": {
       "^/zertifier_file_api": ""
-    }
-  },
-
-  "/aruba_lnr": {
-    "target": "https://gx-notary.aruba.it/v1",
+    },
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": {
-      "^/aruba_lnr": ""
-    }
+    "logLevel": "debug"
   }
 }

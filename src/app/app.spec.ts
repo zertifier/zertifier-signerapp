@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
+// NOTE don't leave useless tests, its misleading that everything is fine...
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../core/ToastService';
 
+// NOTE omg chill with that template in the decorator lel
 @Component({
   selector: 'app-toast-container',
   template: `
@@ -31,7 +32,7 @@ import { ToastService } from '../core/ToastService';
     </div>
   `,
   imports: [CommonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush, // NOTE this is usually for zoneless rendering, not sure whats happening here
 })
 export class ToastContainer {
   protected readonly toastService = inject(ToastService);

@@ -1,3 +1,7 @@
+# CODE_REVIEW COMMENT
+maybe here should go some notes on how to use this app for the 
+smallest ones of our team? Fields description, what its doing in general etc...
+
 # ZertifierSignerapp
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.7.

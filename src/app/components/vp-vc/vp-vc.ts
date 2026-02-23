@@ -14,7 +14,7 @@ import { ClearingHouseApiService, ClearingHouses } from '../../core/ClearingHous
   styleUrl: './vp-vc.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VpVc {
+export class VpVc{
   // External mode control from parent
   readonly testMode = input(false);
   credentialsProvider = inject(CredentialsProvider);

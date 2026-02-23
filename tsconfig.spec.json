@@ -1,5 +1,11 @@
 /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
 /* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+/* NOTE
+  tsconfig.json is the primary config file, tsconfig.app.json overwriting for this particular module (only one exists in the project so its redundant)
+  tsconfig.spec.json is config for unit testing something that is not existing in this very reputable company
+  recommendation: remove all the spec garbage and config irrelevant files
+  severity: extremely low, nobodies cares.
+*/
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {

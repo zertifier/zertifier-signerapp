@@ -1,9 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed, effect, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CredentialsProvider } from '../../core/CredentialsProvider';
-import { ToastService } from '../../core/ToastService';
-import { FilePublisherService, ZertifierPublishFileApiModel } from '../../core/HttpPublisher';
-import { map, switchMap, finalize } from 'rxjs';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {CredentialsProvider} from '../../core/CredentialsProvider';
+import {ToastService} from '../../core/ToastService';
+import {FilePublisherService, ZertifierPublishFileApiModel} from '../../core/HttpPublisher';
+import {finalize, switchMap} from 'rxjs';
+
+/* NOTE bro this file its 400 lines too-long-didnt-read
+* severity: high -> unmaintainable code
+* rec: just extract the bs to separate utility classes by the responsibility
+ */
 
 @Component({
   selector: 'app-lp-tc',
@@ -12,10 +17,16 @@ import { map, switchMap, finalize } from 'rxjs';
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    /* NOTE
+    *  accessing host is usually an advance move that is quite confusing why its needed
+    * rec: make sure it's the most reasonable way and add comment explaining your self
+    * severity: medium
+     */
     class: 'block'
   }
 })
 export class LpTc {
+  // NOTE why its all readonly lel
   // External mode control from parent
   readonly testMode = input(false);
 
@@ -30,6 +41,11 @@ export class LpTc {
   readonly urlTermsAndConditions = signal('');
 
   // Demo defaults
+  /* NOTE When there are a lot of defaults in the app, usually its better to have dedicated
+  * place in the file structure for them
+  * rec: create defaults file with object DEFAULT_TEST_VC
+  * severity: low
+  */
   readonly demo = {
     didUrl: 'did:web:www.zertifier.com:docs:signedTest:test',
     name: 'Test',
@@ -37,51 +53,13 @@ export class LpTc {
     urlLegalParticipant: 'https://www.zertifier.com/docs/signedTest/test/legalParticipant.json',
     urlTermsAndConditions: 'https://www.zertifier.com/docs/signedTest/test/termsAndConditions.json'
   } as const;
-
-  // Prefill form fields when testMode is active
-  #prefillEffectRef = effect(() => {
-    const isTest = this.testMode();
-    if (isTest) {
-      this.didUrl.set(this.demo.didUrl);
-      this.name.set(this.demo.name);
-      this.countryCode.set(this.demo.countryCode);
-      this.urlLegalParticipant.set(this.demo.urlLegalParticipant);
-      this.urlTermsAndConditions.set(this.demo.urlTermsAndConditions);
-    } else {
-      this.didUrl.set('');
-      this.name.set('');
-      this.countryCode.set('');
-      this.urlLegalParticipant.set('');
-      this.urlTermsAndConditions.set('');
-    }
-  });
-
-  // Auto-populate from decrypted certificate
-  #certPopulateEffectRef = effect(() => {
-    const info = this.credentialsProvider.certificateProvider.certificateInfo();
-    if (info) {
-      // Auto-fill name if empty
-      if (!this.name() && (info.subject['organizationName'] || info.subject['commonName'])) {
-        this.name.set(info.subject['organizationName'] || info.subject['commonName']);
-      }
-
-      // Auto-fill country code if empty
-      if (!this.countryCode() && info.subject['countryName']) {
-        if (info.subject['countryName'].length === 2) {
-          this.countryCode.set(info.subject['countryName']);
-        }
-      }
-    }
-  });
-
-  // Accordions state (LP and T&C)
+  // NOTE a lot of signals bro do you need so much ⚡⚡⚡ REACTIVITY ⚡⚡⚡ ???
   readonly lpExpanded = signal(false);
   readonly tcExpanded = signal(false);
 
+  // Accordions state (LP and T&C)
   readonly showCertModal = signal(false);
-
   readonly httpPublisher = inject(FilePublisherService);
-
   readonly filePath = computed(() => {
     if (this.testMode()) {
       return 'signedTest/test/';
@@ -106,12 +84,67 @@ export class LpTc {
 
     return '';
   });
-
+  readonly canSign = computed(() => this.isBuilt() && this.hasCertDecrypted() && !this.isLoading());
+  readonly canPublishCreds = computed(() => this.isAllSigned() && !this.isLoading());
+  readonly canPublishDid = computed(() => !!this.didUrl() && this.hasCertDecrypted() && !this.isLoading());
+  // Services
+  protected readonly credentialsProvider = inject(CredentialsProvider);
   // Derived UI state for post-decrypt info
   readonly fileName = computed(() => this.credentialsProvider.certificateProvider.certificateFile()?.name ?? '');
   readonly maskedPassword = computed(() => {
     const len = this.credentialsProvider.certificateProvider.certificatePassword()?.length ?? 0;
     return len > 0 ? '•'.repeat(len) : '';
+  });
+  // Can decrypt when file and non-empty password are present and not loading
+  readonly canDecrypt = computed(() => {
+    const file = this.credentialsProvider.certificateProvider.certificateFile();
+    const pass = this.credentialsProvider.certificateProvider.certificatePassword();
+    return !!file && !!(pass && pass.length > 0) && !this.isLoading();
+  });
+  // Derived enablement state
+  readonly isBuilt = computed(() => !!this.credentialsProvider.legalParticipant() && !!this.credentialsProvider.termsAndConditions());
+  readonly hasCertDecrypted = computed(() => !!this.credentialsProvider.certificateProvider.privateKey() && !!this.credentialsProvider.certificateProvider.pemCert());
+  readonly isAllSigned = computed(() => this.credentialsProvider.isSignedLegalParticipant() && this.credentialsProvider.isSignedTermsAndConditions());
+  protected readonly toast = inject(ToastService);
+  // Prefill form fields when testMode is active
+  #prefillEffectRef = effect(() => {
+    const isTest = this.testMode();
+    /* NOTE
+    * usually effect should signal WHAT is happening and not HOW
+    * this effect is too long, give all the bunch of the tests proper semantic name to explain what is happening
+    * severity: low
+    * rec: new function isRequiredFilled() function or something duno 🤷
+     */
+    if (isTest) {
+      this.didUrl.set(this.demo.didUrl);
+      this.name.set(this.demo.name);
+      this.countryCode.set(this.demo.countryCode);
+      this.urlLegalParticipant.set(this.demo.urlLegalParticipant);
+      this.urlTermsAndConditions.set(this.demo.urlTermsAndConditions);
+    } else {
+      this.didUrl.set('');
+      this.name.set('');
+      this.countryCode.set('');
+      this.urlLegalParticipant.set('');
+      this.urlTermsAndConditions.set('');
+    }
+  });
+  // Auto-populate from decrypted certificate
+  #certPopulateEffectRef = effect(() => {
+    const info = this.credentialsProvider.certificateProvider.certificateInfo();
+    if (info) {
+      // Auto-fill name if empty
+      if (!this.name() && (info.subject['organizationName'] || info.subject['commonName'])) {
+        this.name.set(info.subject['organizationName'] || info.subject['commonName']);
+      }
+
+      // Auto-fill country code if empty
+      if (!this.countryCode() && info.subject['countryName']) {
+        if (info.subject['countryName'].length === 2) {
+          this.countryCode.set(info.subject['countryName']);
+        }
+      }
+    }
   });
 
   async copyJson(data: unknown): Promise<void> {
@@ -124,26 +157,6 @@ export class LpTc {
       this.toast.error('Could not copy JSON.');
     }
   }
-
-  // Can decrypt when file and non-empty password are present and not loading
-  readonly canDecrypt = computed(() => {
-    const file = this.credentialsProvider.certificateProvider.certificateFile();
-    const pass = this.credentialsProvider.certificateProvider.certificatePassword();
-    return !!file && !!(pass && pass.length > 0) && !this.isLoading();
-  });
-
-  // Derived enablement state
-  readonly isBuilt = computed(() => !!this.credentialsProvider.legalParticipant() && !!this.credentialsProvider.termsAndConditions());
-  readonly hasCertDecrypted = computed(() => !!this.credentialsProvider.certificateProvider.privateKey() && !!this.credentialsProvider.certificateProvider.pemCert());
-  readonly isAllSigned = computed(() => this.credentialsProvider.isSignedLegalParticipant() && this.credentialsProvider.isSignedTermsAndConditions());
-
-  readonly canSign = computed(() => this.isBuilt() && this.hasCertDecrypted() && !this.isLoading());
-  readonly canPublishCreds = computed(() => this.isAllSigned() && !this.isLoading());
-  readonly canPublishDid = computed(() => !!this.didUrl() && this.hasCertDecrypted() && !this.isLoading());
-
-  // Services
-  protected readonly credentialsProvider = inject(CredentialsProvider);
-  protected readonly toast = inject(ToastService);
 
   async decrypt(): Promise<void> {
     console.log('[PKCS12-DEBUG] === lp-tc decrypt() ENTRY ===');

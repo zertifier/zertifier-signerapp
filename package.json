@@ -1,13 +1,14 @@
 {
   "name": "zertifier-signerapp",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
-    "start:local": "ng serve --proxy-config proxy.conf.json --configuration local",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "pnpm gen:proxy && ng serve --proxy-config proxy.conf.json",
+    "start:local": "pnpm gen:proxy && ng serve --proxy-config proxy.conf.json --configuration local",
+    "build": "pnpm gen:proxy && ng build",
+    "watch": "pnpm gen:proxy && ng build --watch --configuration development",
+    "test": "ng test",
+    "gen:proxy": "node generateProxy.js"
   },
   "prettier": {
     "printWidth": 100,
