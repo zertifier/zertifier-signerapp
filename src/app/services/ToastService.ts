@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import {Injectable, signal} from '@angular/core';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -14,19 +14,27 @@ export interface ToastItem {
   duration: number;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ToastService {
   readonly toasts = signal<ToastItem[]>([]);
   #timers = new Map<string, any>();
 
-  success(message: string, options?: ToastOptions) { this.show('success', message, options); }
-  error(message: string, options?: ToastOptions) { this.show('error', message, options); }
-  info(message: string, options?: ToastOptions) { this.show('info', message, options); }
+  success(message: string, options?: ToastOptions) {
+    this.show('success', message, options);
+  }
+
+  error(message: string, options?: ToastOptions) {
+    this.show('error', message, options);
+  }
+
+  info(message: string, options?: ToastOptions) {
+    this.show('info', message, options);
+  }
 
   show(type: ToastType, message: string, options?: ToastOptions) {
     const id = options?.id ?? this.#uuid();
     const duration = options?.duration ?? 4000;
-    const next: ToastItem = { id, type, message, duration };
+    const next: ToastItem = {id, type, message, duration};
     this.toasts.update(list => [next, ...list].slice(0, 6)); // cap to 6
 
     const timer = setTimeout(() => this.dismiss(id), duration);
