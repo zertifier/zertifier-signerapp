@@ -1,8 +1,9 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import * as jsonld from 'jsonld';
 import {Options} from 'jsonld';
 import {CompactSign, CryptoKey} from 'jose';
-import {VerifiableCredentialV1} from './CredentialsBuilder';
+import {CredentialsBuilder} from './CredentialsBuilder';
+import {VCv1} from '../types/credential.types';
 import Normalize = Options.Normalize;
 
 export interface VerifiableCredentialProof {
@@ -17,11 +18,13 @@ export interface VerifiableCredentialProof {
   providedIn: "root"
 })
 export class SignerService {
-  async signCredential(vc: VerifiableCredentialV1, didUrl: string, pKey: CryptoKey) {
-    return this.#addProof(vc,
-      this.#buildProof(didUrl,
-        await this.#sign(
-          await this.#hash(vc), pKey)));
+  credentialsBuilder = inject(CredentialsBuilder);
+
+  async signCredential(vc: VCv1, didUrl: string, pKey: CryptoKey) {
+    const hash = await this.#hash(vc);
+    const signature = await this.#sign(hash, pKey);
+    const proof = this.credentialsBuilder.proof(didUrl, signature);
+    return this.credentialsBuilder.addProof(vc, proof);
   }
 
   async #hash(doc: jsonld.JsonLdDocument) {
@@ -33,7 +36,7 @@ export class SignerService {
       } as Normalize
     )
     console.log(" > Hashing: document canonized");
-    // Usar Web Crypto API nativa
+
     const msgBuffer = new TextEncoder().encode(canonized);
     const shaHash = await crypto.subtle.digest('SHA-256', msgBuffer);
     const shaHashArray = Array.from(new Uint8Array(shaHash));
@@ -56,26 +59,5 @@ export class SignerService {
       .sign(pKey);
     console.log(" > Signing: finish with jws:", sign);
     return sign;
-  }
-
-  #buildProof(didUrl: string, jws: string) {
-    let proof = {
-      type: "JsonWebSignature2020",
-      created: new Date().toISOString(),
-      proofPurpose: "assertionMethod",
-      verificationMethod: didUrl + '#verification',
-      jws
-    };
-    console.log(" > Built proof:",proof);
-    return proof
-  }
-
-  #addProof(credentials: VerifiableCredentialV1, proof: VerifiableCredentialProof) {
-    let credWithProof = {
-      ...credentials,
-      proof
-    };
-    console.log(" > Proof added to credential:",credWithProof);
-    return credWithProof
   }
 }
