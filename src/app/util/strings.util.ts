@@ -17,10 +17,14 @@ export function fixMojibake(input: string): string {
 export function hexToBase64Url(hex: string) {
   if (hex.length % 2) hex = '0' + hex;
   const byteArray = new Uint8Array(hex.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
-  let binary = '';
-  for (let i = 0; i < byteArray.length; i++) {
-    binary += String.fromCharCode(byteArray[i]);
-  }
-  const base64 = btoa(binary);
+  const base64 = btoa(byteToBin(byteArray));
   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+export function byteToBin(arr: Uint8Array<ArrayBuffer>) {
+  let binary = '';
+  for (let i = 0; i < arr.length; i++) {
+    binary += String.fromCharCode(arr[i]);
+  }
+  return binary;
 }
