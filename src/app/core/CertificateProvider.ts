@@ -1,30 +1,27 @@
 import {effect, inject, Injectable, signal} from '@angular/core';
-import {CertificateInfo, JoseJsonWebKey} from '../types/crypto.types';
-import {CryptographyService} from '../services/CryptographyService';
+import {DecryptedCertificate} from '../types/crypto.types';
+import {CryptographyService} from '../services/cryptography/CryptographyService';
 
 
 @Injectable()
 export class CertificateProvider {
-  privateKey = signal<CryptoKey | null>(null);
-  publicKeyJwk = signal<JoseJsonWebKey | null>(null);
-  pemCert = signal<string | null>(null);
-  certificateInfo = signal<CertificateInfo | null>(null);
+  decryptedCertificate = signal<DecryptedCertificate | null>(null);
   certificateFile = signal<File | null>(null);
   certificatePassword = signal<string | null>(null);
   #cryptoService = inject(CryptographyService);
 
   constructor() {
     effect(() => {
-      this.publicKeyJwk() && console.log('publicKeyJwk:', this.publicKeyJwk());
-    });
-    effect(() => {
-      this.publicKeyJwk() && console.log("pemCert: ", this.pemCert());
+      this.decryptedCertificate() && console.log(
+        `publicKeyJwk:`, this.decryptedCertificate()?.pubKey,
+        `Pem: `, this.decryptedCertificate()?.pemCert);
     });
   }
 
   clear(): void {
-    this.#clearCertificateData();
-    this.#clearCertificateFile()
+    this.certificateFile.set(null);
+    this.certificatePassword.set(null);
+    this.decryptedCertificate.set(null);
   }
 
   async decrypt() {
@@ -33,15 +30,7 @@ export class CertificateProvider {
     if (!file || !pass) {
       throw new Error('Certificate file and password are required.');
     }
-
-    const certData = await this.#cryptoService.decrypt(file, pass);
-
-    this.#clearCertificateData();
-
-    this.privateKey.set(certData.pKey);
-    this.publicKeyJwk.set(certData.pubKey);
-    this.pemCert.set(certData.pemCert);
-    this.certificateInfo.set(certData.certInfo);
+    this.decryptedCertificate.set(await this.#cryptoService.decrypt(file, pass));
   }
 
   /**
@@ -49,23 +38,10 @@ export class CertificateProvider {
    * This should be called after decryption to set the correct certificate URL.
    */
   updateCertificateUrl(certUrl: string) {
-    if (this.publicKeyJwk()) {
-      this.publicKeyJwk.update(jwk => ({
-        ...jwk,
-        x5u: certUrl
-      }));
+    const cert = this.decryptedCertificate();
+    if (cert && cert.pubKey) {
+      cert.pubKey.x5c = [...(cert.pubKey.x5c ?? []), certUrl];
+      this.decryptedCertificate.set(cert);
     }
-  }
-
-  #clearCertificateFile() {
-    this.certificateFile.set(null);
-    this.certificatePassword.set(null);
-  }
-
-  #clearCertificateData() {
-    this.privateKey.set(null);
-    this.publicKeyJwk.set(null);
-    this.pemCert.set(null);
-    this.certificateInfo.set(null);
   }
 }
