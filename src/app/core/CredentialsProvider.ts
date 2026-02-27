@@ -4,9 +4,9 @@ import {CertificateProvider} from './CertificateProvider';
 import {ToastService} from '../services/ToastService';
 import {finalize} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
-import {LNRInput, LPInput, TACInput, VCv1, VPInput} from '../types/credential.types';
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
-import {ApprovedCHs} from '../types/clearingHouse.types';
+import {LNRInput, LPInput, TACInput, VCv1, VPInput} from './types/credential.types';
+import {ApprovedCHs} from './types/clearingHouse.types';
 
 @Injectable()
 export class CredentialsProvider {

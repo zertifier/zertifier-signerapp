@@ -12,8 +12,8 @@ import {
   take,
   throwError
 } from 'rxjs';
-import {ClearingHouseRepo} from '../data/ClearingHouseRepo';
-import {ApprovedCHs, CHServices} from '../types/clearingHouse.types';
+import {ClearingHouseRepo} from '../core/data/ClearingHouseRepo';
+import {ApprovedCHs, CHServices} from '../core/types/clearingHouse.types';
 
 @Injectable({providedIn: 'root'})
 export class CHApiService {

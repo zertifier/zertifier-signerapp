@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {VerifiableCredentialProof} from './SignerService';
-import {LP_TEMPLATE, TAC_TEMPLATE, VP_TEMPLATE} from '../data/CredentialTemplates';
-import {DIDInput, LPInput, TACInput, VCv1, VP} from '../types/credential.types';
+import {DIDInput, LPInput, TACInput, VCv1, VP} from '../core/types/credential.types';
+import {LP_TEMPLATE, TAC_TEMPLATE, VP_TEMPLATE} from '../core/data/CredentialTemplates';
 
 @Injectable({providedIn: "root"})
 export class CredentialsBuilder {

@@ -3,7 +3,7 @@ import forge from 'node-forge';
 import {byteToBin, hexToBase64Url} from '../../util/strings.util';
 import * as jose from 'jose';
 import {CertificateBuilder} from './CertificateBuilder';
-import {DecryptedCertificate, DecryptedJWK} from '../../types/crypto.types';
+import {DecryptedCertificate, DecryptedJWK} from '../../core/types/crypto.types';
 
 @Injectable({providedIn: "root"})
 export class CertificateDecryptor {

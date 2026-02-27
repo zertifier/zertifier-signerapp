@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import forge from 'node-forge';
-import {CertificateInfo} from '../../types/crypto.types';
 import {fixMojibake} from '../../util/strings.util';
+import {CertificateInfo} from '../../core/types/crypto.types';
 
 @Injectable({providedIn: "root"})
 export class CertificateBuilder {

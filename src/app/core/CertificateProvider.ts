@@ -1,6 +1,6 @@
 import {effect, inject, Injectable, signal} from '@angular/core';
-import {DecryptedCertificate} from '../types/crypto.types';
 import {CryptographyService} from '../services/cryptography/CryptographyService';
+import {DecryptedCertificate} from './types/crypto.types';
 
 
 @Injectable()

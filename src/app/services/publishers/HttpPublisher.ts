@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {catchError, forkJoin, map, switchMap, tap, throwError} from 'rxjs';
-import {FilePublisher, PublishedFile} from '../../types/publisher.types';
+import {FilePublisher, PublishedFile} from '../../core/types/publisher.types';
 
 /**
  * Publish generated credentials to some server

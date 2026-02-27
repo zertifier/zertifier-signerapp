@@ -3,7 +3,7 @@ import * as jsonld from 'jsonld';
 import {Options} from 'jsonld';
 import {CompactSign, CryptoKey} from 'jose';
 import {CredentialsBuilder} from './CredentialsBuilder';
-import {VCv1} from '../types/credential.types';
+import {VCv1} from '../core/types/credential.types';
 import Normalize = Options.Normalize;
 
 export interface VerifiableCredentialProof {
