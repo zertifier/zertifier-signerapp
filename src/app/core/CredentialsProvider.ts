@@ -2,7 +2,7 @@ import {computed, inject, Injectable, signal, WritableSignal} from '@angular/cor
 import {SignerService} from '../services/SignerService';
 import {CertificateProvider} from './CertificateProvider';
 import {ToastService} from '../services/ToastService';
-import {finalize} from 'rxjs';
+import {finalize, from} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
 import {LNRInput, LPInput, TACInput, VCv1, VPInput} from './types/credential.types';
@@ -34,20 +34,24 @@ export class CredentialsProvider {
     }
     isLoading.set(true);
     this.chApiService.offer(vp_l, input.url, 'COMPLIANCE', ch)
-      .pipe(
-        finalize(() => isLoading.set(false))
-      )
+      .pipe(finalize(() => isLoading.set(false)))
       .subscribe((resp: any) =>
         this.compliance.set(resp)
       );
   }
 
-  async buildTAC(didUrl: string, input: LPInput, isLoading?: WritableSignal<boolean>) {
-    await this.#buildVC("TAC", didUrl, input, isLoading);
+  buildTAC(didUrl: string, input: TACInput, isLoading?: WritableSignal<boolean>) {
+    isLoading?.set(true);
+    this.#signVC(this.#credBuilder.tac(didUrl, input), didUrl).pipe(
+      finalize(() => isLoading?.set(false))
+    ).subscribe((resp: any) => this.tac.set(resp));
   }
 
-  async buildLP(didUrl: string, input: LPInput, isLoading?: WritableSignal<boolean>) {
-    await this.#buildVC("LP", didUrl, input, isLoading);
+  buildLP(didUrl: string, input: LPInput, isLoading?: WritableSignal<boolean>) {
+    isLoading?.set(true);
+    this.#signVC(this.#credBuilder.lp(didUrl, input), didUrl).pipe(
+      finalize(() => isLoading?.set(false))
+    ).subscribe((resp: any) => this.lp.set(resp));
   }
 
   // TODO maybe some protection to what is received???
@@ -66,29 +70,13 @@ export class CredentialsProvider {
       );
   }
 
-
-  async #buildVC(type: "TAC" | "LP", didUrl: string, input: LPInput | TACInput, isLoading?: WritableSignal<boolean>) {
-    isLoading?.set(true);
-    try {
-      const pKey = this.certProvider.decryptedCertificate()?.pKey;
-      if (!pKey) {
-        throw new Error("Private key not found. Decrypt a certificate first.")
-      }
-      if (type === 'TAC') {
-        this.tac.set(await this.#signerService
-          .signCredential(this.#credBuilder.tac(didUrl, input as TACInput),
-            didUrl, pKey)
-        );
-      } else if (type === 'LP') {
-        this.lp.set(await this.#signerService
-          .signCredential(this.#credBuilder.lp(didUrl, input as LPInput),
-            didUrl, pKey)
-        );
-      } else {
-        throw new Error("Unknown VC type passed.")
-      }
-    } finally {
-      isLoading?.set(false);
+  #signVC(offer: VCv1, didUrl: string) {
+    const pKey = this.certProvider.decryptedCertificate()?.pKey;
+    if (!pKey) {
+      throw new Error("Private key not found. Decrypt a certificate first.")
     }
+    return from(this.#signerService
+      .signCredential(offer,
+        didUrl, pKey));
   }
 }
