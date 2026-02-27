@@ -1,6 +1,5 @@
-import {ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection} from '@angular/core';
+import {ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection} from '@angular/core';
 import {provideRouter} from '@angular/router';
-
 import {routes} from './app.routes';
 import {provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import {retryInterceptor} from './services/interceptors/http.retry.interceptor';
@@ -9,7 +8,7 @@ import {loggingInterceptor} from './services/interceptors/http.logging.intercept
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({eventCoalescing: true}),
+    provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([loggingInterceptor, retryInterceptor]))
   ]
