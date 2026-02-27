@@ -5,7 +5,7 @@ export interface VCv1 {
   [key: string]: any;
 }
 
-export interface TermsAndConditionsInputData {
+export interface TACInput {
   url: string;
 }
 
@@ -21,12 +21,20 @@ export interface DIDInput {
   verificationMethodId?: string;
 }
 
+export type VPInput = {
+  url: string;
+}
 
 export type VP = VCv1 & { credential: VCv1[] }
 
-export interface LegalParticipantInputData {
+export interface LPInput {
   url: string;
   legalRegistrationNumberSubjectUrl: string;
   countryCode: string;
   legalName: string;
+}
+
+export type LNRInput = {
+  url: string;
+  vatId: string;
 }

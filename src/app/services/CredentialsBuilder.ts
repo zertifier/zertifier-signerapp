@@ -1,19 +1,19 @@
 import {Injectable} from '@angular/core';
 import {VerifiableCredentialProof} from './SignerService';
 import {LP_TEMPLATE, TAC_TEMPLATE, VP_TEMPLATE} from '../data/CredentialTemplates';
-import {DIDInput, LegalParticipantInputData, TermsAndConditionsInputData, VCv1, VP} from '../types/credential.types';
+import {DIDInput, LPInput, TACInput, VCv1, VP} from '../types/credential.types';
 
 @Injectable({providedIn: "root"})
 export class CredentialsBuilder {
 
-  vp(verifiableCredential: VCv1[]): VP {
+  vp(vcArr: VCv1[]): VP {
     return {
       ...VP_TEMPLATE,
-      "credential": verifiableCredential
+      "credential": vcArr
     }
   }
 
-  tac(didUrl: string, inputData: TermsAndConditionsInputData) {
+  tac(didUrl: string, inputData: TACInput) {
     if (!didUrl || !inputData) throw new Error("Cant build credentials, received empty data!!!")
     return {
       ...TAC_TEMPLATE,
@@ -27,7 +27,7 @@ export class CredentialsBuilder {
     }
   }
 
-  lp(didUrl: string, inputData: LegalParticipantInputData) {
+  lp(didUrl: string, inputData: LPInput) {
     if (!didUrl || !inputData) throw new Error("Cant build credentials, received empty data!!!")
     if (!inputData.legalRegistrationNumberSubjectUrl) throw new Error("Legal Registration Number Subject URL is required")
     return {
