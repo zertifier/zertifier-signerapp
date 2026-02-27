@@ -1,0 +1,65 @@
+<div class="mx-auto md:p-3 flex flex-col min-h-screen">
+
+  <ul class="flex flex-wrap text-sm font-medium text-center text-body border-b border-b-blue-900">
+    <li class="me-2">
+      <a href="#" class="inline-block p-3 rounded-t-base active text-blue-400">Gaia-x Clearing house</a>
+    </li>
+    <li class="me-2">
+      <a href="#" class="inline-block p-3 rounded-t-base text-blue-600">Uanataca</a>
+    </li>
+  </ul>
+
+  <div class="flex flex-col md:flex-row gap-4 grow">
+    <aside class="flex-1 flex flex-col ">
+      <div class="grow">
+        <div class="mb-4">
+          <a routerLink="compliance"
+             routerLinkActive="font-semibold bg-blue-300 text-black"
+             class="flex px-4 py-2 text-blue-100 bg-pink-900 hover:bg-blue-100 hover:text-black rounded-lg text-sm transition-all">
+            Compliance
+          </a>
+
+          <ul class="m-2 flex flex-col text-sm gap-1">
+            <li>
+              <a routerLink="lnr"
+                 routerLinkActive="font-semibold bg-blue-300 text-black"
+                 class="block px-4 py-2 text-blue-600 hover:text-blue-100 transition-all rounded-lg">
+                Legal registration number
+              </a>
+            </li>
+            <li>
+              <a routerLink="lp"
+                 routerLinkActive="font-semibold bg-blue-300 text-black"
+                 class="block px-4 py-2 text-blue-600 hover:text-blue-100 transition-all rounded-lg">
+                Legal Participant
+              </a>
+            </li>
+            <li>
+              <a routerLink="tac"
+                 routerLinkActive="font-semibold bg-blue-300 text-black"
+                 class="block px-4 py-2 text-blue-600 hover:text-blue-100 transition-all rounded-lg">
+                Terms and condition
+              </a>
+            </li>
+          </ul>
+
+          <button type="button"
+                  class="mx-auto text-blue-600 hover:text-blue-300 rounded-lg text-sm italic py-2 px-4 flex justify-center transition-colors">
+            + Add credential
+          </button>
+        </div>
+      </div>
+
+      <div class="m-2">
+        <button type="button"
+                class="mx-auto text-blue-100 bg-green-900 hover:bg-green-600 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all">
+          + New compliance
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-3">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
