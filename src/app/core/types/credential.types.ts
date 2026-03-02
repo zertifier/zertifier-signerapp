@@ -29,7 +29,7 @@ export type VP = VCv1 & { credential: VCv1[] }
 
 export interface LPInput {
   url: string;
-  legalRegistrationNumberSubjectUrl: string;
+  lnrSubject: string;
   countryCode: string;
   legalName: string;
 }

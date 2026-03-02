@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-3">
+  <h1 class="text-2xl mx-auto font-bold">Terms and Conditions</h1>
+<!--  <div class="flex items-center gap-3">
+    <span class="whitespace-nowrap font-medium text-gray-400">Input</span>
+    <hr class="flex-1 my-2 border-gray-600">
+  </div>-->
+
+  <div class="flex items-center gap-3">
+    <span class="whitespace-nowrap font-medium text-gray-400">Actions</span>
+    <hr class="flex-1 my-2 border-gray-600">
+  </div>
+
+  <div>
+    <button type="button" (click)="state.buildTac()" [disabled]="state.isLoading()"
+            class=" text-black bg-blue-400 hover:bg-blue-300 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all
+           disabled:bg-gray-600">
+      @if (state.isLoading()) {
+        Building and Signing…
+      } @else {
+        Build and sign
+      }
+    </button>
+  </div>
+
+  @if (state?.credentialProvider?.tac()) {
+    <div class="flex items-center gap-3">
+      <span class="whitespace-nowrap font-medium text-gray-400">Result</span>
+      <hr class="flex-1 my-2 border-gray-600">
+    </div>
+
+    <code [(ngModel)]="state.credentialProvider.tac"></code>
+  }
+</div>

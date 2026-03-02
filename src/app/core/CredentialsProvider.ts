@@ -1,21 +1,22 @@
 import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {SignerService} from '../services/SignerService';
 import {CertificateProvider} from './CertificateProvider';
-import {ToastService} from '../services/ToastService';
-import {finalize, from} from 'rxjs';
+import {finalize, from, throwError} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
 import {LNRInput, LPInput, TACInput, VCv1, VPInput} from './types/credential.types';
 import {ApprovedCHs} from './types/clearingHouse.types';
+import {CertFileInput, DecryptedCertificate} from './types/crypto.types';
 
 @Injectable()
 export class CredentialsProvider {
-  chApiService = inject(CHApiService);
-  certProvider = inject(CertificateProvider);
   lnr = signal<VCv1 | null>(null);
   lp = signal<VCv1 | null>(null);
   tac = signal<VCv1 | null>(null);
   compliance = signal<object | null>(null);
+  decryptedCertificate = signal<DecryptedCertificate | null>(null);
+  #chApiService = inject(CHApiService);
+  #certProvider = inject(CertificateProvider);
   #signerService = inject(SignerService);
   #credBuilder = inject(CredentialsBuilder);
   vpOffer = computed(() => {
@@ -25,7 +26,6 @@ export class CredentialsProvider {
     if (!(lnr_l && lp_l && tac_l)) return null;
     return this.#credBuilder.vp([lnr_l, lp_l, tac_l]);
   })
-  #toast = inject(ToastService);
 
   offerPresentation(input: VPInput, isLoading: WritableSignal<boolean>, ch?: ApprovedCHs) {
     const vp_l = this.vpOffer();
@@ -33,7 +33,7 @@ export class CredentialsProvider {
       throw new Error("Not all required VCs are found.")
     }
     isLoading.set(true);
-    this.chApiService.offer(vp_l, input.url, 'COMPLIANCE', ch)
+    this.#chApiService.offer(vp_l, input.url, 'COMPLIANCE', ch)
       .pipe(finalize(() => isLoading.set(false)))
       .subscribe((resp: any) =>
         this.compliance.set(resp)
@@ -57,7 +57,7 @@ export class CredentialsProvider {
   // TODO maybe some protection to what is received???
   fetchLnr(input: LNRInput, isLoading?: WritableSignal<boolean>, ch?: ApprovedCHs) {
     isLoading?.set(true);
-    this.chApiService
+    this.#chApiService
       .offer(
         this.#credBuilder.lnrOffer(input.url, input.vatId),
         input.url, "LNR", ch)
@@ -70,10 +70,21 @@ export class CredentialsProvider {
       );
   }
 
+  decryptCert(input: CertFileInput, isLoading?: WritableSignal<boolean>) {
+    if (!input.file || !input.pass) {
+      throw new Error("Certificate file or password are not found!");
+    }
+    isLoading?.set(true);
+    from(this.#certProvider.decrypt(input.file, input.pass))
+      .pipe(
+        finalize(() => isLoading?.set(false))
+      ).subscribe((cert: DecryptedCertificate) => this.decryptedCertificate.set(cert))
+  }
+
   #signVC(offer: VCv1, didUrl: string) {
-    const pKey = this.certProvider.decryptedCertificate()?.pKey;
+    const pKey = this.decryptedCertificate()?.pKey;
     if (!pKey) {
-      throw new Error("Private key not found. Decrypt a certificate first.")
+      return throwError(() => new Error("Private key not found."));
     }
     return from(this.#signerService
       .signCredential(offer,

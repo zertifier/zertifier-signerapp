@@ -35,11 +35,19 @@ export class CertificateDecryptor {
     } satisfies DecryptedCertificate;
   }
 
+  // TODO this throws on some certificate, duno why, needs to be investigated DEEPLY
   async #PKSC1toCryptoKey(pksc1: forge.pki.rsa.PrivateKey) {
-    const pkcs8Pem = forge.pki.privateKeyInfoToPem(
-      forge.pki.wrapRsaPrivateKey(
-        forge.pki.privateKeyToAsn1(pksc1)))
-    return await jose.importPKCS8(pkcs8Pem, 'RS256');
+    const asn1 = forge.pki.privateKeyToAsn1(pksc1);
+    const wrapped = forge.pki.wrapRsaPrivateKey(asn1);
+    const pkcs8Pem = forge.pki.privateKeyInfoToPem(wrapped)
+
+    try {
+      return await jose.importPKCS8(pkcs8Pem, 'RS256');
+    } catch {
+      // fallback to RSA-PSS
+      return await jose.importPKCS8(pkcs8Pem, 'PS256');
+    }
+    //return await jose.importPKCS8(pkcs8Pem, 'RS256');
   }
 
   #extractPrivateKey(cert_p12: forge.pkcs12.Pkcs12Pfx) {

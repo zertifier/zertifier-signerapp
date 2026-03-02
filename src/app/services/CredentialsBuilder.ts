@@ -29,7 +29,7 @@ export class CredentialsBuilder {
 
   lp(didUrl: string, inputData: LPInput) {
     if (!didUrl || !inputData) throw new Error("Cant build credentials, received empty data!!!")
-    if (!inputData.legalRegistrationNumberSubjectUrl) throw new Error("Legal Registration Number Subject URL is required")
+    if (!inputData.lnrSubject) throw new Error("Legal Registration Number Subject URL is required")
     return {
       ...LP_TEMPLATE,
       "id": inputData.url,
@@ -45,7 +45,7 @@ export class CredentialsBuilder {
           "gx:countrySubdivisionCode": inputData.countryCode
         },
         "gx:legalRegistrationNumber": {
-          "id": `${inputData.legalRegistrationNumberSubjectUrl}`
+          "id": `${inputData.lnrSubject}`
         },
         "id": `${inputData.url}#subject`
       },

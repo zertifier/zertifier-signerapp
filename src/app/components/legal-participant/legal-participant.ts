@@ -1,11 +1,15 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
 
 @Component({
   selector: 'app-legal-participant',
-  imports: [],
+  imports: [
+    FormsModule
+  ],
   templateUrl: './legal-participant.html',
   styleUrl: './legal-participant.css',
 })
 export class LegalParticipant {
-
+  state = inject(MainWindowGroupState);
 }
