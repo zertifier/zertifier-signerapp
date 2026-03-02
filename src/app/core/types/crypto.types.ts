@@ -30,3 +30,8 @@ export type DecryptedJWK = {
   alg: 'RS256';
   x5c?: string[];
 }
+
+export type CertFileInput = {
+  file: File;
+  pass: string;
+}

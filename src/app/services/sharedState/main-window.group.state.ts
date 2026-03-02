@@ -1,0 +1,96 @@
+import {inject, Injectable, signal} from '@angular/core';
+import {CredentialsProvider} from '../../core/CredentialsProvider';
+import {ToastService} from '../ToastService';
+import {ApprovedCHs} from '../../core/types/clearingHouse.types';
+import {DogshitConfig} from '../../core/data/dogshit.config';
+import {LPInput} from '../../core/types/credential.types';
+
+@Injectable()
+export class MainWindowGroupState {
+  baseUrl = signal<string | null>(null);
+  vatId = signal<string | null>(null);
+  countryCode = signal<string | null>(null);
+  legalName = signal<string | null>(null);
+  file = signal<File | null>(null);
+  pass = signal<string | null>(null);
+  isLoading = signal<boolean>(false);
+  lnrCH = signal<ApprovedCHs | undefined>(undefined);
+  credentialProvider = inject(CredentialsProvider);
+  #toast = inject(ToastService);
+  #dsConfig = inject(DogshitConfig);
+
+  constructor() {
+    this.baseUrl.set("someurl.com");
+    this.pass.set("B55272140");
+    this.countryCode.set("ES-es");
+  }
+
+  fetchLnr() {
+    const baseUrl = this.baseUrl();
+    const vatId = this.vatId();
+    if (!baseUrl || !vatId) {
+      this.#toast.error("Legal registration number inputs are not filled");
+      return;
+    }
+    this.credentialProvider.fetchLnr({url: this.#buildFileUrl("lnr"), vatId}, this.isLoading, this.lnrCH());
+  }
+
+  buildLP() {
+    if (this.isLoading()) {
+      this.#toast.info("Already have started!");
+      return;
+    }
+    const baseUrl = this.baseUrl();
+    if (!baseUrl) {
+      this.#toast.error("Base url is not set!");
+      return;
+    }
+    const code = this.countryCode();
+    const legalName = this.legalName();
+    if (!code || !legalName) {
+      this.#toast.error("Inputs are not filled");
+      return;
+    }
+    const inputs: LPInput = {
+      url: this.#buildFileUrl("lp"),
+      lnrSubject: `${this.#buildFileUrl('lnr')}${this.#dsConfig.subjectPostfix}`,
+      countryCode: code,
+      legalName
+    }
+    this.credentialProvider.buildLP(this.#buildFileUrl("did"), inputs, this.isLoading);
+  }
+
+  buildTac() {
+    if (this.isLoading()) {
+      this.#toast.info("Already have started!");
+      return;
+    }
+    const baseUrl = this.baseUrl();
+    if (!baseUrl) {
+      this.#toast.error("Base url is not set!");
+      return;
+    }
+    this.credentialProvider.buildTAC(this.#buildFileUrl("did"), {url: this.#buildFileUrl("tac")}, this.isLoading);
+  }
+
+  decryptCert() {
+    const file = this.file();
+    const pass = this.pass();
+    if (!file || !pass) {
+      this.#toast.error('Certificate file or password not found');
+      return;
+    }
+    this.credentialProvider.decryptCert({file, pass}, this.isLoading);
+  }
+
+  #buildFileUrl(fileName: string) {
+    const base = this.baseUrl();
+    // this shouldn't be thrown ever if you are not stupid
+    if (!base) {
+      this.#toast.error("Base url is not set!");
+      return "you are stupid";
+    }
+    return `${base}/${this.#dsConfig.fileNames[fileName]}`;
+  }
+
+}
