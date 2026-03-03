@@ -25,7 +25,7 @@ export class CertificateBuilder {
   #getKeyUsage(extensions: any[]) {
     const keyUsageExt = extensions.find(e => e["name"] === 'keyUsage') || {};
     const keyUsage: string[] = [];
-    for (const k of keyUsageExt) {
+    for (const k in keyUsageExt) {
       const v = keyUsageExt[k];
       if (typeof v === 'boolean' && v && k !== 'critical' && k !== 'name') {
         keyUsage.push(k);
