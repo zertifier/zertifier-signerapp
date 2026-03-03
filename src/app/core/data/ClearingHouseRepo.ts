@@ -44,16 +44,10 @@ export class ClearingHouseRepo {
   getAllUrls(service: CHServices = 'COMPLIANCE', priorityCH: ApprovedCHs = 'ARUBA'): string[] {
     const urls: string[] = [];
     for (const [ch, api] of Object.entries(this.clearingHouses)) {
-      if (ch === priorityCH) {
-        if (api[service].proxy) {
-          urls.unshift(api[service].proxy);
-        }
-        urls.unshift(api[service].url);
-      } else {
-        urls.push(api[service].url);
-        if (api[service].proxy) {
-          urls.push(api[service].proxy);
-        }
+      if (ch === priorityCH && api[service].proxy) {
+        urls.unshift(api[service].proxy);
+      } else if (api[service].proxy) {
+        urls.push(api[service].proxy);
       }
     }
     return urls;
