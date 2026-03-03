@@ -32,7 +32,7 @@ export class SignerService {
     const canonized = await jsonld.canonize(doc, {
         algorithm: 'URDNA2015',
         format: 'application/n-quads',
-        safe: true
+        safe: false
       } as Normalize
     )
     console.log(" > Hashing: document canonized");
