@@ -15,6 +15,7 @@ export class MainWindowGroupState {
   pass = signal<string | null>(null);
   isLoading = signal<boolean>(false);
   lnrCH = signal<ApprovedCHs | undefined>(undefined);
+  did = signal<string | null>(null);
 
   credentialProvider = inject(CredentialsProvider);
   #toast = inject(ToastService);
@@ -41,12 +42,17 @@ export class MainWindowGroupState {
       this.#toast.info("Already have started!");
       return;
     }
+    const did = this.did();
+    if (!did) {
+      this.#toast.error("Did url is not set!");
+      return;
+    }
     const baseUrl = this.baseUrl();
     if (!baseUrl) {
       this.#toast.error("Base url is not set!");
       return;
     }
-    this.credentialProvider.buildSO(this.buildFileUrl("so"), input, this.isLoading);
+    this.credentialProvider.buildSO(did, input, this.isLoading);
   }
 
   buildLP() {
@@ -57,6 +63,11 @@ export class MainWindowGroupState {
     const baseUrl = this.baseUrl();
     if (!baseUrl) {
       this.#toast.error("Base url is not set!");
+      return;
+    }
+    const did = this.did();
+    if (!did) {
+      this.#toast.error("Did url is not set!");
       return;
     }
     const code = this.countryCode();
@@ -71,7 +82,7 @@ export class MainWindowGroupState {
       countryCode: code,
       legalName
     }
-    this.credentialProvider.buildLP(this.buildFileUrl("did"), inputs, this.isLoading);
+    this.credentialProvider.buildLP(did, inputs, this.isLoading);
   }
 
   buildTac() {
@@ -84,7 +95,12 @@ export class MainWindowGroupState {
       this.#toast.error("Base url is not set!");
       return;
     }
-    this.credentialProvider.buildTAC(this.buildFileUrl("did"), {url: this.buildFileUrl("tac")}, this.isLoading);
+    const did = this.did();
+    if (!did) {
+      this.#toast.error("Did url is not set!");
+      return;
+    }
+    this.credentialProvider.buildTAC(did, {url: this.buildFileUrl("tac")}, this.isLoading);
   }
 
   decryptCert() {
