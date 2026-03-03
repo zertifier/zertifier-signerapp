@@ -13,13 +13,19 @@
 
   <div class="flex flex-row items-baseline">
     <label class="w-20 mx-2 text-lg text-gray-500">Password:</label>
-    <input type="text" placeholder="i_love_dataspaces69" [(ngModel)]="state.pass"
+    <input type="password" placeholder="i_love_dataspaces69" [(ngModel)]="state.pass"
            class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
   </div>
 
   <div class="flex flex-row items-baseline">
     <label class="w-20 mx-2 text-lg text-gray-500">Url:</label>
     <input type="text" placeholder="https://www.my-domain.com/vc1" [(ngModel)]="state.baseUrl"
+           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+  </div>
+
+    <div class="flex flex-row items-baseline">
+    <label class="w-20 mx-2 text-lg text-gray-500">Did:</label>
+    <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [(ngModel)]="state.did"
            class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
   </div>
 
