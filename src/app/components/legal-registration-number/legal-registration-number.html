@@ -15,7 +15,7 @@
     <label class="w-32 mx-2 text-lg">Clearing house:</label>
     <select (change)="onChChange($event)"
             class="grow rounded-lg bg-gray-700 text-white">
-      @for (ch of ApprovedCHsOptions; track $index) {
+      @for (ch of APPROVED_CHS; track $index) {
         <option [ngValue]="ch">{{ ch }}</option>
       }
     </select>
@@ -44,6 +44,10 @@
       <hr class="flex-1 my-2 border-gray-600">
     </div>
 
-    <code [ngModel]="state?.credentialProvider?.lnr()"></code>
+    <!--    <code [ngModel]="state?.credentialProvider?.lnr()"></code>-->
+    <pre class="text-sm bg-blue-950 text-green-200 mx-4 my-2 p-4
+    rounded-lg overflow-auto">
+      <code class="whitespace-pre-wrap">{{ state?.credentialProvider?.lnr() | json }}</code>
+    </pre>
   }
 </div>

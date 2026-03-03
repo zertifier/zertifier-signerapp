@@ -2,11 +2,13 @@ import {Component, inject, signal} from '@angular/core';
 import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
 import {ToastService} from '../../services/ToastService';
 import {FormsModule} from '@angular/forms';
+import {JsonPipe} from '@angular/common';
 
 @Component({
   selector: 'app-compliance',
   imports: [
-    FormsModule
+    FormsModule,
+    JsonPipe
   ],
   templateUrl: './compliance.html',
   styleUrl: './compliance.css',

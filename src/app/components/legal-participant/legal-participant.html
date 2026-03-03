@@ -40,6 +40,10 @@
       <hr class="flex-1 my-2 border-gray-600">
     </div>
 
-    <code [ngModel]="state?.credentialProvider?.tac()"></code>
+    <!--    <code [ngModel]="state?.credentialProvider?.tac()"></code>-->
+    <pre class="text-sm bg-blue-950 text-green-200 mx-4 my-2 p-4
+    rounded-lg overflow-auto">
+      <code class="whitespace-pre-wrap">{{ state?.credentialProvider?.tac() | json }}</code>
+    </pre>
   }
 </div>
