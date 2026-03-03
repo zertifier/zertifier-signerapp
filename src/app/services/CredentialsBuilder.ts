@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {VerifiableCredentialProof} from './SignerService';
-import {DIDInput, LPInput, TACInput, VCv1, VP} from '../core/types/credential.types';
-import {LP_TEMPLATE, TAC_TEMPLATE, VP_TEMPLATE} from '../core/data/CredentialTemplates';
+import {DIDInput, LPInput, SOInput, TACInput, VCv1, VP} from '../core/types/credential.types';
+import {LP_TEMPLATE, SO_TEMPLATE, TAC_TEMPLATE, VP_TEMPLATE} from '../core/data/CredentialTemplates';
 
 @Injectable({providedIn: "root"})
 export class CredentialsBuilder {
@@ -13,41 +13,62 @@ export class CredentialsBuilder {
     }
   }
 
-  tac(didUrl: string, inputData: TACInput) {
-    if (!didUrl || !inputData) throw new Error("Cant build credentials, received empty data!!!")
+  so(didUrl: string, input: SOInput) {
+    if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
     return {
-      ...TAC_TEMPLATE,
-      "id": inputData.url,
+      ...SO_TEMPLATE,
+      "id": input.url,
       "issuer": didUrl,
       "issuanceDate": new Date().toISOString(),
       "credentialSubject": {
-        ...TAC_TEMPLATE.credentialSubject,
-        "id": `${inputData.url}#subject`
+        ...SO_TEMPLATE.credentialSubject,
+        ...(input.name ? {"gx:name": input.name} : {}),
+        ...(input.description ? {"gx:description": input.description} : {}),
+        "gx:providedBy": {
+          "id": input.providedByUrl
+        },
+        "gx:termsAndConditions":input.tac,
+        "gx:dataAccountExport": input.dataAccountExport,
+        "id": `${input.url}#subject`
       },
     }
   }
 
-  lp(didUrl: string, inputData: LPInput) {
-    if (!didUrl || !inputData) throw new Error("Cant build credentials, received empty data!!!")
-    if (!inputData.lnrSubject) throw new Error("Legal Registration Number Subject URL is required")
+  tac(didUrl: string, input: TACInput) {
+    if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
+    return {
+      ...TAC_TEMPLATE,
+      "id": input.url,
+      "issuer": didUrl,
+      "issuanceDate": new Date().toISOString(),
+      "credentialSubject": {
+        ...TAC_TEMPLATE.credentialSubject,
+        "id": `${input.url}#subject`
+      },
+    }
+  }
+
+  lp(didUrl: string, input: LPInput) {
+    if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
+    if (!input.lnrSubject) throw new Error("Legal Registration Number Subject URL is required")
     return {
       ...LP_TEMPLATE,
-      "id": inputData.url,
+      "id": input.url,
       "issuer": didUrl,
       "issuanceDate": new Date().toISOString(),
       "credentialSubject": {
         ...LP_TEMPLATE.credentialSubject,
-        "gx:legalName": inputData.legalName,
+        "gx:legalName": input.legalName,
         "gx:headquarterAddress": {
-          "gx:countrySubdivisionCode": inputData.countryCode
+          "gx:countrySubdivisionCode": input.countryCode
         },
         "gx:legalAddress": {
-          "gx:countrySubdivisionCode": inputData.countryCode
+          "gx:countrySubdivisionCode": input.countryCode
         },
         "gx:legalRegistrationNumber": {
-          "id": `${inputData.lnrSubject}`
+          "id": `${input.lnrSubject}`
         },
-        "id": `${inputData.url}#subject`
+        "id": `${input.url}#subject`
       },
     }
   }

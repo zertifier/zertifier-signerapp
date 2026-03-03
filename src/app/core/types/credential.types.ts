@@ -9,6 +9,34 @@ export interface TACInput {
   url: string;
 }
 
+export type SOInput = {
+  url: string;
+  name?: string,
+  description?: string,
+  // Legal Participant URL
+  providedByUrl: string,
+  tac: SO_TAC,
+  dataAccountExport: DataAccountExport,
+}
+
+export type SO_TAC = {
+  url: string,
+  hash: string
+}
+
+export type DataAccountExport = {
+  requestType: RequestTypes,
+  accessType: 'digital' | 'physical',
+  // MIME types https://gaia-x.gitlab.io/technical-committee/service-characteristics-working-group/service-characteristics/enums/MIMETypes/
+  formatType: string,
+}
+
+export const REQUEST_TYPES = [
+  'API', 'email', 'webform', 'unregisteredLetter', 'registeredLetter', 'supportCenter'
+] as const;
+
+export type RequestTypes = typeof REQUEST_TYPES[number];
+
 export interface DIDInput {
   id: string;
   certificateUrl_x5u: string;

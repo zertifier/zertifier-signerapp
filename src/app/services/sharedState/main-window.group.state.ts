@@ -3,7 +3,7 @@ import {CredentialsProvider} from '../../core/CredentialsProvider';
 import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
-import {LPInput} from '../../core/types/credential.types';
+import {LPInput, SOInput} from '../../core/types/credential.types';
 
 @Injectable()
 export class MainWindowGroupState {
@@ -15,13 +15,14 @@ export class MainWindowGroupState {
   pass = signal<string | null>(null);
   isLoading = signal<boolean>(false);
   lnrCH = signal<ApprovedCHs | undefined>(undefined);
+
   credentialProvider = inject(CredentialsProvider);
   #toast = inject(ToastService);
   #dsConfig = inject(DogshitConfig);
 
   constructor() {
     this.baseUrl.set("someurl.com");
-    this.pass.set("B55272140");
+    this.pass.set("");
     this.countryCode.set("ES-es");
   }
 
@@ -32,7 +33,20 @@ export class MainWindowGroupState {
       this.#toast.error("Legal registration number inputs are not filled");
       return;
     }
-    this.credentialProvider.fetchLnr({url: this.#buildFileUrl("lnr"), vatId}, this.isLoading, this.lnrCH());
+    this.credentialProvider.fetchLnr({url: this.buildFileUrl("lnr"), vatId}, this.isLoading, this.lnrCH());
+  }
+
+  buildSO(input: SOInput) {
+    if (this.isLoading()) {
+      this.#toast.info("Already have started!");
+      return;
+    }
+    const baseUrl = this.baseUrl();
+    if (!baseUrl) {
+      this.#toast.error("Base url is not set!");
+      return;
+    }
+    this.credentialProvider.buildSO(this.buildFileUrl("so"), input, this.isLoading);
   }
 
   buildLP() {
@@ -52,12 +66,12 @@ export class MainWindowGroupState {
       return;
     }
     const inputs: LPInput = {
-      url: this.#buildFileUrl("lp"),
-      lnrSubject: `${this.#buildFileUrl('lnr')}${this.#dsConfig.subjectPostfix}`,
+      url: this.buildFileUrl("lp"),
+      lnrSubject: `${this.buildFileUrl('lnr')}${this.#dsConfig.subjectPostfix}`,
       countryCode: code,
       legalName
     }
-    this.credentialProvider.buildLP(this.#buildFileUrl("did"), inputs, this.isLoading);
+    this.credentialProvider.buildLP(this.buildFileUrl("did"), inputs, this.isLoading);
   }
 
   buildTac() {
@@ -70,7 +84,7 @@ export class MainWindowGroupState {
       this.#toast.error("Base url is not set!");
       return;
     }
-    this.credentialProvider.buildTAC(this.#buildFileUrl("did"), {url: this.#buildFileUrl("tac")}, this.isLoading);
+    this.credentialProvider.buildTAC(this.buildFileUrl("did"), {url: this.buildFileUrl("tac")}, this.isLoading);
   }
 
   decryptCert() {
@@ -83,7 +97,7 @@ export class MainWindowGroupState {
     this.credentialProvider.decryptCert({file, pass}, this.isLoading);
   }
 
-  #buildFileUrl(fileName: string) {
+  buildFileUrl(fileName: string) {
     const base = this.baseUrl();
     // this shouldn't be thrown ever if you are not stupid
     if (!base) {

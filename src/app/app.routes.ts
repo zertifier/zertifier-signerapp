@@ -26,8 +26,11 @@ export const routes: Routes = [
       {
         path: 'tac',
         loadComponent: () => import('./components/./terms-and-conditions/terms-and-conditions.component').then(m => m.TermsAndConditions)
+      },
+      {
+        path: 'so',
+        loadComponent: () => import('./components/./service-offering/service-offering').then(m => m.ServiceOffering)
       }
     ]
-
   },
 ];

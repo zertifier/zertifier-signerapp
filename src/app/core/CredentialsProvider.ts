@@ -4,7 +4,7 @@ import {CertificateProvider} from './CertificateProvider';
 import {finalize, from, throwError} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
-import {LNRInput, LPInput, TACInput, VCv1, VPInput} from './types/credential.types';
+import {LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
 import {ApprovedCHs} from './types/clearingHouse.types';
 import {CertFileInput, DecryptedCertificate} from './types/crypto.types';
 
@@ -13,6 +13,7 @@ export class CredentialsProvider {
   lnr = signal<VCv1 | null>(null);
   lp = signal<VCv1 | null>(null);
   tac = signal<VCv1 | null>(null);
+  so = signal<VCv1 | null>(null);
   compliance = signal<object | null>(null);
   decryptedCertificate = signal<DecryptedCertificate | null>(null);
   #chApiService = inject(CHApiService);
@@ -24,7 +25,10 @@ export class CredentialsProvider {
     const lp_l = this.lp();
     const tac_l = this.tac();
     if (!(lnr_l && lp_l && tac_l)) return null;
-    return this.#credBuilder.vp([lnr_l, lp_l, tac_l]);
+    // TODO somehow streamline gathering process
+    const vps = [lnr_l, lp_l, tac_l, this.so()]
+      .filter((a: any): a is NonNullable<VCv1> => !!a);
+    return this.#credBuilder.vp(vps);
   })
 
   offerPresentation(input: VPInput, isLoading: WritableSignal<boolean>, ch?: ApprovedCHs) {
@@ -38,6 +42,13 @@ export class CredentialsProvider {
       .subscribe((resp: any) =>
         this.compliance.set(resp)
       );
+  }
+
+  buildSO(didUrl: string, input: SOInput, isLoading?: WritableSignal<boolean>) {
+    isLoading?.set(true);
+    this.#signVC(this.#credBuilder.so(didUrl, input), didUrl).pipe(
+      finalize(() => isLoading?.set(false))
+    ).subscribe((resp: any) => this.so.set(resp));
   }
 
   buildTAC(didUrl: string, input: TACInput, isLoading?: WritableSignal<boolean>) {
