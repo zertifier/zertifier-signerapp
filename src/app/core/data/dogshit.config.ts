@@ -9,7 +9,8 @@ export class DogshitConfig {
     "tac": "termsAndConditions.json",
     "lp": "legalParticipant.json",
     "lnr": "legalRegistrationNumber.json",
-    "did": "did.json"
+    "did": "did.json",
+    "so": "serviceOffering.json"
   }
 
 }
