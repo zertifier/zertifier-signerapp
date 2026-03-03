@@ -2,7 +2,10 @@ export type ClearingHouseApi = {
   url: string;
   proxy?: string;
 }
-export type ApprovedCHs = "GAIA" | "ARUBA" | "DELTA_DAO";
+
+
+export const APPROVED_CHS = ["GAIA", "ARUBA", "DELTA_DAO"];
+export type ApprovedCHs = typeof APPROVED_CHS[number];
 // TODO Its for selectors I am too lazy to rewrite right now
 export const ApprovedCHsOptions = ["GAIA", "ARUBA", "DELTA_DAO"];
 export type CHServices = "COMPLIANCE" | "LNR";
