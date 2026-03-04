@@ -14,7 +14,7 @@ export function retryInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
       }
     }),
     catchError(err => {
-      console.error(' > Http call failed after 3 retry attempts! Url: ', req.url, err?.error?.statusCode, err?.error?.message)
+      console.error(` > Http call failed after 3 retry attempts! Url: ${req.urlWithParams}`, {cause: err})
       throw err;
     })
   );
