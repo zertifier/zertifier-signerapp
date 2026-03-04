@@ -115,6 +115,43 @@ export class MainWindowGroupState {
     this.credentialProvider.decryptCert({file, pass}, this.isLoading);
   }
 
+  offerVP(path: string) {
+    this.credentialProvider
+      .publishCompliance(path, this.isLoading)
+      .pipe(
+        switchMap(() =>
+          this.credentialProvider.offerPresentation(
+            {url: this.buildFileUrl('compliance')},
+            this.isLoading,
+            this.ch()
+          )
+        ),
+        catchError((err: any) => {
+          this.#toast.error('Publish or offer failed!');
+          return EMPTY;
+        })
+      )
+      .subscribe();
+  }
+
+  publishOffer(path: string) {
+    const did = this.did();
+    if (!did) {
+      this.#toast.error("Did url is not set!");
+      return;
+    }
+
+    this.credentialProvider.publishOffer(path, did, this.isLoading).subscribe({
+      next: () => {
+        this.#toast.info("Publishing offer was successful!")
+      },
+      error: err => {
+        this.#toast.error("Publishing failed!")
+        console.error(`Publishing failed`, {cause: err})
+      },
+    });
+  }
+
   buildFileUrl(fileName: string) {
     const base = this.baseUrl();
     // this shouldn't be thrown ever if you are not stupid
@@ -123,6 +160,18 @@ export class MainWindowGroupState {
       return "you are stupid";
     }
     return `${base}/${this.#dsConfig.fileNames[fileName]}`;
+  }
+
+  copyToClipboard(content: Object | null | undefined) {
+    if (!content) {
+      this.#toast.error("Content to copy not found.", {duration: 2000});
+      return;
+    }
+    navigator.clipboard
+      .writeText(JSON.stringify(content, null, 2))
+      .then(() => {
+        this.#toast.info('Copied!', {duration: 2000});
+      });
   }
 
 }

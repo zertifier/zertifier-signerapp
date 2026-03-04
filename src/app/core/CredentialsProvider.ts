@@ -50,6 +50,35 @@ export class CredentialsProvider {
       );
   }
 
+  publishCompliance(baseUrl: string, isLoading: WritableSignal<boolean>) {
+    const vpOffer = this.vpOffer();
+    if (!vpOffer) {
+      throw new Error("Offer is not constructed")
+    }
+    isLoading.set(true);
+    // TODO hardcoded domain
+    return this.#publishService
+      .publish([{
+        path: path.join(baseUrl, this.#dsConfig.fileNames['compliance']),
+        content: JSON.stringify(vpOffer)
+      },], this.#dsConfig.publishDomains['Zertifier'])
+      .pipe(
+        finalize(() => isLoading.set(false))
+      );
+  }
+
+  // TODO extract this to the publish service when credentials will be dynamic
+  publishOffer(baseUrl: string, didUrl: string, isLoading: WritableSignal<boolean>) {
+    isLoading.set(true);
+    const files = this.#buildFilesToPublish(baseUrl, didUrl);
+    // TODO hardcoded domain
+    return this.#publishService
+      .publish(files, this.#dsConfig.publishDomains['Zertifier'])
+      .pipe(
+        finalize(() => isLoading.set(false))
+      );
+  }
+
   buildSO(didUrl: string, input: SOInput, isLoading?: WritableSignal<boolean>) {
     isLoading?.set(true);
     this.#signVC(this.#credBuilder.so(didUrl, input), didUrl).pipe(
@@ -96,6 +125,67 @@ export class CredentialsProvider {
       .pipe(
         finalize(() => isLoading?.set(false))
       ).subscribe((cert: DecryptedCertificate) => this.decryptedCertificate.set(cert))
+  }
+
+  #buildFilesToPublish(baseUrl: string, didUrl: string) {
+    const certPem = this.decryptedCertificate()?.pemCert;
+    if (!certPem) {
+      throw new Error("Certificate.pem not found!");
+    }
+    const lp = this.lp();
+    const tac = this.tac();
+    const lnr = this.lnr();
+    if (!lp || !tac || !lnr) {
+      throw new Error("Not all required VCs are found.");
+    }
+    const certUrl = path.join(baseUrl, this.#dsConfig.fileNames['cert']);
+    const files: PublishedFile[] = [
+      {
+        path: certUrl,
+        content: certPem
+      },
+      {
+        path: path.join(baseUrl, this.#dsConfig.fileNames['did']),
+        content: JSON.stringify(this.#buildDidJson(didUrl, certUrl))
+      },
+      {
+        path: path.join(baseUrl, this.#dsConfig.fileNames['lp']),
+        content: JSON.stringify(lp)
+      },
+      {
+        path: path.join(baseUrl, this.#dsConfig.fileNames['tac']),
+        content: JSON.stringify(tac)
+      },
+      {
+        path: path.join(baseUrl, this.#dsConfig.fileNames['lnr']),
+        content: JSON.stringify(lnr)
+      }
+    ];
+    const so = this.so();
+    if (so) {
+      files.push({
+        path: path.join(baseUrl, this.#dsConfig.fileNames['so']),
+        content: JSON.stringify(so)
+      })
+    }
+    return files;
+  }
+
+  #buildDidJson(didUrl: string, certUrl: string) {
+    const cert = this.decryptedCertificate();
+    if (!cert) {
+      throw new Error("No Certificate Found");
+    }
+    const input: DIDInput = {
+      id: didUrl,
+      kty: cert.pubKey.kty,
+      pub_n: cert.pubKey.n,
+      pub_e: cert.pubKey.e,
+      alg: cert.pubKey.alg,
+      cert_x5u_url: certUrl,
+      cert_x5c_chain: cert.pubKey.x5c
+    }
+    return this.#credBuilder.did(input);
   }
 
   #signVC(offer: VCv1, didUrl: string) {

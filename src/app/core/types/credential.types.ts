@@ -39,11 +39,11 @@ export type RequestTypes = typeof REQUEST_TYPES[number];
 
 export interface DIDInput {
   id: string;
-  certificateUrl_x5u: string;
+  cert_x5u_url: string;
   /** X.509 certificate chain (JWK `x5c`) */
-  certificateChain_x5c?: string[];
-  publicKey_n: string;
-  publicKey_e?: string;
+  cert_x5c_chain?: string[];
+  pub_n: string;
+  pub_e?: string;
   alg?: string;
   kty?: string;
   verificationMethodId?: string;

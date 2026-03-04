@@ -1,9 +1,10 @@
+@let content = c();
+@let offer = vpOffer();
+@let cert = decryptedCertificate();
 <div class="flex flex-col gap-3">
   <h1 class="text-2xl mx-auto font-bold">Compliance 1</h1>
-  <div class="flex items-center gap-3">
-    <span class="whitespace-nowrap font-medium text-gray-400">Input</span>
-    <hr class="flex-1 my-2 border-gray-600">
-  </div>
+
+  <app-form-divider label="Input"></app-form-divider>
 
   <div class="flex flex-row items-baseline">
     <label class="w-20 mx-2 text-lg text-gray-500">Certificate:</label>
@@ -23,50 +24,74 @@
            class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
   </div>
 
-    <div class="flex flex-row items-baseline">
+  <div class="flex flex-row items-baseline">
     <label class="w-20 mx-2 text-lg text-gray-500">Did:</label>
     <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [(ngModel)]="state.did"
            class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
   </div>
 
-  <div class="flex items-center gap-3">
-    <span class="whitespace-nowrap font-medium text-gray-400">Actions</span>
-    <hr class="flex-1 my-2 border-gray-600">
-  </div>
+  <app-form-divider label="Actions"></app-form-divider>
 
   <div class="flex flex-row gap-3">
-    <button type="button" (click)="state.decryptCert()" [disabled]="state.isLoading()"
-            class=" text-black bg-blue-400 hover:bg-blue-300 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all
-           disabled:bg-gray-600">
+    <app-action-button (onClick)="state.decryptCert()" [isDisabled]="state.isLoading()">
       @if (state.isLoading()) {
         Decrypting…
       } @else {
         Decrypt certificate
       }
-    </button>
-    <button type="button" (click)="state.decryptCert()"
-            [disabled]="state.isLoading() || !state.credentialProvider.vpOffer()"
-            class=" text-black bg-blue-400 hover:bg-blue-300 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all
-           disabled:bg-gray-600">
-      @if (state.isLoading()) {
-        Decrypting…
-      } @else if (!state.credentialProvider.vpOffer()) {
-        VCs are not ready
-      } @else {
-        Decrypt certificate
-      }
-    </button>
+    </app-action-button>
+    <app-action-button (onClick)="state.copyToClipboard(cert?.certInfo)" [isDisabled]="!cert?.certInfo">📋
+    </app-action-button>
+
   </div>
 
-  @if (state.credentialProvider.decryptedCertificate()) {
-    <div class="flex items-center gap-3">
-      <span class="whitespace-nowrap font-medium text-gray-400">Result</span>
-      <hr class="flex-1 my-2 border-gray-600">
+  @if (offer) {
+    <div>
+      <app-form-divider label="Publish and Offer"></app-form-divider>
+
+      <div class="flex flex-row gap-4 items-center">
+        <app-form-selector label="To:" labelClass=""
+                           [selected]="selectedDomain"
+                           [collection]="publishDomains"></app-form-selector>
+
+        <div class="flex flex-row items-baseline">
+          <input type="text" placeholder="my-vc-name" [(ngModel)]="publishPath"
+                 class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+        </div>
+
+        <app-action-button (onClick)="publishOffer()" [isDisabled]="state.isLoading()">
+          @if (state.isLoading()) {
+            Publishing…
+          } @else {
+            Publish
+          }
+        </app-action-button>
+
+        <app-action-button (onClick)="offerVP()" [isDisabled]="state.isLoading() || !vpOffer()">
+          @if (state.isLoading()) {
+            Offering and publishing…
+          } @else {
+            Offer and publish
+          }
+        </app-action-button>
+        <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋
+        </app-action-button>
+      </div>
+
+      <app-form-divider label="Result"></app-form-divider>
+
+      <div class="flex flex-row gap-3">
+        <div class="flex-1">
+          <app-form-divider label="- offer"></app-form-divider>
+          <app-result-block [content]="offer"></app-result-block>
+        </div>
+        @if (content) {
+          <div class="flex-1">
+            <app-form-divider label="- compliance"></app-form-divider>
+            <app-result-block [content]="content"></app-result-block>
+          </div>
+        }
+      </div>
     </div>
-    <!--    <code [ngModel]="state.credentialProvider.decryptedCertificate()?.certInfo"></code>-->
-    <pre class="text-sm bg-blue-950 text-green-200 mx-4 my-2 p-4
-    rounded-lg overflow-auto">
-      <code class="whitespace-pre-wrap">{{ state.credentialProvider.decryptedCertificate()?.certInfo | json }}</code>
-    </pre>
   }
 </div>
