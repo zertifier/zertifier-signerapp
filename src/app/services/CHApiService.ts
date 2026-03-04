@@ -27,7 +27,7 @@ export class CHApiService {
       this.#inFlight[key] = this.#postWithFallback(
         this.#chRepo.getAllUrls(service, ch),
         offer,
-        new HttpParams().set("vcid", vcid))
+        new HttpParams().set("vcid", decodeURIComponent(vcid)))
         .pipe(
           shareReplay(1),
           finalize(() => delete this.#inFlight[key])
