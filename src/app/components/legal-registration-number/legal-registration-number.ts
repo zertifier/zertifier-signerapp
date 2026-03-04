@@ -1,7 +1,7 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
-import {APPROVED_CHS} from '../../core/types/clearingHouse.types';
+import {APPROVED_CHS, ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {JsonPipe} from '@angular/common';
 
 @Component({
@@ -15,10 +15,6 @@ import {JsonPipe} from '@angular/common';
 })
 export class LegalRegistrationNumber {
   state = inject(MainWindowGroupState);
-
-  protected onChChange(event: any) {
-    this.state.lnrCH.set(event.target.value);
-  }
 
   protected readonly APPROVED_CHS = APPROVED_CHS;
 }

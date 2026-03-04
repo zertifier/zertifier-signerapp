@@ -14,7 +14,7 @@ export class MainWindowGroupState {
   file = signal<File | null>(null);
   pass = signal<string | null>(null);
   isLoading = signal<boolean>(false);
-  lnrCH = signal<ApprovedCHs | undefined>(undefined);
+  lnrCH = signal<ApprovedCHs | undefined>("ARUBA");
   did = signal<string | null>(null);
 
   credentialProvider = inject(CredentialsProvider);
