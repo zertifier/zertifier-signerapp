@@ -11,10 +11,10 @@ const path = require('path');
 console.log(`🔥 Generating proxies, you dirty dog`)
 
 // Maybe pull proxies list from process.env.PROXY_LIST here?
+// BEWARE ORDER MATTERS!!!!! Regex matching on the partial path
 const proxies = {
-  aruba: "https://gx-compliance.aruba.it",
   aruba_lnr: "https://gx-notary.aruba.it",
-  gaia: "https://compliance.lab.gaia-x.eu",
+  aruba: "https://gx-compliance.aruba.it",
   gaia_lnr: "https://registrationnumber.notary.lab.gaia-x.eu",
   deltadao: "https://delta-dao.com",
   zertifier_file_api: "https://zertifier.com/docs/index.php",
