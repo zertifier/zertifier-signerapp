@@ -1,82 +1,62 @@
+@let content = c();
 <div class="flex flex-col gap-3">
   <h1 class="text-2xl mx-auto font-bold">Service Offering</h1>
-  <div class="flex items-center gap-3">
-    <span class="whitespace-nowrap font-medium text-gray-400">Input</span>
-    <hr class="flex-1 my-2 border-gray-600">
-  </div>
+
+  <app-form-divider label="Input"></app-form-divider>
 
   <div class="flex flex-row gap-3">
     <div class="flex flex-row items-center flex-1">
-      <label class="w-32 mx-2 text-lg">Terms url:</label>
+      <label class="w-28 mx-2 text-lg">Terms url:</label>
       <input type="text" placeholder="http://www.terms.com" [(ngModel)]="tacUrl"
              class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
     </div>
 
     <div class="flex flex-row items-center flex-1">
-      <label class="w-32 mx-2 text-lg">Terms hash:</label>
+      <label class="w-28 mx-2 text-lg">Terms hash:</label>
       <input type="text" placeholder="SHA-256" [(ngModel)]="tacHash"
              class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
     </div>
   </div>
 
   <div class="flex flex-row gap-3">
-    <div class="flex flex-row items-center flex-1">
-      <label class="w-32 mx-2 text-lg">Request type:</label>
-      <select (change)="onRequestTypeChange($event)"
-              class="grow rounded-lg bg-gray-700 text-white">
-        @for (i of REQUEST_TYPES; track $index) {
-          <option [ngValue]="i">{{ i }}</option>
-        }
-      </select>
-    </div>
+    <app-form-selector class="flex-1" label="Request type:" labelClass="w-28"
+                       [selected]="requestType"
+                       [collection]="REQUEST_TYPES"></app-form-selector>
 
     <div class="flex flex-row items-center flex-1">
-      <label class="w-32 mx-2 text-lg">Format MIME:</label>
+      <label class="w-28 mx-2 text-lg">Format MIME:</label>
       <input type="text" placeholder="application/json" [(ngModel)]="formatType"
              class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
     </div>
   </div>
 
   <div class="flex flex-row items-center">
-    <label class="w-32 mx-2 text-lg">Name:</label>
+    <label class="w-28 mx-2 text-lg">Name:</label>
     <input type="text" placeholder="Energy analysis algorithm" [(ngModel)]="name"
            class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
   </div>
 
   <div class="flex flex-row items-center">
-    <label class="w-32 mx-2 text-lg">Description:</label>
+    <label class="w-28 mx-2 text-lg">Description:</label>
     <input type="text" placeholder="This service is ..." [(ngModel)]="description"
            class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
   </div>
 
+  <app-form-divider label="Actions"></app-form-divider>
 
-  <div class="flex items-center gap-3">
-    <span class="whitespace-nowrap font-medium text-gray-400">Actions</span>
-    <hr class="flex-1 my-2 border-gray-600">
-  </div>
-
-  <div>
-    <button type="button" (click)="build()" [disabled]="state.isLoading()"
-            class=" text-black bg-blue-400 hover:bg-blue-300 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all
-           disabled:bg-gray-600">
+  <div class="flex flex-row gap-3">
+    <app-action-button (onClick)="build()" [isDisabled]="state.isLoading()">
       @if (state.isLoading()) {
         Building and Signing…
       } @else {
-        Build and Sign
+        Build and sign
       }
-    </button>
+    </app-action-button>
+    <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋</app-action-button>
   </div>
 
-  @if (state.credentialProvider.so()) {
-    <div class="flex items-center gap-3">
-      <span class="whitespace-nowrap font-medium text-gray-400">Result</span>
-      <hr class="flex-1 my-2 border-gray-600">
-    </div>
-
-    <!--    <code [ngModel]="state?.credentialProvider?.so()"></code>-->
-    <pre class="text-sm bg-blue-950 text-green-200 mx-4 my-2 p-4
-    rounded-lg overflow-auto">
-      <code class="whitespace-pre-wrap">{{ state.credentialProvider.so() | json }}</code>
-    </pre>
+  @if (content) {
+    <app-form-divider label="Result"></app-form-divider>
+    <app-result-block [content]="content"></app-result-block>
   }
 </div>

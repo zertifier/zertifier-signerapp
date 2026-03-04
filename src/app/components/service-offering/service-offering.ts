@@ -3,13 +3,20 @@ import {MainWindowGroupState} from '../../services/sharedState/main-window.group
 import {REQUEST_TYPES, RequestTypes, SOInput} from '../../core/types/credential.types';
 import {ToastService} from '../../services/ToastService';
 import {FormsModule} from '@angular/forms';
-import {JsonPipe} from '@angular/common';
+import {FormDivider} from '../../ui/form-divider/form-divider';
+import {ResultBlock} from '../../ui/result-block/result-block';
+import {ActionButton} from '../../ui/action-button/action-button';
+import {FormSelector} from '../../ui/form-selector/form-selector';
+import {APPROVED_CHS} from '../../core/types/clearingHouse.types';
 
 @Component({
   selector: 'app-service-offering',
   imports: [
     FormsModule,
-    JsonPipe
+    FormDivider,
+    ResultBlock,
+    ActionButton,
+    FormSelector
   ],
   templateUrl: './service-offering.html',
   styleUrl: './service-offering.css',
@@ -22,6 +29,9 @@ export class ServiceOffering {
   tacHash = signal<string | undefined>(undefined);
   formatType = signal<string>('application/json');
   requestType = signal<RequestTypes>('API');
+  c = this.state.credentialProvider.so;
+  protected readonly REQUEST_TYPES = REQUEST_TYPES;
+  protected readonly APPROVED_CHS = APPROVED_CHS;
   #toast = inject(ToastService);
 
   onRequestTypeChange(event: any) {
@@ -57,6 +67,4 @@ export class ServiceOffering {
     }
     this.state.buildSO(input);
   }
-
-  protected readonly REQUEST_TYPES = REQUEST_TYPES;
 }

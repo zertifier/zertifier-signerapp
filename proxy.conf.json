@@ -1,13 +1,4 @@
 {
-  "/aruba": {
-    "target": "https://gx-compliance.aruba.it",
-    "pathRewrite": {
-      "^/aruba": ""
-    },
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  },
   "/aruba_lnr": {
     "target": "https://gx-notary.aruba.it",
     "pathRewrite": {
@@ -17,10 +8,10 @@
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  "/gaia": {
-    "target": "https://compliance.lab.gaia-x.eu",
+  "/aruba": {
+    "target": "https://gx-compliance.aruba.it",
     "pathRewrite": {
-      "^/gaia": ""
+      "^/aruba": ""
     },
     "secure": false,
     "changeOrigin": true,

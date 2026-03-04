@@ -16,6 +16,7 @@ const proxies = {
   aruba_lnr: "https://gx-notary.aruba.it",
   aruba: "https://gx-compliance.aruba.it",
   gaia_lnr: "https://registrationnumber.notary.lab.gaia-x.eu",
+  gaia: "https://compliance.lab.gaia-x.eu",
   deltadao: "https://delta-dao.com",
   zertifier_file_api: "https://zertifier.com/docs/index.php",
 };

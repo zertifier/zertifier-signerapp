@@ -4,6 +4,7 @@ import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
 import {LPInput, SOInput} from '../../core/types/credential.types';
+import {catchError, EMPTY, switchMap} from 'rxjs';
 
 @Injectable()
 export class MainWindowGroupState {
@@ -14,7 +15,7 @@ export class MainWindowGroupState {
   file = signal<File | null>(null);
   pass = signal<string | null>(null);
   isLoading = signal<boolean>(false);
-  lnrCH = signal<ApprovedCHs | undefined>("ARUBA");
+  ch = signal<ApprovedCHs | undefined>("ARUBA");
   did = signal<string | null>(null);
 
   credentialProvider = inject(CredentialsProvider);
@@ -22,7 +23,8 @@ export class MainWindowGroupState {
   #dsConfig = inject(DogshitConfig);
 
   constructor() {
-    this.baseUrl.set("someurl.com");
+    this.baseUrl.set("https://www.zertifier.com/docs/vc/megatro/main");
+    this.vatId.set("ESB55272140");
     this.pass.set("");
     this.countryCode.set("ES-es");
   }
@@ -34,7 +36,7 @@ export class MainWindowGroupState {
       this.#toast.error("Legal registration number inputs are not filled");
       return;
     }
-    this.credentialProvider.fetchLnr({url: this.buildFileUrl("lnr"), vatId}, this.isLoading, this.lnrCH());
+    this.credentialProvider.fetchLnr({url: this.buildFileUrl("lnr"), vatId}, this.isLoading, this.ch());
   }
 
   buildSO(input: SOInput) {

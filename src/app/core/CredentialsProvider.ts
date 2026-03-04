@@ -1,12 +1,16 @@
 import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {SignerService} from '../services/SignerService';
 import {CertificateProvider} from './CertificateProvider';
-import {finalize, from, throwError} from 'rxjs';
+import {finalize, from, tap, throwError} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
-import {LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
+import {DIDInput, LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
 import {ApprovedCHs} from './types/clearingHouse.types';
 import {CertFileInput, DecryptedCertificate} from './types/crypto.types';
+import {PublishService} from '../services/publishers/PublishService';
+import {PublishedFile} from './types/publisher.types';
+import * as path from 'node:path';
+import {DogshitConfig} from './data/dogshit.config';
 
 @Injectable()
 export class CredentialsProvider {
@@ -30,17 +34,19 @@ export class CredentialsProvider {
       .filter((a: any): a is NonNullable<VCv1> => !!a);
     return this.#credBuilder.vp(vps);
   })
+  #publishService = inject(PublishService);
+  #dsConfig = inject(DogshitConfig);
 
   offerPresentation(input: VPInput, isLoading: WritableSignal<boolean>, ch?: ApprovedCHs) {
-    const vp_l = this.vpOffer();
-    if (!vp_l) {
+    const vp = this.vpOffer();
+    if (!vp) {
       throw new Error("Not all required VCs are found.")
     }
     isLoading.set(true);
-    this.#chApiService.offer(vp_l, input.url, 'COMPLIANCE', ch)
-      .pipe(finalize(() => isLoading.set(false)))
-      .subscribe((resp: any) =>
-        this.compliance.set(resp)
+    return this.#chApiService.offer(vp, input.url, 'COMPLIANCE', ch)
+      .pipe(
+        tap(resp => this.compliance.set(resp)),
+        finalize(() => isLoading.set(false))
       );
   }
 
