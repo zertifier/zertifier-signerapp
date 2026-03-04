@@ -67,7 +67,7 @@
     </button>
   </div>
 
-  @if (state?.credentialProvider?.so()) {
+  @if (state.credentialProvider.so()) {
     <div class="flex items-center gap-3">
       <span class="whitespace-nowrap font-medium text-gray-400">Result</span>
       <hr class="flex-1 my-2 border-gray-600">
@@ -76,7 +76,7 @@
     <!--    <code [ngModel]="state?.credentialProvider?.so()"></code>-->
     <pre class="text-sm bg-blue-950 text-green-200 mx-4 my-2 p-4
     rounded-lg overflow-auto">
-      <code class="whitespace-pre-wrap">{{ state?.credentialProvider?.so() | json }}</code>
+      <code class="whitespace-pre-wrap">{{ state.credentialProvider.so() | json }}</code>
     </pre>
   }
 </div>
