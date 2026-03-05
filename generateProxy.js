@@ -18,7 +18,7 @@ const proxies = {
   gaia_lnr: "https://registrationnumber.notary.lab.gaia-x.eu",
   gaia: "https://compliance.lab.gaia-x.eu",
   deltadao: "https://delta-dao.com",
-  zertifier_file_api: "https://zertifier.com/docs/index.php",
+  zertifier_file_api: "https://zertifier.com/docs/",
 };
 
 const proxyConfig = {};
