@@ -21,7 +21,7 @@ export class CHApiService {
   #httpClient = inject(HttpClient);
   #inFlight: Record<string, Observable<any>> = {};
 
-  offer(offer: Object, vcid: string, service: CHServices, ch?: ApprovedCHs) {
+  fetch(offer: Object, vcid: string, service: CHServices, ch?: ApprovedCHs) {
     const key = JSON.stringify({offer, vcid, service, ch})
     if (!this.#inFlight[key]) {
       this.#inFlight[key] = this.#postWithFallback(

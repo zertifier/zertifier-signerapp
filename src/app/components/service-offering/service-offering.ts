@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
 import {REQUEST_TYPES, RequestTypes, SOInput} from '../../core/types/credential.types';
 import {ToastService} from '../../services/ToastService';
@@ -7,7 +7,7 @@ import {FormDivider} from '../../ui/form-divider/form-divider';
 import {ResultBlock} from '../../ui/result-block/result-block';
 import {ActionButton} from '../../ui/action-button/action-button';
 import {FormSelector} from '../../ui/form-selector/form-selector';
-import {APPROVED_CHS} from '../../core/types/clearingHouse.types';
+import {requireValue} from '../../util/util';
 
 @Component({
   selector: 'app-service-offering',
@@ -21,7 +21,7 @@ import {APPROVED_CHS} from '../../core/types/clearingHouse.types';
   templateUrl: './service-offering.html',
   styleUrl: './service-offering.css',
 })
-export class ServiceOffering {
+export class ServiceOffering implements OnInit {
   state = inject(MainWindowGroupState);
   name = signal<string | undefined>(undefined);
   description = signal<string | undefined>(undefined);
@@ -31,33 +31,25 @@ export class ServiceOffering {
   requestType = signal<RequestTypes>('API');
   c = this.state.credentialProvider.so;
   protected readonly REQUEST_TYPES = REQUEST_TYPES;
-  protected readonly APPROVED_CHS = APPROVED_CHS;
   #toast = inject(ToastService);
 
-  onRequestTypeChange(event: any) {
-    this.requestType.set(event.target.value);
+  ngOnInit(): void {
+    this.tacUrl.set("https://zertifier.com/politica_privacitat.html&languageid=1#");
+    this.tacHash.set("6f8e29c2c9350f886ffd2e21351117fe95619f7548e0eea6160ee7e03c30c718");
+    this.name.set("Community Analysis Alghorithm");
+    this.description.set(`Provides a secure, aggregated view of energy consumption and generation at community level.
+    It computes totals and averages, identifies top consumers and surplus generators, and highlights behavioral extremes (percentiles).`);
   }
 
   build() {
-    if (!this.state.baseUrl()) {
-      this.#toast.error("Base URL is not set in the compliance");
-      return;
-    }
-    const tacUrl = this.tacUrl();
-    const hash = this.tacHash();
-    if (!tacUrl || !hash) {
-      this.#toast.error("Terms and conditions url and hash are not set");
-      return;
-    }
-
     const input: SOInput = {
-      url: this.state.buildFileUrl('so'),
+      url: this.state.buildFilePath('so'),
       name: this.name(),
       description: this.description(),
-      providedByUrl: this.state.buildFileUrl("lp"),
+      providedByUrl: this.state.buildFilePath("lp"),
       tac: {
-        "gx:url": tacUrl,
-        "gx:hash": hash
+        "gx:url": requireValue(this.tacUrl(), "Terms and condition url"),
+        "gx:hash": requireValue(this.tacHash(), "Terms and condition hash")
       },
       dataAccountExport: {
         "gx:requestType": this.requestType(),

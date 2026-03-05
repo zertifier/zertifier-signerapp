@@ -37,8 +37,18 @@ export function joinPath(base: string, ...paths: string[]) {
     });
     return url.toString();*/
   const path = `${base}/${paths
-    .map((s:string)=> s.replace("/^\/+|\/+$/g", ''))
+    .map((s: string) => s.replace("/^\/+|\/+$/g", ''))
     .join('/')}`;
   console.log("Path builded: ", path)
   return path;
+}
+
+export function urlToDid(url: string): string {
+  const u = new URL(url); // remove dogshit like https://
+  const host = u.hostname.split('.').join(':'); // www.zertifier.com → www:zertifier:com
+  const path = u.pathname
+    .replace(/^\//g, '') // remove last slash
+    .split('/')
+    .join(':'); // /docs/vc/main → docs:vc:main
+  return ['did', 'web', host, path].filter(Boolean).join(':')
 }

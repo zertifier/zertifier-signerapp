@@ -1,10 +1,12 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {CredentialsProvider} from '../../core/CredentialsProvider';
 import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
-import {LPInput, SOInput} from '../../core/types/credential.types';
+import {SOInput} from '../../core/types/credential.types';
 import {catchError, EMPTY, switchMap} from 'rxjs';
+import {requireValue, withLoading} from '../../util/util';
+import {joinPath, urlToDid} from '../../util/strings.util';
 
 @Injectable()
 export class MainWindowGroupState {
@@ -16,149 +18,109 @@ export class MainWindowGroupState {
   pass = signal<string | null>(null);
   isLoading = signal<boolean>(false);
   ch = signal<ApprovedCHs | undefined>("ARUBA");
-  did = signal<string | null>(null);
+  did = computed(() => {
+    const url = this.baseUrl();
+    if (url) {
+      return urlToDid(url)
+    }
+    return undefined;
+  });
 
   credentialProvider = inject(CredentialsProvider);
   #toast = inject(ToastService);
   #dsConfig = inject(DogshitConfig);
 
   constructor() {
-    this.baseUrl.set("https://www.zertifier.com/docs/vc/megatro/main");
-    this.vatId.set("ESB55272140");
-    this.pass.set("");
-    this.countryCode.set("ES-es");
+    this.baseUrl.set("https://www.zertifier.com/docs/vc/zertifier/main");
+    this.vatId.set("ESB05303755");
+    this.legalName.set("ZERTIFIER SL");
+    this.countryCode.set("ES-CT");
   }
 
   fetchLnr() {
-    const baseUrl = this.baseUrl();
-    const vatId = this.vatId();
-    if (!baseUrl || !vatId) {
-      this.#toast.error("Legal registration number inputs are not filled");
-      return;
-    }
-    this.credentialProvider.fetchLnr({url: this.buildFileUrl("lnr"), vatId}, this.isLoading, this.ch());
-  }
-
-  buildSO(input: SOInput) {
-    if (this.isLoading()) {
-      this.#toast.info("Already have started!");
-      return;
-    }
-    const did = this.did();
-    if (!did) {
-      this.#toast.error("Did url is not set!");
-      return;
-    }
-    const baseUrl = this.baseUrl();
-    if (!baseUrl) {
-      this.#toast.error("Base url is not set!");
-      return;
-    }
-    this.credentialProvider.buildSO(did, input, this.isLoading);
-  }
-
-  buildLP() {
-    if (this.isLoading()) {
-      this.#toast.info("Already have started!");
-      return;
-    }
-    const baseUrl = this.baseUrl();
-    if (!baseUrl) {
-      this.#toast.error("Base url is not set!");
-      return;
-    }
-    const did = this.did();
-    if (!did) {
-      this.#toast.error("Did url is not set!");
-      return;
-    }
-    const code = this.countryCode();
-    const legalName = this.legalName();
-    if (!code || !legalName) {
-      this.#toast.error("Inputs are not filled");
-      return;
-    }
-    const inputs: LPInput = {
-      url: this.buildFileUrl("lp"),
-      lnrSubject: `${this.buildFileUrl('lnr')}${this.#dsConfig.subjectPostfix}`,
-      countryCode: code,
-      legalName
-    }
-    this.credentialProvider.buildLP(did, inputs, this.isLoading);
-  }
-
-  buildTac() {
-    if (this.isLoading()) {
-      this.#toast.info("Already have started!");
-      return;
-    }
-    const baseUrl = this.baseUrl();
-    if (!baseUrl) {
-      this.#toast.error("Base url is not set!");
-      return;
-    }
-    const did = this.did();
-    if (!did) {
-      this.#toast.error("Did url is not set!");
-      return;
-    }
-    this.credentialProvider.buildTAC(did, {url: this.buildFileUrl("tac")}, this.isLoading);
-  }
-
-  decryptCert() {
-    const file = this.file();
-    const pass = this.pass();
-    if (!file || !pass) {
-      this.#toast.error('Certificate file or password not found');
-      return;
-    }
-    this.credentialProvider.decryptCert({file, pass}, this.isLoading);
-  }
-
-  getCompliance(path: string) {
-    this.credentialProvider
-      .offerPresentation(
-        {url: this.buildFileUrl('compliance')},
-        this.isLoading, this.ch()
-      )
-      .pipe(
-        switchMap(() =>
-          this.credentialProvider.publishCompliance(path, this.isLoading)
-        ),
-        catchError((err: any) => {
-          this.#toast.error('Publish or offer failed!');
-          return EMPTY;
-        })
-      )
+    withLoading(
+      this.credentialProvider
+        .fetchLnr({
+          url: this.buildFilePath('lnr'),
+          vatId: requireValue(this.vatId(), "Vat ID")
+        }, this.ch())
+      , this.isLoading)
       .subscribe();
   }
 
-  publishOffer(path: string) {
-    const did = this.did();
-    if (!did) {
-      this.#toast.error("Did url is not set!");
-      return;
-    }
+  buildSO(input: SOInput) {
+    withLoading(
+      this.credentialProvider.buildSO(
+        requireValue(this.did(), "Did.json url"), input),
+      this.isLoading)
+      .subscribe();
+  }
 
-    this.credentialProvider.publishOffer(path, did, this.isLoading).subscribe({
+  buildLP() {
+    withLoading(
+      this.credentialProvider.buildLP(
+        requireValue(this.did(), "Did.json url"),
+        {
+          url: this.buildFilePath('lp'),
+          lnrSubject: `${this.buildFilePath('lnr')}${this.#dsConfig.subjectPostfix}`,
+          countryCode: requireValue(this.countryCode(), "Country Code"),
+          legalName: requireValue(this.legalName(), "Legal name"),
+        }),
+      this.isLoading)
+      .subscribe();
+  }
+
+  buildTac() {
+    withLoading(
+      this.credentialProvider.buildTAC(
+        requireValue(this.did(), "Did.json url"),
+        {url: this.buildFilePath('tac')}),
+      this.isLoading)
+      .subscribe();
+  }
+
+  decryptCert() {
+    withLoading(
+      this.credentialProvider.decryptCert({
+        file: requireValue(this.file(), 'Certificate file'),
+        pass: requireValue(this.pass(), "Certificate password")
+      }), this.isLoading)
+      .subscribe();
+  }
+
+  fetchCompliance() {
+    withLoading(
+      this.credentialProvider
+        .fetchCompliance(
+          {url: this.buildFilePath('compliance')},
+          this.ch()
+        )
+        .pipe(
+          switchMap(() =>
+            this.credentialProvider.publishCompliance(requireValue(this.baseUrl(), "Publish url"))
+          ),
+          catchError((err: any) => {
+            this.#toast.error('Publish or offer failed!');
+            console.error("Publish or offer failed", {cause: err})
+            return EMPTY;
+          })
+        ), this.isLoading)
+      .subscribe();
+  }
+
+  publishOffer() {
+    withLoading(this.credentialProvider.publishPresentation(
+        requireValue(this.baseUrl(), "Publish url"),
+        requireValue(this.did(), "Did.json url"))
+      , this.isLoading).subscribe({
       next: () => {
         this.#toast.info("Publishing offer was successful!")
       },
       error: err => {
         this.#toast.error("Publishing failed!")
-        console.error(`Publishing failed`, {cause: err})
-      },
+        console.error('Publishing failed', {cause: err})
+      }
     });
-  }
-
-  buildFileUrl(fileName: string) {
-    const base = this.baseUrl();
-    // this shouldn't be thrown ever if you are not stupid
-    if (!base) {
-      this.#toast.error("Base url is not set!");
-      return "you are stupid";
-    }
-    return `${base}/${this.#dsConfig.fileNames[fileName]}`;
   }
 
   copyToClipboard(content: Object | null | undefined) {
@@ -171,6 +133,10 @@ export class MainWindowGroupState {
       .then(() => {
         this.#toast.info('Copied!', {duration: 2000});
       });
+  }
+
+  buildFilePath(filename: string) {
+    return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames[filename])
   }
 
 }

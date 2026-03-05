@@ -26,8 +26,8 @@
 
   <div class="flex flex-row items-baseline">
     <label class="w-20 mx-2 text-lg text-gray-500">Did:</label>
-    <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [(ngModel)]="state.did"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+    <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
+           class="grow bg-gray-900  text-gray-500 placeholder:text-gray-500 rounded-lg"/>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>
@@ -54,11 +54,6 @@
                            [selected]="selectedDomain"
                            [collection]="publishDomains"></app-form-selector>
 
-        <div class="flex flex-row items-baseline">
-          <input type="text" placeholder="my-vc-name" [(ngModel)]="publishPath"
-                 class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
-        </div>
-
         <app-action-button (onClick)="publishOffer()" [isDisabled]="state.isLoading()">
           @if (state.isLoading()) {
             Publishing…
@@ -69,9 +64,9 @@
 
         <app-action-button (onClick)="getCompliance()" [isDisabled]="state.isLoading() || !vpOffer()">
           @if (state.isLoading()) {
-            Offering and publishing…
+            Fetching compliance…
           } @else {
-            Offer and publish
+            Fetch compliance
           }
         </app-action-button>
         <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋

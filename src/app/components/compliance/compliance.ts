@@ -22,10 +22,9 @@ import {DogshitConfig} from '../../core/data/dogshit.config';
 export class Compliance {
   state = inject(MainWindowGroupState);
   c = this.state.credentialProvider.compliance;
-  vpOffer = this.state.credentialProvider.vpOffer;
-  decryptedCertificate = this.state.credentialProvider.decryptedCertificate;
+  vpOffer = this.state.credentialProvider.presentation;
+  decryptedCertificate = this.state.credentialProvider.cert;
   selectedDomain = signal<string>('Zertifier');
-  publishPath = signal<string>("vc/1");
   protected readonly Object = Object;
   #dsConfig = inject(DogshitConfig);
   publishDomains = Object.keys(this.#dsConfig.publishDomains);
@@ -38,10 +37,10 @@ export class Compliance {
   }
 
   publishOffer() {
-    this.state.publishOffer(this.publishPath());
+    this.state.publishOffer();
   }
 
   getCompliance() {
-    this.state.getCompliance(this.publishPath());
+    this.state.fetchCompliance();
   }
 }

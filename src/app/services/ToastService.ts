@@ -32,6 +32,7 @@ export class ToastService {
   }
 
   show(type: ToastType, message: string, options?: ToastOptions) {
+    console.log(`[ToastService] ${type}: ${message}`);
     const id = options?.id ?? this.#uuid();
     const duration = options?.duration ?? 4000;
     const next: ToastItem = {id, type, message, duration};

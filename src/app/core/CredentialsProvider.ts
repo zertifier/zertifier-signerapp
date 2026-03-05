@@ -1,16 +1,17 @@
-import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {SignerService} from '../services/SignerService';
 import {CertificateProvider} from './CertificateProvider';
-import {finalize, from, tap} from 'rxjs';
+import {from, tap} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
-import {DIDInput, LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
+import {LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
 import {ApprovedCHs} from './types/clearingHouse.types';
 import {CertFileInput, DecryptedCertificate} from './types/crypto.types';
 import {PublishService} from '../services/publishers/PublishService';
 import {PublishedFile} from './types/publisher.types';
 import {DogshitConfig} from './data/dogshit.config';
 import {joinPath} from '../util/strings.util';
+import {requireValue} from '../util/util';
 
 @Injectable()
 export class CredentialsProvider {
@@ -19,12 +20,12 @@ export class CredentialsProvider {
   tac = signal<VCv1 | null>(null);
   so = signal<VCv1 | null>(null);
   compliance = signal<object | null>(null);
-  decryptedCertificate = signal<DecryptedCertificate | null>(null);
+  cert = signal<DecryptedCertificate | null>(null);
   #chApiService = inject(CHApiService);
   #certProvider = inject(CertificateProvider);
   #signerService = inject(SignerService);
   #credBuilder = inject(CredentialsBuilder);
-  vpOffer = computed(() => {
+  presentation = computed(() => {
     const lnr_l = this.lnr();
     const lp_l = this.lp();
     const tac_l = this.tac();
@@ -37,107 +38,74 @@ export class CredentialsProvider {
   #publishService = inject(PublishService);
   #dsConfig = inject(DogshitConfig);
 
-  offerPresentation(input: VPInput, isLoading: WritableSignal<boolean>, ch?: ApprovedCHs) {
-    const vp = this.vpOffer();
-    if (!vp) {
-      throw new Error("Not all required VCs are found.")
-    }
-    isLoading.set(true);
-    return this.#chApiService.offer(vp, input.url, 'COMPLIANCE', ch)
+  fetchCompliance(input: VPInput, ch?: ApprovedCHs) {
+    return this.#chApiService
+      .fetch(requireValue(this.presentation(), "Verifiable presentation"), input.url, 'COMPLIANCE', ch)
       .pipe(
         tap(resp => this.compliance.set(resp)),
-        finalize(() => isLoading.set(false))
       );
   }
 
-  publishCompliance(baseUrl: string, isLoading: WritableSignal<boolean>) {
-    const vpOffer = this.vpOffer();
-    if (!vpOffer) {
-      throw new Error("Offer is not constructed")
-    }
-    isLoading.set(true);
+  publishCompliance(baseUrl: string) {
     // TODO hardcoded domain
     return this.#publishService
       .publish(this.#dsConfig.publishDomains['Zertifier'], [{
         path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
-        content: JSON.stringify(vpOffer)
-      },])
-      .pipe(
-        finalize(() => isLoading.set(false))
-      );
+        content: JSON.stringify(requireValue(this.presentation(), "Verifiable presentation"))
+      }]);
   }
 
   // TODO extract this to the publish service when credentials will be dynamic
-  publishOffer(baseUrl: string, didUrl: string, isLoading: WritableSignal<boolean>) {
-    isLoading.set(true);
-    const files = this.#buildFilesToPublish(baseUrl, didUrl);
+  publishPresentation(baseUrl: string, didUrl: string) {
     // TODO hardcoded domain
     return this.#publishService
-      .publish(this.#dsConfig.publishDomains['Zertifier'], files)
+      .publish(this.#dsConfig.publishDomains['Zertifier'], this.#buildFilesToPublish(baseUrl, didUrl));
+  }
+
+  buildSO(didUrl: string, input: SOInput) {
+    return this.#signVC(this.#credBuilder.so(didUrl, input), didUrl)
       .pipe(
-        finalize(() => isLoading.set(false))
+        tap((r: any) => this.so.set(r))
       );
   }
 
-  buildSO(didUrl: string, input: SOInput, isLoading?: WritableSignal<boolean>) {
-    isLoading?.set(true);
-    this.#signVC(this.#credBuilder.so(didUrl, input), didUrl).pipe(
-      finalize(() => isLoading?.set(false))
-    ).subscribe((resp: any) => this.so.set(resp));
+  buildTAC(didUrl: string, input: TACInput) {
+    return this.#signVC(this.#credBuilder.tac(didUrl, input), didUrl)
+      .pipe(
+        tap((r: any) => this.tac.set(r))
+      );
   }
 
-  buildTAC(didUrl: string, input: TACInput, isLoading?: WritableSignal<boolean>) {
-    isLoading?.set(true);
-    this.#signVC(this.#credBuilder.tac(didUrl, input), didUrl).pipe(
-      finalize(() => isLoading?.set(false))
-    ).subscribe((resp: any) => this.tac.set(resp));
-  }
-
-  buildLP(didUrl: string, input: LPInput, isLoading?: WritableSignal<boolean>) {
-    isLoading?.set(true);
-    this.#signVC(this.#credBuilder.lp(didUrl, input), didUrl).pipe(
-      finalize(() => isLoading?.set(false))
-    ).subscribe((resp: any) => this.lp.set(resp));
+  buildLP(didUrl: string, input: LPInput) {
+    return this.#signVC(this.#credBuilder.lp(didUrl, input), didUrl)
+      .pipe(
+        tap((r: any) => this.lp.set(r))
+      );
   }
 
   // TODO maybe some protection to what is received???
-  fetchLnr(input: LNRInput, isLoading?: WritableSignal<boolean>, ch?: ApprovedCHs) {
-    isLoading?.set(true);
-    this.#chApiService
-      .offer(
+  fetchLnr(input: LNRInput, ch?: ApprovedCHs) {
+    return this.#chApiService
+      .fetch(
         this.#credBuilder.lnrOffer(input.url, input.vatId),
         input.url, "LNR", ch)
       .pipe(
-        finalize(() => isLoading?.set(false))
-      )
-      .subscribe((value: object) => {
-          this.lnr.set(value as VCv1)
-        }
+        tap((v: Object) => this.lnr.set(v as VCv1))
       );
   }
 
-  decryptCert(input: CertFileInput, isLoading?: WritableSignal<boolean>) {
-    if (!input.file || !input.pass) {
-      throw new Error("Certificate file or password are not found!");
-    }
-    isLoading?.set(true);
-    from(this.#certProvider.decrypt(input.file, input.pass))
+  decryptCert(input: CertFileInput) {
+    return from(this.#certProvider.decrypt(input.file, input.pass))
       .pipe(
-        finalize(() => isLoading?.set(false))
-      ).subscribe((cert: DecryptedCertificate) => this.decryptedCertificate.set(cert))
+        tap((r: DecryptedCertificate) => this.cert.set(r))
+      )
   }
 
   #buildFilesToPublish(baseUrl: string, didUrl: string) {
-    const certPem = this.decryptedCertificate()?.pemCert;
-    if (!certPem) {
-      throw new Error("Certificate.pem not found!");
-    }
-    const lp = this.lp();
-    const tac = this.tac();
-    const lnr = this.lnr();
-    if (!lp || !tac || !lnr) {
-      throw new Error("Not all required VCs are found.");
-    }
+    const certPem = requireValue(this.cert()?.pemCert, "Certificate");
+    const lnr = requireValue(this.lnr(), "Legal Registration Number");
+    const tac = requireValue(this.lp(), "Legal participant");
+    const lp = requireValue(this.tac(), "Terms and conditions");
     const certUrl = joinPath(baseUrl, this.#dsConfig.fileNames['cert']);
     const files: PublishedFile[] = [
       {
@@ -172,11 +140,8 @@ export class CredentialsProvider {
   }
 
   #buildDidJson(didUrl: string, certUrl: string) {
-    const cert = this.decryptedCertificate();
-    if (!cert) {
-      throw new Error("No Certificate Found");
-    }
-    const input: DIDInput = {
+    const cert = requireValue(this.cert(), "Certificate");
+    return this.#credBuilder.did({
       id: didUrl,
       kty: cert.pubKey.kty,
       pub_n: cert.pubKey.n,
@@ -184,17 +149,12 @@ export class CredentialsProvider {
       alg: cert.pubKey.alg,
       cert_x5u_url: certUrl,
       cert_x5c_chain: cert.pubKey.x5c
-    }
-    return this.#credBuilder.did(input);
+    });
   }
 
   #signVC(offer: VCv1, didUrl: string) {
-    const pKey = this.decryptedCertificate()?.pKey;
-    if (!pKey) {
-      return throwError(() => new Error("Private key not found."));
-    }
     return from(this.#signerService
       .signCredential(offer,
-        didUrl, pKey));
+        didUrl, requireValue(this.cert()?.pKey, "Private key")));
   }
 }
