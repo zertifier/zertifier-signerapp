@@ -12,9 +12,13 @@ export class ZertifierFilePublisher implements FilePublisher {
   #http = inject(HttpClient);
 
   publish(url: string, files: PublishedFile[], headers?: HttpHeaders) {
-    return this.#http.post(url, files, {headers})
+    const filesRelative = files.map((file: PublishedFile) => {
+      file.path = file.path.replace(/^.+\.com\/docs\//g, '')
+      return file;
+    });
+    return this.#http.post(url, filesRelative, {headers})
       .pipe(
-        switchMap(() => this.validate(url, files)),
+        switchMap(() => this.validate(url, filesRelative)),
         catchError((err: any) =>
           throwError(() => new Error(`Error publishing files`, {cause: err}))
         )
