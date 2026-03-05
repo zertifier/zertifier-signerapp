@@ -51,7 +51,7 @@ export class CredentialsProvider {
     return this.#publishService
       .publish(this.#dsConfig.publishDomains['Zertifier'], [{
         path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
-        content: JSON.stringify(requireValue(this.presentation(), "Verifiable presentation"))
+        content: JSON.stringify(requireValue(this.compliance(), "Verifiable presentation"))
       }]);
   }
 
