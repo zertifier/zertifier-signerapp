@@ -2,9 +2,9 @@ import {Observable} from 'rxjs';
 import {HttpHeaders} from '@angular/common/http';
 
 export interface FilePublisher {
-  publish(files: PublishedFile[], baseUrl: string, headers?: HttpHeaders): Observable<Object>;
+  publish(baseUrl: string, files: PublishedFile[], headers?: HttpHeaders): Observable<void>;
 
-  validate(files: PublishedFile[], baseUrl: string): Observable<Boolean>;
+  validate(baseUrl: string, files: PublishedFile[]): Observable<void>;
 }
 
 export interface PublishedFile {

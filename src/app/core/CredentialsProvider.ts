@@ -1,7 +1,7 @@
 import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {SignerService} from '../services/SignerService';
 import {CertificateProvider} from './CertificateProvider';
-import {finalize, from, tap, throwError} from 'rxjs';
+import {finalize, from, tap} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
 import {CredentialsBuilder} from '../services/CredentialsBuilder';
 import {DIDInput, LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
@@ -9,7 +9,6 @@ import {ApprovedCHs} from './types/clearingHouse.types';
 import {CertFileInput, DecryptedCertificate} from './types/crypto.types';
 import {PublishService} from '../services/publishers/PublishService';
 import {PublishedFile} from './types/publisher.types';
-import * as path from 'node:path';
 import {DogshitConfig} from './data/dogshit.config';
 import {joinPath} from '../util/strings.util';
 
@@ -59,10 +58,10 @@ export class CredentialsProvider {
     isLoading.set(true);
     // TODO hardcoded domain
     return this.#publishService
-      .publish([{
+      .publish(this.#dsConfig.publishDomains['Zertifier'], [{
         path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
         content: JSON.stringify(vpOffer)
-      },], this.#dsConfig.publishDomains['Zertifier'])
+      },])
       .pipe(
         finalize(() => isLoading.set(false))
       );
@@ -74,7 +73,7 @@ export class CredentialsProvider {
     const files = this.#buildFilesToPublish(baseUrl, didUrl);
     // TODO hardcoded domain
     return this.#publishService
-      .publish(files, this.#dsConfig.publishDomains['Zertifier'])
+      .publish(this.#dsConfig.publishDomains['Zertifier'], files)
       .pipe(
         finalize(() => isLoading.set(false))
       );
