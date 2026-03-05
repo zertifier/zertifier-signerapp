@@ -53,7 +53,7 @@ export type VPInput = {
   url: string;
 }
 
-export type VP = VCv1 & { credential: VCv1[] }
+export type VP = VCv1 & { verifiableCredential: VCv1[] }
 
 export interface LPInput {
   url: string;

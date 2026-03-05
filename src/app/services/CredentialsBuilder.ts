@@ -9,7 +9,7 @@ export class CredentialsBuilder {
   vp(vcArr: VCv1[]): VP {
     return {
       ...VP_TEMPLATE,
-      "credential": vcArr
+      "verifiableCredential": vcArr
     }
   }
 
