@@ -36,5 +36,9 @@ export function joinPath(base: string, ...paths: string[]) {
       url.pathname = [url.pathname.replace(/\/$/, ''), p.replace(/^\//, '')].join('/');
     });
     return url.toString();*/
-  return `${base}/${paths.join('/')}`;
+  const path = `${base}/${paths
+    .map((s:string)=> s.replace("/^\/+|\/+$/g", ''))
+    .join('/')}`;
+  console.log("Path builded: ", path)
+  return path;
 }
