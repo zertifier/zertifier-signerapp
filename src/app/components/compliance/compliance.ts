@@ -41,7 +41,7 @@ export class Compliance {
     this.state.publishOffer(this.publishPath());
   }
 
-  offerVP() {
-    this.state.offerVP(this.publishPath());
+  getCompliance() {
+    this.state.getCompliance(this.publishPath());
   }
 }

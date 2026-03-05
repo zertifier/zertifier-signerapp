@@ -67,7 +67,7 @@
           }
         </app-action-button>
 
-        <app-action-button (onClick)="offerVP()" [isDisabled]="state.isLoading() || !vpOffer()">
+        <app-action-button (onClick)="getCompliance()" [isDisabled]="state.isLoading() || !vpOffer()">
           @if (state.isLoading()) {
             Offering and publishing…
           } @else {

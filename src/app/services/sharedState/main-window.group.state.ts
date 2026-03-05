@@ -115,16 +115,15 @@ export class MainWindowGroupState {
     this.credentialProvider.decryptCert({file, pass}, this.isLoading);
   }
 
-  offerVP(path: string) {
+  getCompliance(path: string) {
     this.credentialProvider
-      .publishCompliance(path, this.isLoading)
+      .offerPresentation(
+        {url: this.buildFileUrl('compliance')},
+        this.isLoading, this.ch()
+      )
       .pipe(
         switchMap(() =>
-          this.credentialProvider.offerPresentation(
-            {url: this.buildFileUrl('compliance')},
-            this.isLoading,
-            this.ch()
-          )
+          this.credentialProvider.publishCompliance(path, this.isLoading)
         ),
         catchError((err: any) => {
           this.#toast.error('Publish or offer failed!');
