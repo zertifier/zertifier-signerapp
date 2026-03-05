@@ -12,10 +12,12 @@ export class DogshitConfig {
     "lnr": "legalRegistrationNumber.json",
     "did": "did.json",
     "so": "serviceOffering.json",
-    "cert": "cert.pem"
+    "cert": "cert.pem",
+    "compliance": "compliance.json",
+    "vp": "verifiablePresentation.json",
   }
+
   publishDomains: Record<string, string> = {
     "Zertifier": environment.zertifierProxyFileApiUrl || '',
   }
-
 }
