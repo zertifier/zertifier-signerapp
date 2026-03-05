@@ -1,12 +1,12 @@
 import {inject, Injectable} from '@angular/core';
-import {BaseFilePublisher} from './HttpPublisher';
+import {ZertifierFilePublisher} from './HttpPublisher';
 import {PublishedFile} from '../../core/types/publisher.types';
 import {environment} from '../../../environments/environment';
 import {HttpHeaders} from '@angular/common/http';
 
 @Injectable()
 export class PublishService {
-  #httpPublisher = inject(BaseFilePublisher);
+  #httpPublisher = inject(ZertifierFilePublisher);
 
   publish(files: PublishedFile[], endpointUrl: string) {
     const token = environment.zertifierFileApiToken;

@@ -2,12 +2,13 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {catchError, forkJoin, map, switchMap, tap, throwError} from 'rxjs';
 import {FilePublisher, PublishedFile} from '../../core/types/publisher.types';
+import {joinPath} from '../../util/strings.util';
 
 /**
  * Publish generated credentials to some server
  */
 @Injectable({providedIn: 'root'})
-export class BaseFilePublisher implements FilePublisher {
+export class ZertifierFilePublisher implements FilePublisher {
   #http = inject(HttpClient);
 
   publish(files: PublishedFile[], url: string, headers?: HttpHeaders) {
@@ -30,7 +31,7 @@ export class BaseFilePublisher implements FilePublisher {
     return forkJoin(
       files.map(
         file =>
-          this.#validateContent(`${baseUrl}/${file.path}`, file.content)
+          this.#validateContent(joinPath(baseUrl, file.path), file.content)
       ))
       .pipe(
         map(results => {
