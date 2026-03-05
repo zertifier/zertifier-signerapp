@@ -48,7 +48,7 @@ export class ZertifierFilePublisher implements FilePublisher {
   #validateContent(url: string, content: string) {
     return this.#http.get(url, {responseType: 'text'}).pipe(
       map(resp => {
-        if (resp === content) {
+        if (resp !== content) {
           throw new Error(`File content doesnt match`)
         }
       }),
