@@ -20,15 +20,15 @@ export type SOInput = {
 }
 
 export type SO_TAC = {
-  url: string,
-  hash: string
+  "gx:url": string,
+  "gx:hash": string
 }
 
 export type DataAccountExport = {
-  requestType: RequestTypes,
-  accessType: 'digital' | 'physical',
+  "gx:requestType": RequestTypes,
+  "gx:accessType": 'digital' | 'physical',
   // MIME types https://gaia-x.gitlab.io/technical-committee/service-characteristics-working-group/service-characteristics/enums/MIMETypes/
-  formatType: string,
+  "gx:formatType": string,
 }
 
 export const REQUEST_TYPES = [

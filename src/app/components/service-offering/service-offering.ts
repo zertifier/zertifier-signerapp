@@ -56,13 +56,13 @@ export class ServiceOffering {
       description: this.description(),
       providedByUrl: this.state.buildFileUrl("lp"),
       tac: {
-        url: tacUrl,
-        hash
+        "gx:url": tacUrl,
+        "gx:hash": hash
       },
       dataAccountExport: {
-        requestType: this.requestType(),
-        accessType: 'digital',
-        formatType: this.formatType()
+        "gx:requestType": this.requestType(),
+        "gx:accessType": 'digital',
+        "gx:formatType": this.formatType()
       },
     }
     this.state.buildSO(input);
