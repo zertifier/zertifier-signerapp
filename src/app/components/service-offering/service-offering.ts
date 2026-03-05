@@ -48,7 +48,7 @@ export class ServiceOffering implements OnInit {
       description: this.description(),
       providedByUrl: this.state.buildFilePath("lp"),
       tac: {
-        "gx:url": requireValue(this.tacUrl(), "Terms and condition url"),
+        "gx:URL": requireValue(this.tacUrl(), "Terms and condition url"),
         "gx:hash": requireValue(this.tacHash(), "Terms and condition hash")
       },
       dataAccountExport: {

@@ -20,7 +20,7 @@ export type SOInput = {
 }
 
 export type SO_TAC = {
-  "gx:url": string,
+  "gx:URL": string,
   "gx:hash": string
 }
 
