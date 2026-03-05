@@ -50,6 +50,12 @@ export const VP_TEMPLATE = {
   "type": "VerifiablePresentation",
   //"credential": verifiableCredential
 }
+export const MINIMAL_ODRL_POLICY = {
+  "@type": "odrl:Policy",
+  "odrl:permission": {
+    "odrl:action": "odrl:use"
+  }
+}
 
 export const SO_TEMPLATE = {
   "@context": [
@@ -60,5 +66,6 @@ export const SO_TEMPLATE = {
   "type": "VerifiableCredential",
   "credentialSubject": {
     "type": "gx:ServiceOffering",
+    "gx:policy": JSON.stringify(MINIMAL_ODRL_POLICY)
   }
 }

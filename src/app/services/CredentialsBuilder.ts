@@ -27,7 +27,7 @@ export class CredentialsBuilder {
         "gx:providedBy": {
           "id": input.providedByUrl
         },
-        "gx:termsAndConditions":input.tac,
+        "gx:termsAndConditions": input.tac,
         "gx:dataAccountExport": input.dataAccountExport,
         "id": `${input.url}#subject`
       },
