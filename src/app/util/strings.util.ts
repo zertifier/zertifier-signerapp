@@ -45,10 +45,10 @@ export function joinPath(base: string, ...paths: string[]) {
 
 export function urlToDid(url: string): string {
   const u = new URL(url); // remove dogshit like https://
-  const host = u.hostname.split('.').join(':'); // www.zertifier.com → www:zertifier:com
+  // const host = u.hostname.split('.').join(':'); // www.zertifier.com → www:zertifier:com
   const path = u.pathname
     .replace(/^\//g, '') // remove last slash
     .split('/')
     .join(':'); // /docs/vc/main → docs:vc:main
-  return ['did', 'web', host, path].filter(Boolean).join(':')
+  return ['did', 'web', u.hostname, path].filter(Boolean).join(':')
 }
