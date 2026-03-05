@@ -11,6 +11,7 @@ import {PublishService} from '../services/publishers/PublishService';
 import {PublishedFile} from './types/publisher.types';
 import * as path from 'node:path';
 import {DogshitConfig} from './data/dogshit.config';
+import {joinPath} from '../util/strings.util';
 
 @Injectable()
 export class CredentialsProvider {
@@ -59,7 +60,7 @@ export class CredentialsProvider {
     // TODO hardcoded domain
     return this.#publishService
       .publish([{
-        path: path.join(baseUrl, this.#dsConfig.fileNames['compliance']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
         content: JSON.stringify(vpOffer)
       },], this.#dsConfig.publishDomains['Zertifier'])
       .pipe(
@@ -138,33 +139,33 @@ export class CredentialsProvider {
     if (!lp || !tac || !lnr) {
       throw new Error("Not all required VCs are found.");
     }
-    const certUrl = path.join(baseUrl, this.#dsConfig.fileNames['cert']);
+    const certUrl = joinPath(baseUrl, this.#dsConfig.fileNames['cert']);
     const files: PublishedFile[] = [
       {
         path: certUrl,
         content: certPem
       },
       {
-        path: path.join(baseUrl, this.#dsConfig.fileNames['did']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames['did']),
         content: JSON.stringify(this.#buildDidJson(didUrl, certUrl))
       },
       {
-        path: path.join(baseUrl, this.#dsConfig.fileNames['lp']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames['lp']),
         content: JSON.stringify(lp)
       },
       {
-        path: path.join(baseUrl, this.#dsConfig.fileNames['tac']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames['tac']),
         content: JSON.stringify(tac)
       },
       {
-        path: path.join(baseUrl, this.#dsConfig.fileNames['lnr']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames['lnr']),
         content: JSON.stringify(lnr)
       }
     ];
     const so = this.so();
     if (so) {
       files.push({
-        path: path.join(baseUrl, this.#dsConfig.fileNames['so']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
         content: JSON.stringify(so)
       })
     }

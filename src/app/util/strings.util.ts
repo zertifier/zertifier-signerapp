@@ -28,3 +28,12 @@ export function byteToBin(arr: Uint8Array<ArrayBuffer>) {
   }
   return binary;
 }
+
+// To avoid double slash in path
+export function joinPath(base: string, ...paths: string[]){
+  const url = new URL(base);
+  paths.forEach(p => {
+    url.pathname = [url.pathname.replace(/\/$/, ''), p.replace(/^\//, '')].join('/');
+  });
+  return url.toString();
+}
