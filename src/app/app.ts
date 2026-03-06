@@ -1,6 +1,5 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
-import {initFlowbite} from 'flowbite';
 import {ToastContainer} from './ui/toast-container';
 
 @Component({
@@ -10,8 +9,5 @@ import {ToastContainer} from './ui/toast-container';
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class App implements OnInit {
-  ngOnInit(): void {
-    initFlowbite();
-  }
+export class App {
 }

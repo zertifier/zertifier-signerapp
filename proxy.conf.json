@@ -26,6 +26,15 @@
     "changeOrigin": true,
     "logLevel": "debug"
   },
+  "/gaia": {
+    "target": "https://compliance.lab.gaia-x.eu",
+    "pathRewrite": {
+      "^/gaia": ""
+    },
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
   "/deltadao": {
     "target": "https://delta-dao.com",
     "pathRewrite": {
@@ -36,7 +45,7 @@
     "logLevel": "debug"
   },
   "/zertifier_file_api": {
-    "target": "https://zertifier.com/docs/index.php",
+    "target": "https://zertifier.com/docs/",
     "pathRewrite": {
       "^/zertifier_file_api": ""
     },
