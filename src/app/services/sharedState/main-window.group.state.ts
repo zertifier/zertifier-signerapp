@@ -4,7 +4,7 @@ import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
 import {SOInput} from '../../core/types/credential.types';
-import {catchError, EMPTY, switchMap} from 'rxjs';
+import {catchError, EMPTY, switchMap, tap} from 'rxjs';
 import {requireValue, withLoading} from '../../util/util';
 import {joinPath, urlToDid} from '../../util/strings.util';
 
@@ -45,6 +45,9 @@ export class MainWindowGroupState {
           vatId: requireValue(this.vatId(), "Vat ID")
         }, this.ch())
       , this.isLoading)
+      .pipe(
+        tap(()=> this.#toast.success('Legal registration number received'))
+      )
       .subscribe();
   }
 
@@ -53,6 +56,9 @@ export class MainWindowGroupState {
       this.credentialProvider.buildSO(
         requireValue(this.did(), "Did.json url"), input),
       this.isLoading)
+      .pipe(
+        tap(()=> this.#toast.success('Service offering built'))
+      )
       .subscribe();
   }
 
@@ -67,6 +73,9 @@ export class MainWindowGroupState {
           legalName: requireValue(this.legalName(), "Legal name"),
         }),
       this.isLoading)
+      .pipe(
+        tap(()=> this.#toast.success('Legal participant built'))
+      )
       .subscribe();
   }
 
@@ -76,6 +85,9 @@ export class MainWindowGroupState {
         requireValue(this.did(), "Did.json url"),
         {url: this.buildFilePath('tac')}),
       this.isLoading)
+      .pipe(
+        tap(()=> this.#toast.success('Terms and conditions built'))
+      )
       .subscribe();
   }
 
@@ -85,6 +97,9 @@ export class MainWindowGroupState {
         file: requireValue(this.file(), 'Certificate file'),
         pass: requireValue(this.pass(), "Certificate password")
       }), this.isLoading)
+      .pipe(
+        tap(()=> this.#toast.success('Certificate decrypted'))
+      )
       .subscribe();
   }
 
@@ -105,6 +120,9 @@ export class MainWindowGroupState {
             return EMPTY;
           })
         ), this.isLoading)
+      .pipe(
+        tap(()=> this.#toast.success('Compliance received'))
+      )
       .subscribe();
   }
 
