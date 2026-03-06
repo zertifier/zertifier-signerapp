@@ -29,7 +29,7 @@ export class CredentialsBuilder {
         },
         "gx:termsAndConditions": input.tac,
         "gx:dataAccountExport": input.dataAccountExport,
-        "id": `${input.url}#subject`
+        "id": input.subject
       },
     }
   }

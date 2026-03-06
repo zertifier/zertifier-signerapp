@@ -11,6 +11,7 @@ export interface TACInput {
 
 export type SOInput = {
   url: string;
+  subject: string;
   name?: string,
   description?: string,
   // Legal Participant URL

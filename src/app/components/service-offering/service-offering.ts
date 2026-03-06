@@ -29,6 +29,7 @@ export class ServiceOffering implements OnInit {
   tacHash = signal<string | undefined>(undefined);
   formatType = signal<string>('application/json');
   requestType = signal<RequestTypes>('API');
+  subject = signal<string | undefined>(undefined);
   c = this.state.credentialProvider.so;
   protected readonly REQUEST_TYPES = REQUEST_TYPES;
   #toast = inject(ToastService);
@@ -44,6 +45,7 @@ export class ServiceOffering implements OnInit {
   build() {
     const input: SOInput = {
       url: this.state.buildFilePath('so'),
+      subject: requireValue(this.subject(), "Service Subject"),
       name: this.name(),
       description: this.description(),
       providedByUrl: `${this.state.buildFilePath("lp")}#subject`,
