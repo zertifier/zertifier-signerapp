@@ -2,32 +2,32 @@
 @let offer = vpOffer();
 @let cert = decryptedCertificate();
 <div class="flex flex-col gap-3">
-  <h1 class="text-2xl mx-auto font-bold">Compliance 1</h1>
+  <h1 class="text-2xl  font-bold">Verifiable credential</h1>
 
   <app-form-divider label="Input"></app-form-divider>
 
   <div class="flex flex-row items-baseline">
-    <label class="w-20 mx-2 text-lg text-gray-500">Certificate:</label>
+    <label class="w-20 input-label">Certificate:</label>
     <input type="file" (change)="onFileSelect($event)" accept=".pfx"
-           class="grow text-white cursor-pointer bg-gray-800 rounded-lg">
+           class="grow input-base">
   </div>
 
   <div class="flex flex-row items-baseline">
-    <label class="w-20 mx-2 text-lg text-gray-500">Password:</label>
+    <label class="w-20 input-label">Password:</label>
     <input type="password" placeholder="i_love_dataspaces69" [(ngModel)]="state.pass"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <div class="flex flex-row items-baseline">
-    <label class="w-20 mx-2 text-lg text-gray-500">Url:</label>
+    <label class="w-20 input-label">Url:</label>
     <input type="text" placeholder="https://www.my-domain.com/vc1" [(ngModel)]="state.baseUrl"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <div class="flex flex-row items-baseline">
-    <label class="w-20 mx-2 text-lg text-gray-500">Did:</label>
+    <label class="w-20 input-label">Did:</label>
     <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
-           class="grow bg-gray-900  text-gray-500 placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>
@@ -45,7 +45,8 @@
 
   </div>
 
-  @if (offer) {
+<!--  @if (offer) {-->
+  @if (true) {
     <div>
       <app-form-divider label="Publish and Offer"></app-form-divider>
 

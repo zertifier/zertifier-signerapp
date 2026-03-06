@@ -1,27 +1,27 @@
 @let content = c();
 <div class="flex flex-col gap-3">
-  <h1 class="text-2xl mx-auto font-bold">Service Offering</h1>
+  <h1 class="text-2xl font-bold">Service Offering</h1>
 
   <app-form-divider label="Input"></app-form-divider>
 
   <div class="flex flex-row gap-3">
     <div class="flex flex-row items-center flex-1">
-      <label class="w-28 mx-2 text-lg">Terms url:</label>
+      <label class="w-28 input-label">Terms url:</label>
       <input type="text" placeholder="http://www.terms.com" [(ngModel)]="tacUrl"
-             class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+             class="grow input-base"/>
     </div>
 
     <div class="flex flex-row items-center flex-1">
-      <label class="w-28 mx-2 text-lg">Terms hash:</label>
+      <label class="w-28 input-label">Terms hash:</label>
       <input type="text" placeholder="SHA-256" [(ngModel)]="tacHash"
-             class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+             class="grow input-base"/>
     </div>
   </div>
 
   <div class="flex flex-row items-center">
-    <label class="w-28 mx-2 text-lg">Subject:</label>
+    <label class="w-28 input-label">Subject:</label>
     <input type="text" placeholder="did:ope:b83...5f7" [(ngModel)]="subject"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <div class="flex flex-row gap-3">
@@ -30,22 +30,22 @@
                        [collection]="REQUEST_TYPES"></app-form-selector>
 
     <div class="flex flex-row items-center flex-1">
-      <label class="w-28 mx-2 text-lg">Format MIME:</label>
+      <label class="w-28 input-label">Format MIME:</label>
       <input type="text" placeholder="application/json" [(ngModel)]="formatType"
-             class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+             class="grow input-base"/>
     </div>
   </div>
 
   <div class="flex flex-row items-center">
-    <label class="w-28 mx-2 text-lg">Name:</label>
+    <label class="w-28 input-label">Name:</label>
     <input type="text" placeholder="Energy analysis algorithm" [(ngModel)]="name"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <div class="flex flex-row items-center">
-    <label class="w-28 mx-2 text-lg">Description:</label>
+    <label class="w-28 input-label">Description:</label>
     <input type="text" placeholder="This service is ..." [(ngModel)]="description"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>

@@ -1,1 +1,73 @@
+/* src/styles.css */
 @import "tailwindcss";
+
+/* Define your custom design tokens */
+@theme {
+  --color-primary: #3B82F6;
+  --color-primary-light: #8EC5FFFF;
+  --color-primary-dark: #1E40AF;
+  --color-primary-darker: #1d264f;
+
+  --color-secondary: #F59E0B;
+  --color-secondary-light: #FBBF24;
+  --color-secondary-dark: #B45309;
+
+  --color-warning: #861043;
+
+  --color-accent: #10B981;
+
+  --color-background: #101828;
+  --color-background-light: #1e2939;
+  --color-background-dark: #0b1421;
+  --color-background-: #101828;
+  --color-text: white;
+  --color-text-dark: gray;
+
+  --color-border: #2f3f7a;
+}
+
+@layer utilities {
+  /* @theme generates these automatically:
+     bg-primary => background-color: var(--color-primary)
+     text-primary => color: var(--color-primary)
+     etc */
+}
+
+@layer components {
+
+  .btn-primary {
+    @apply text-black bg-primary hover:bg-primary-light font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all;
+    @apply disabled:bg-primary-darker;
+  }
+
+  .btn-primary-navbar{
+    @apply flex px-4 py-2 text-text bg-warning hover:bg-primary-light hover:text-black rounded-lg text-sm transition-all
+    [&.is-active]:text-black [&.is-active]:font-semibold [&.is-active]:bg-primary-light;
+  }
+
+  .btn-primary-navbar-child {
+    @apply block px-4 py-2 text-primary hover:text-primary-light transition-all rounded-lg
+    [&.is-active]:text-black [&.is-active]:font-semibold [&.is-active]:bg-blue-300;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white px-4 py-2 rounded hover:bg-secondary-light;
+    @apply border border-border focus:outline-none focus:ring-1 focus:ring-primary-light;
+  }
+
+  .selector-base{
+    @apply rounded-lg bg-background-light px-3 py-2 text-white;
+    @apply border border-border focus:outline-none focus:ring-1 focus:ring-primary-light;
+    @apply disabled:bg-background-dark disabled:text-text-dark disabled:border-0;
+  }
+
+  .input-base {
+    @apply bg-background-light text-text px-3 py-2 rounded-lg;
+    @apply border border-border focus:outline-none focus:ring-1 focus:ring-primary-light;
+    @apply disabled:bg-background-dark disabled:text-text-dark disabled:border-0;
+  }
+
+  .input-label{
+    @apply mx-2 text-lg text-text-dark;
+  }
+}

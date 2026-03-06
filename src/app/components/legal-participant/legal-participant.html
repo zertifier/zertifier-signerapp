@@ -1,19 +1,19 @@
 @let content = c();
 <div class="flex flex-col gap-3">
-  <h1 class="text-2xl mx-auto font-bold">Legal participant</h1>
+  <h1 class="text-2xl font-bold">Legal participant</h1>
 
   <app-form-divider label="Input"></app-form-divider>
 
   <div class="flex flex-row items-center">
-    <label class="w-28 mx-2 text-lg">Country code:</label>
+    <label class="w-28 input-label">Country code:</label>
     <input type="text" placeholder="ES-es" [(ngModel)]="state.countryCode"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <div class="flex flex-row items-center">
-    <label class="w-28 mx-2 text-lg">Legal name:</label>
+    <label class="w-28 input-label">Legal name:</label>
     <input type="text" placeholder="Cows and co." [(ngModel)]="state.legalName"
-           class="grow bg-gray-800  text-white placeholder:text-gray-500 rounded-lg"/>
+           class="grow input-base"/>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>
