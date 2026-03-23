@@ -1,0 +1,22 @@
+@let content = c();
+<div class="flex flex-col gap-3">
+  <h1 class="text-2xl font-bold">Terms and Conditions</h1>
+
+  <app-form-divider label="Actions"></app-form-divider>
+
+  <div class="flex flex-row gap-3">
+    <app-action-button (onClick)="state.buildTac()" [isDisabled]="state.isLoading()">
+      @if (state.isLoading()) {
+        Building and Signing…
+      } @else {
+        Build and sign
+      }
+    </app-action-button>
+    <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋</app-action-button>
+  </div>
+
+  @if (content) {
+    <app-form-divider label="Result"></app-form-divider>
+    <app-result-block [content]="content"></app-result-block>
+  }
+</div>

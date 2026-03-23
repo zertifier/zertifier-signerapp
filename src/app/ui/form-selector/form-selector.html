@@ -1,0 +1,10 @@
+<div class="flex flex-row items-center">
+  @if(label()){
+    <label class="input-label" [class]="labelClass()">{{label()}}</label>
+  }
+  <select [(ngModel)]="selected" class="grow selector-base">
+    @for (el of collection; track $index) {
+      <option [ngValue]="el">{{ el }}</option>
+    }
+  </select>
+</div>

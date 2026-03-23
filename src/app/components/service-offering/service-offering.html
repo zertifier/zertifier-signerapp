@@ -1,0 +1,68 @@
+@let content = c();
+<div class="flex flex-col gap-3">
+  <h1 class="text-2xl font-bold">Service Offering</h1>
+
+  <app-form-divider label="Input"></app-form-divider>
+
+  <div class="flex flex-row gap-3">
+    <div class="flex flex-row items-center flex-1">
+      <label class="w-28 input-label">Terms url:</label>
+      <input type="text" placeholder="http://www.terms.com" [(ngModel)]="tacUrl"
+             class="grow input-base"/>
+    </div>
+
+    <div class="flex flex-row items-center flex-1">
+      <label class="w-28 input-label">Terms hash:</label>
+      <input type="text" placeholder="SHA-256" [(ngModel)]="tacHash"
+             class="grow input-base"/>
+    </div>
+  </div>
+
+  <div class="flex flex-row items-center">
+    <label class="w-28 input-label">Subject:</label>
+    <input type="text" placeholder="did:ope:b83...5f7" [(ngModel)]="subject"
+           class="grow input-base"/>
+  </div>
+
+  <div class="flex flex-row gap-3">
+    <app-form-selector class="flex-1" label="Request type:" labelClass="w-28"
+                       [selected]="requestType"
+                       [collection]="REQUEST_TYPES"></app-form-selector>
+
+    <div class="flex flex-row items-center flex-1">
+      <label class="w-28 input-label">Format MIME:</label>
+      <input type="text" placeholder="application/json" [(ngModel)]="formatType"
+             class="grow input-base"/>
+    </div>
+  </div>
+
+  <div class="flex flex-row items-center">
+    <label class="w-28 input-label">Name:</label>
+    <input type="text" placeholder="Energy analysis algorithm" [(ngModel)]="name"
+           class="grow input-base"/>
+  </div>
+
+  <div class="flex flex-row items-center">
+    <label class="w-28 input-label">Description:</label>
+    <input type="text" placeholder="This service is ..." [(ngModel)]="description"
+           class="grow input-base"/>
+  </div>
+
+  <app-form-divider label="Actions"></app-form-divider>
+
+  <div class="flex flex-row gap-3">
+    <app-action-button (onClick)="build()" [isDisabled]="state.isLoading()">
+      @if (state.isLoading()) {
+        Building and Signing…
+      } @else {
+        Build and sign
+      }
+    </app-action-button>
+    <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋</app-action-button>
+  </div>
+
+  @if (content) {
+    <app-form-divider label="Result"></app-form-divider>
+    <app-result-block [content]="content"></app-result-block>
+  }
+</div>

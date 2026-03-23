@@ -15,7 +15,6 @@
           "options": {
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -60,7 +59,6 @@
                 }
               ]
             }
-
           },
           "defaultConfiguration": "production"
         },
@@ -74,33 +72,13 @@
               "buildTarget": "zertifier-signerapp:build:development"
             },
             "local": {
-              "buildTarget": "zertifier-signerapp:build:local",
-
+              "buildTarget": "zertifier-signerapp:build:local"
             }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": [
-              "src/styles.css"
-            ]
-          }
         }
       }
     }
