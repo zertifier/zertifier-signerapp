@@ -12,10 +12,11 @@ import {PublishedFile} from './types/publisher.types';
 import {DogshitConfig} from './data/dogshit.config';
 import {joinPath} from '../util/strings.util';
 import {requireValue} from '../util/util';
+import {HttpParams} from '@angular/common/http';
 
 @Injectable()
 export class CredentialsProvider {
-  lnr = signal<VCv1 | null>(null);
+  lnr = signal<object | null>(null);
   lp = signal<VCv1 | null>(null);
   tac = signal<VCv1 | null>(null);
   so = signal<VCv1 | null>(null);
@@ -40,7 +41,8 @@ export class CredentialsProvider {
 
   fetchCompliance(input: VPInput, ch?: ApprovedCHs) {
     return this.#chApiService
-      .fetch(requireValue(this.presentation(), "Verifiable presentation"), input.url, 'COMPLIANCE', ch)
+      .fetch(requireValue(this.presentation(), "Verifiable presentation"),
+        new HttpParams().set("vcid", decodeURIComponent(input.url)), 'COMPLIANCE_V1', ch)
       .pipe(
         tap(resp => this.compliance.set(resp)),
       );
@@ -84,13 +86,27 @@ export class CredentialsProvider {
   }
 
   // TODO maybe some protection to what is received???
-  fetchLnr(input: LNRInput, ch?: ApprovedCHs) {
+  fetchLnr_v1(input: LNRInput, ch?: ApprovedCHs) {
     return this.#chApiService
       .fetch(
         this.#credBuilder.lnrOffer(input.url, input.vatId),
-        input.url, "LNR", ch)
+        new HttpParams().set("vcid", decodeURIComponent(input.url)), "LNR_V1", ch)
       .pipe(
         tap((v: Object) => this.lnr.set(v as VCv1))
+      );
+  }
+
+  fetchLnr_v2(input: LNRInput, ch?: ApprovedCHs) {
+    return this.#chApiService
+      .fetch_lnr_v2(
+        input.vatId,
+        new HttpParams()
+          .set("vcId", decodeURIComponent(input.url))
+          .set("subjectId", input.url + "#subject")
+        , ch)
+      .pipe(
+        // TODO Type of the LNR_v2
+        tap((v: Object) => this.lnr.set(v))
       );
   }
 

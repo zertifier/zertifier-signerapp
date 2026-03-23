@@ -21,13 +21,13 @@ export class CHApiService {
   #httpClient = inject(HttpClient);
   #inFlight: Record<string, Observable<any>> = {};
 
-  fetch(offer: Object, vcid: string, service: CHServices, ch?: ApprovedCHs) {
-    const key = JSON.stringify({offer, vcid, service, ch})
+  fetch(body: Object, params: HttpParams, service: CHServices, ch?: ApprovedCHs) {
+    const key = JSON.stringify({body, params, service, ch})
     if (!this.#inFlight[key]) {
       this.#inFlight[key] = this.#postWithFallback(
         this.#chRepo.getAllUrls(service, ch),
-        offer,
-        new HttpParams().set("vcid", decodeURIComponent(vcid)))
+        body,
+        params)
         .pipe(
           shareReplay(1),
           finalize(() => delete this.#inFlight[key])
@@ -36,7 +36,22 @@ export class CHApiService {
     return this.#inFlight[key]
   }
 
-  #postWithFallback(urls: string[], body: object, params?: HttpParams) {
+  fetch_lnr_v2(vatId: string, params: HttpParams, ch?: ApprovedCHs) {
+    const key = JSON.stringify({vatId, params, service: "LNR_V2", ch})
+    if (!this.#inFlight[key]) {
+      this.#inFlight[key] = this.#postWithFallback(
+        this.#chRepo.getAllUrls("LNR_V2", ch).map(u => u + "/vatId"),
+        {},
+        params)
+        .pipe(
+          shareReplay(1),
+          finalize(() => delete this.#inFlight[key])
+        )
+    }
+    return this.#inFlight[key]
+  }
+
+  #postWithFallback(urls: string[], body: object, params: HttpParams) {
     return from(urls).pipe(
       concatMap(url =>
         this.#httpClient.post(url, body, {params}).pipe(

@@ -40,7 +40,7 @@ export class MainWindowGroupState {
   fetchLnr() {
     withLoading(
       this.credentialProvider
-        .fetchLnr({
+        .fetchLnr_v1({
           url: this.buildFilePath('lnr'),
           vatId: requireValue(this.vatId(), "Vat ID")
         }, this.ch())
