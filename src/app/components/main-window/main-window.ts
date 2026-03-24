@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component} from '@angular/core';
 import {RouterModule} from '@angular/router';
 import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
 import {CertificateProvider} from '../../core/CertificateProvider';
@@ -13,5 +13,4 @@ import {PublishService} from '../../services/publishers/PublishService';
   styleUrl: './main-window.css',
 })
 export class MainWindow {
-  state = inject(MainWindowGroupState);
 }
