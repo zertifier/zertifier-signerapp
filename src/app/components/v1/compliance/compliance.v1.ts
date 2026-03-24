@@ -1,11 +1,11 @@
 import {Component, inject, signal} from '@angular/core';
-import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
 import {FormsModule} from '@angular/forms';
-import {FormDivider} from '../../ui/form-divider/form-divider';
-import {ResultBlock} from '../../ui/result-block/result-block';
-import {ActionButton} from '../../ui/action-button/action-button';
-import {FormSelector} from '../../ui/form-selector/form-selector';
-import {DogshitConfig} from '../../core/data/dogshit.config';
+import {FormSelector} from '../../../ui/form-selector/form-selector';
+import {FormDivider} from '../../../ui/form-divider/form-divider';
+import {ResultBlock} from '../../../ui/result-block/result-block';
+import {ActionButton} from '../../../ui/action-button/action-button';
+import {MainWindowGroupState} from '../../../services/sharedState/main-window.group.state';
+import {DogshitConfig} from '../../../core/data/dogshit.config';
 
 @Component({
   selector: 'app-compliance',
@@ -16,10 +16,10 @@ import {DogshitConfig} from '../../core/data/dogshit.config';
     ActionButton,
     FormSelector
   ],
-  templateUrl: './compliance.html',
-  styleUrl: './compliance.css',
+  templateUrl: './compliance.v1.html',
+  styleUrl: './compliance.v1.css',
 })
-export class Compliance {
+export class ComplianceV1 {
   state = inject(MainWindowGroupState);
   c = this.state.credentialProvider.compliance;
   vpOffer = this.state.credentialProvider.presentation;

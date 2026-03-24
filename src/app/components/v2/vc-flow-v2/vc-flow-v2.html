@@ -1,0 +1,55 @@
+<div class="flex flex-col md:flex-row gap-4 grow p-2">
+  <aside class="shrink flex flex-col">
+    <div class="grow">
+      <div class="mb-4">
+        <a routerLink="input"
+           routerLinkActive="is-active"
+           class="btn-primary-navbar">
+          Data input
+        </a>
+
+        <ul class="m-2 flex flex-col text-sm gap-1">
+          <li>
+            <a routerLink="lnr"
+               routerLinkActive="is-active"
+               class="btn-primary-navbar-child">
+              Legal registration number
+            </a>
+          </li>
+          <li>
+            <a routerLink="lp"
+               routerLinkActive="is-active"
+               class="btn-primary-navbar-child">
+              Legal Participant
+            </a>
+          </li>
+          <li>
+            <a routerLink="tac"
+               routerLinkActive="is-active"
+               class="btn-primary-navbar-child">
+              Terms and condition
+            </a>
+          </li>
+          <li>
+            <a routerLink="so"
+               routerLinkActive="is-active"
+               class="btn-primary-navbar-child">
+              Service Offering
+            </a>
+          </li>
+          <li>
+            <a routerLink="compliance"
+               routerLinkActive="is-active"
+               class="btn-primary-navbar-child">
+              Result Compliance
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-3">
+    <router-outlet></router-outlet>
+  </main>
+</div>

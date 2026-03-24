@@ -1,13 +1,13 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
-import {MainWindowGroupState} from '../../services/sharedState/main-window.group.state';
-import {REQUEST_TYPES, RequestTypes, SOInput} from '../../core/types/credential.types';
-import {ToastService} from '../../services/ToastService';
+import {ResultBlock} from '../../../ui/result-block/result-block';
 import {FormsModule} from '@angular/forms';
-import {FormDivider} from '../../ui/form-divider/form-divider';
-import {ResultBlock} from '../../ui/result-block/result-block';
-import {ActionButton} from '../../ui/action-button/action-button';
-import {FormSelector} from '../../ui/form-selector/form-selector';
-import {requireValue} from '../../util/util';
+import {FormDivider} from '../../../ui/form-divider/form-divider';
+import {ActionButton} from '../../../ui/action-button/action-button';
+import {FormSelector} from '../../../ui/form-selector/form-selector';
+import {MainWindowGroupState} from '../../../services/sharedState/main-window.group.state';
+import {REQUEST_TYPES, RequestTypes, SOInput} from '../../../core/types/credential.types';
+import {ToastService} from '../../../services/ToastService';
+import {requireValue} from '../../../util/util';
 
 @Component({
   selector: 'app-service-offering',
@@ -18,10 +18,10 @@ import {requireValue} from '../../util/util';
     ActionButton,
     FormSelector
   ],
-  templateUrl: './service-offering.html',
-  styleUrl: './service-offering.css',
+  templateUrl: './service-offering.v1.html',
+  styleUrl: './service-offering.v1.css',
 })
-export class ServiceOffering implements OnInit {
+export class ServiceOfferingV1 implements OnInit {
   state = inject(MainWindowGroupState);
   name = signal<string | undefined>(undefined);
   description = signal<string | undefined>(undefined);

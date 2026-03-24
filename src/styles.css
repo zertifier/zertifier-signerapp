@@ -41,7 +41,7 @@
   }
 
   .btn-primary-navbar{
-    @apply flex px-4 py-2 text-text bg-warning hover:bg-primary-light hover:text-black rounded-lg text-sm transition-all
+    @apply flex mx-2 px-4 py-2 text-text bg-warning hover:bg-primary-light hover:text-black rounded-lg text-sm transition-all
     [&.is-active]:text-black [&.is-active]:font-semibold [&.is-active]:bg-primary-light;
   }
 
@@ -50,8 +50,8 @@
   }
 
   .btn-primary-navbar-child {
-    @apply block px-4 py-2 text-primary hover:text-primary-light transition-all rounded-lg
-    [&.is-active]:text-black [&.is-active]:font-semibold [&.is-active]:bg-blue-300;
+    @apply block mx-2 px-4 py-2 text-primary hover:text-primary-light transition-all rounded-lg
+    [&.is-active]:text-black  [&.is-active]:bg-blue-300;
   }
 
   .btn-secondary {

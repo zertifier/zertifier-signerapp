@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {RouterModule} from '@angular/router';
+import {MainWindowGroupState} from '../../../services/sharedState/main-window.group.state';
 
 @Component({
   host:{
@@ -7,6 +8,7 @@ import {RouterModule} from '@angular/router';
   },
   selector: 'app-vc-flow-v1',
   imports: [RouterModule],
+  providers: [MainWindowGroupState],
   templateUrl: './vc-flow-v1.html',
   styleUrl: './vc-flow-v1.css',
 })
