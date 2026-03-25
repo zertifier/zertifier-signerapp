@@ -1,23 +1,40 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
-import {CredentialsProvider} from '../../core/CredentialsProvider';
 import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
-import {SOInput} from '../../core/types/credential.types';
-import {catchError, EMPTY, switchMap, tap} from 'rxjs';
+import {RequestTypes, SOInput, VCv1} from '../../core/types/credential.types';
+import {EMPTY, switchMap, tap} from 'rxjs';
 import {requireValue, withLoading} from '../../util/util';
 import {joinPath, urlToDid} from '../../util/strings.util';
+import {VcFlowV2Actions} from '../../core/VcFlowV2.actions';
+import {DecryptedCertificate} from '../../core/types/crypto.types';
 
 @Injectable()
 export class VcFlowV2State {
-  baseUrl = signal<string | null>(null);
-  vatId = signal<string | null>(null);
-  countryCode = signal<string | null>(null);
-  legalName = signal<string | null>(null);
-  file = signal<File | null>(null);
-  pass = signal<string | null>(null);
+  baseUrl = signal<string | undefined>(undefined);
+  vatId = signal<string | undefined>(undefined);
+  countryCode = signal<string | undefined>(undefined);
+  legalName = signal<string | undefined>(undefined);
+  file = signal<File | undefined>(undefined);
+  pass = signal<string | undefined>(undefined);
   isLoading = signal<boolean>(false);
   ch = signal<ApprovedCHs | undefined>("ARUBA");
+  lrn = signal<object | undefined>(undefined);
+  lp = signal<VCv1 | undefined>(undefined);
+  tac = signal<VCv1 | undefined>(undefined);
+  so = signal<VCv1 | undefined>(undefined);
+  compliance = signal<object | undefined>(undefined);
+  cert = signal<DecryptedCertificate | undefined>(undefined);
+  isIncludeSO = signal<boolean>(true);
+
+  soName = signal<string | undefined>(undefined);
+  soDescription = signal<string | undefined>(undefined);
+  soTacUrl = signal<string | undefined>(undefined);
+  soTacHash = signal<string | undefined>(undefined);
+  soFormatType = signal<string>('application/json');
+  soRequestType = signal<RequestTypes>('API');
+  soSubject = signal<string | undefined>(undefined)
+
   did = computed(() => {
     const url = this.baseUrl();
     if (url) {
@@ -25,8 +42,17 @@ export class VcFlowV2State {
     }
     return undefined;
   });
-
-  credentialProvider = inject(CredentialsProvider);
+  #vcFlowV2Actions = inject(VcFlowV2Actions);
+  presentation = computed(() => {
+    const lrn = this.lrn();
+    const lp = this.lp();
+    const tac = this.tac();
+    if (!(lrn && lp && tac)) return null;
+    // TODO somehow streamline gathering process
+    const vps = [lrn, lp, tac, this.so()]
+      .filter((a: any): a is NonNullable<VCv1> => !!a);
+    return this.#vcFlowV2Actions.buildVP(vps);
+  })
   #toast = inject(ToastService);
   #dsConfig = inject(DogshitConfig);
 
@@ -35,130 +61,150 @@ export class VcFlowV2State {
     this.vatId.set("ESB05303755");
     this.legalName.set("ZERTIFIER SL");
     this.countryCode.set("ES-CT");
+    this.soTacUrl.set("https://zertifier.com/politica_privacitat.html&languageid=1#");
+    this.soTacHash.set("6f8e29c2c9350f886ffd2e21351117fe95619f7548e0eea6160ee7e03c30c718");
+    this.soName.set("Community Analysis Alghorithm");
+    this.soDescription.set(`Provides a secure, aggregated view of energy consumption and generation at community level.
+    It computes totals and averages, identifies top consumers and surplus generators, and highlights behavioral extremes (percentiles).`);
   }
 
-  startFlow(){
-
+  startFlow() {
+    return this.decryptCert().pipe(
+      switchMap(() => this.askNicelyForLrn()),
+      switchMap(() => this.signLP()),
+      switchMap(() => this.signTAC()),
+      switchMap(() => this.signSO()),
+      switchMap(() => this.publishOffer()),
+      switchMap(() => this.askNicelyForCompliance()),
+      switchMap(() => this.publishCompliance())
+    )
   }
 
-  fetchLnr() {
-    withLoading(
-      this.credentialProvider
-        .fetchLnr_v1({
-          url: this.buildFilePath('lnr'),
-          vatId: requireValue(this.vatId(), "Vat ID")
-        }, this.ch())
-      , this.isLoading)
+  askNicelyForLrn() {
+    return withLoading(
+      this.#vcFlowV2Actions.fetchLrn_v2({
+        url: this.buildFilePath('lrn'),
+        vatId: requireValue(this.vatId(), "Vat ID")
+      }, this.ch()), this.isLoading)
       .pipe(
-        tap(() => this.#toast.success('Legal registration number received'))
-      )
-      .subscribe();
+        tap((resp: any) => this.lrn.set(resp))
+      );
   }
 
-  buildSO(input: SOInput) {
-    withLoading(
-      this.credentialProvider.buildSO(
-        requireValue(this.did(), "Did.json url"), input),
+  signSO() {
+    if (!this.isIncludeSO()) {
+      return EMPTY;
+    }
+    return withLoading(
+      this.#vcFlowV2Actions.signSO(
+        requireValue(this.cert()?.pKey, "Private key"),
+        requireValue(this.did(), "Did.json url"),
+        this.builtSOInput(
+          requireValue(this.baseUrl(), "Base url")
+        )),
       this.isLoading)
       .pipe(
-        tap(() => this.#toast.success('Service offering built'))
-      )
-      .subscribe();
+        tap((resp: any) => this.so.set(resp))
+      );
   }
 
-  buildLP() {
-    withLoading(
-      this.credentialProvider.buildLP(
+  signLP() {
+    return withLoading(
+      this.#vcFlowV2Actions.signLP(
+        requireValue(this.cert()?.pKey, "Private key"),
         requireValue(this.did(), "Did.json url"),
         {
           url: this.buildFilePath('lp'),
-          lrnSubject: `${this.buildFilePath('lnr')}${this.#dsConfig.subjectPostfix}`,
+          lrnSubject: `${this.buildFilePath('lrn')}${this.#dsConfig.subjectPostfix}`,
           countryCode: requireValue(this.countryCode(), "Country Code"),
           legalName: requireValue(this.legalName(), "Legal name"),
         }),
       this.isLoading)
       .pipe(
-        tap(() => this.#toast.success('Legal participant built'))
-      )
-      .subscribe();
+        tap((resp: any) => this.lp.set(resp))
+      );
   }
 
-  buildTac() {
-    withLoading(
-      this.credentialProvider.buildTAC(
+  signTAC() {
+    return withLoading(
+      this.#vcFlowV2Actions.signTAC(
+        requireValue(this.cert()?.pKey, "Private key"),
         requireValue(this.did(), "Did.json url"),
         {url: this.buildFilePath('tac')}),
       this.isLoading)
       .pipe(
-        tap(() => this.#toast.success('Terms and conditions built'))
-      )
-      .subscribe();
+        tap((resp: any) => this.tac.set(resp))
+      );
   }
 
   decryptCert() {
-    withLoading(
-      this.credentialProvider.decryptCert({
+    return withLoading(
+      this.#vcFlowV2Actions.decryptCert({
         file: requireValue(this.file(), 'Certificate file'),
         pass: requireValue(this.pass(), "Certificate password")
       }), this.isLoading)
       .pipe(
-        tap(() => this.#toast.success('Certificate decrypted'))
-      )
-      .subscribe();
+        tap((resp: DecryptedCertificate) => this.cert.set(resp))
+      );
   }
 
-  fetchCompliance() {
-    withLoading(
-      this.credentialProvider
-        .fetchCompliance(
-          {url: this.buildFilePath('compliance')},
-          this.ch()
-        )
-        .pipe(
-          switchMap(() =>
-            this.credentialProvider.publishCompliance(requireValue(this.baseUrl(), "Publish url"))
-          ),
-          catchError((err: any) => {
-            this.#toast.error('Publish or offer failed!');
-            console.error("Publish or offer failed", {cause: err})
-            return EMPTY;
-          })
-        ), this.isLoading)
-      .pipe(
-        tap(() => this.#toast.success('Compliance received'))
+  askNicelyForCompliance() {
+    return withLoading(
+      this.#vcFlowV2Actions.fetchCompliance(
+        requireValue(this.presentation(), "Verifiable Presentation"),
+        {url: this.buildFilePath('compliance')},
+        this.ch()
       )
-      .subscribe();
+        .pipe(
+          tap((resp: any) => this.compliance.set(resp))),
+      this.isLoading);
+  }
+
+  publishCompliance() {
+    return withLoading(this.#vcFlowV2Actions.publishCompliance(
+      requireValue(this.compliance(), "Compliance"),
+      requireValue(this.baseUrl(), "Url to publish")
+    ), this.isLoading)
+      .pipe(
+        tap(() => {
+          this.#toast.success('Compliance published? Probably...');
+        })
+      )
   }
 
   publishOffer() {
-    withLoading(this.credentialProvider.publishPresentation(
+    return withLoading(this.#vcFlowV2Actions.publishPresentation({
+          lrn: requireValue(this.lrn(), "Legal Registration Number"),
+          cert: requireValue(this.cert(), "Decrypted certificate"),
+          tac: requireValue(this.tac(), "Terms and conditions"),
+          lp: requireValue(this.lp(), "Legal Registration Number"),
+          so: this.so()
+        },
         requireValue(this.baseUrl(), "Publish url"),
         requireValue(this.did(), "Did.json url"))
-      , this.isLoading).subscribe({
-      next: () => {
-        this.#toast.info("Publishing offer was successful!")
-      },
-      error: err => {
-        this.#toast.error("Publishing failed!")
-        console.error('Publishing failed', {cause: err})
-      }
-    });
+      , this.isLoading);
   }
 
-  copyToClipboard(content: Object | null | undefined) {
-    if (!content) {
-      this.#toast.error("Content to copy not found.", {duration: 2000});
-      return;
-    }
-    navigator.clipboard
-      .writeText(JSON.stringify(content, null, 2))
-      .then(() => {
-        this.#toast.info('Copied!', {duration: 2000});
-      });
+  builtSOInput(baseUrl: string): SOInput {
+    return {
+      url: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
+      subject: requireValue(this.soSubject(), "Service Subject"),
+      name: this.soName(),
+      description: this.soDescription(),
+      providedByUrl: `${joinPath(baseUrl, this.#dsConfig.fileNames['legalPerson'])}#subject`,
+      tac: {
+        "gx:URL": requireValue(this.soTacUrl(), "Terms and condition url"),
+        "gx:hash": requireValue(this.soTacHash(), "Terms and condition hash")
+      },
+      dataAccountExport: {
+        "gx:requestType": this.soRequestType(),
+        "gx:accessType": 'digital',
+        "gx:formatType": this.soFormatType()
+      },
+    };
   }
 
   buildFilePath(filename: string) {
     return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames[filename])
   }
-
 }
