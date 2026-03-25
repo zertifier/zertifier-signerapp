@@ -33,7 +33,7 @@
   <div class="flex flex-row items-baseline">
     <app-side-decorator class="flex flex-row gap-3 text-yellow-400 items-center grow" leftDecor=". ݁₊ ⊹"
                         rightDecor="⊹ ₊ ݁.">
-      <app-action-button (onClick)="state.fetchLnr()" [isDisabled]="state.isLoading()">
+      <app-action-button (onClick)="askNicelyForLrn()" [isDisabled]="state.isLoading()">
         @if (state.isLoading()) {
           Being polite…
         } @else {

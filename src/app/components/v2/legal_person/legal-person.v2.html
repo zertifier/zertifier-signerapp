@@ -35,7 +35,7 @@
 
   <div class="flex flex-row items-baseline">
     <app-side-decorator class="flex flex-row gap-3 text-yellow-400 items-center grow" leftDecor=". ݁₊ ⊹" rightDecor="⊹ ₊ ݁.">
-      <app-action-button (onClick)="state.buildLP()" [isDisabled]="state.isLoading()">
+      <app-action-button (onClick)="sign()" [isDisabled]="state.isLoading()">
         @if (state.isLoading()) {
           Signing…
         } @else {

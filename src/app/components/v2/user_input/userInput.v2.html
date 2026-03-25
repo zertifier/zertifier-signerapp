@@ -57,6 +57,55 @@
     </div>
   </div>
 
+  <app-form-divider label="Service offering">
+    <input class="checkbox-primary" type="checkbox" [(ngModel)]="state.isIncludeSO"/>
+  </app-form-divider>
+  @if (state.isIncludeSO()) {
+    <div class="flex flex-row gap-3">
+      <div class="flex flex-row items-center flex-4">
+        <label class="w-20 input-label">Terms url:</label>
+        <input type="text" placeholder="http://www.terms.com" [(ngModel)]="state.soTacUrl"
+               class="grow input-base"/>
+      </div>
+
+      <div class="flex flex-row items-center flex-5">
+        <label class="w-20 input-label">Hash:</label>
+        <input type="text" placeholder="SHA-256" [(ngModel)]="state.soTacHash"
+               class="grow input-base"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row gap-3">
+      <div class="flex flex-row items-center flex-4">
+        <label class="w-20 input-label">Name:</label>
+        <input type="text" placeholder="Energy analysis algorithm" [(ngModel)]="state.soName"
+               class="grow input-base"/>
+      </div>
+      <div class="flex flex-row items-center flex-5">
+        <label class="w-20 input-label">Subject:</label>
+        <input type="text" placeholder="did:ope:b83...5f7" [(ngModel)]="state.soSubject"
+               class="grow input-base"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row gap-3">
+      <app-form-selector class="flex-4" label="Request:" labelClass="w-20"
+                         [selected]="state.soRequestType"
+                         [collection]="REQUEST_TYPES"></app-form-selector>
+
+      <div class="flex flex-row items-center flex-5">
+        <label class="w-20 input-label">Format:</label>
+        <input type="text" placeholder="application/json" [(ngModel)]="state.soFormatType"
+               class="grow input-base"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row items-center">
+      <label class="w-24 input-label">Description:</label>
+      <textarea type="text" placeholder="This service is ..." [(ngModel)]="state.soDescription"
+                class="grow input-base"></textarea>
+    </div>
+  }
   <app-form-divider label="Actions"></app-form-divider>
 
   <div class="flex flex-row items-baseline">

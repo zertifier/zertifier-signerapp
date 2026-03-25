@@ -8,6 +8,7 @@ import {APPROVED_CHS} from '../../../core/types/clearingHouse.types';
 import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 import {Stepper} from '../../../ui/stepper/stepper';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
+import {ToastService} from '../../../services/ToastService';
 
 @Component({
   selector: 'app-legal-registration-number',
@@ -25,10 +26,23 @@ import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 })
 export class LegalRegistrationNumberV2 {
   state = inject(VcFlowV2State);
-  vc = this.state.credentialProvider.lnr;
+  vc = this.state.lrn;
   fileUrl = computed(() => {
-      return this.state.baseUrl() ? this.state.buildFilePath("lnr") : null;
+      return this.state.baseUrl() ? this.state.buildFilePath("lrn") : null;
     }
   )
   protected readonly APPROVED_CHS = APPROVED_CHS;
+  #toast = inject(ToastService);
+
+  askNicelyForLrn() {
+    this.state.askNicelyForLrn().subscribe({
+      next: () => {
+        this.#toast.success('🎉 Legal registration number received');
+      },
+      error: (err) => {
+        this.#toast.error('Not asked nicely enough');
+        console.error('No nice', err);
+      }
+    });
+  }
 }

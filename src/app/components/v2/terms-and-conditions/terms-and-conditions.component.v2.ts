@@ -6,6 +6,7 @@ import {ActionButton} from '../../../ui/action-button/action-button';
 import {Stepper} from '../../../ui/stepper/stepper';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
+import {ToastService} from '../../../services/ToastService';
 
 @Component({
   selector: 'app-terms-and-conditions',
@@ -22,10 +23,22 @@ import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 })
 export class TermsAndConditions {
   state = inject(VcFlowV2State);
-  vc = this.state.credentialProvider.tac;
+  vc = this.state.tac;
   fileUrl = computed(() => {
-    return this.state.baseUrl() ? this.state.buildFilePath("tac") : null;
+      return this.state.baseUrl() ? this.state.buildFilePath("tac") : null;
     }
   )
+  #toast = inject(ToastService);
 
+  sign() {
+    this.state.signTAC().subscribe({
+      next: () => {
+        this.#toast.success('🎉 Terms and Conditions signed');
+      },
+      error: (err) => {
+        this.#toast.error('Signing failed');
+        console.error('Signing error', err);
+      }
+    });
+  }
 }

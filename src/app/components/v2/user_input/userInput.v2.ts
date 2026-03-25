@@ -8,6 +8,8 @@ import {Stepper} from '../../../ui/stepper/stepper';
 import {APPROVED_CHS} from '../../../core/types/clearingHouse.types';
 import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
+import {REQUEST_TYPES} from '../../../core/types/credential.types';
+import {ToastService} from '../../../services/ToastService';
 
 @Component({
   selector: 'app-compliance',
@@ -25,9 +27,10 @@ import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 })
 export class UserInputV2 {
   state = inject(VcFlowV2State);
-  compliance = this.state.credentialProvider.compliance;
-  decryptedCertificate = this.state.credentialProvider.cert;
+  compliance = this.state.compliance;
+  decryptedCertificate = this.state.cert;
   protected readonly APPROVED_CHS = APPROVED_CHS;
+  #toast = inject(ToastService);
 
   onFileSelect(event: any) {
     const f = event.target.files[0];
@@ -37,10 +40,28 @@ export class UserInputV2 {
   }
 
   startFlow() {
-    this.state.startFlow();
+    this.state.startFlow().subscribe({
+      next: () => {
+        this.#toast.success('🎉 Full flow completed successfully');
+      },
+      error: (err) => {
+        this.#toast.error('Flow failed');
+        console.error('Flow error', err);
+      }
+    });
   }
 
-  protected decryptCert() {
-    this.state.decryptCert()
+  decryptCert() {
+    this.state.decryptCert().subscribe({
+      next: () => {
+        this.#toast.success('🎉 Certificate decrypted');
+      },
+      error: (err) => {
+        this.#toast.error('Decryption failed');
+        console.error('Decryption error', err);
+      }
+    });
   }
+
+  protected readonly REQUEST_TYPES = REQUEST_TYPES;
 }
