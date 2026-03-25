@@ -9,7 +9,9 @@ export class DogshitConfig {
   fileNames: Record<string, string> = {
     "tac": "termsAndConditions.json",
     "lp": "legalParticipant.json",
+    "legalPerson": "legalPerson.json",
     "lnr": "legalRegistrationNumber.json",
+    "lrn": "legalRegistrationNumber.json",
     "did": "did.json",
     "so": "serviceOffering.json",
     "cert": "cert.pem",
