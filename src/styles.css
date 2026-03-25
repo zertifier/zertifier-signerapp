@@ -40,12 +40,12 @@
     @apply disabled:bg-primary-darker;
   }
 
-  .btn-primary-navbar{
+  .btn-primary-navbar {
     @apply flex mx-2 px-4 py-2 text-text bg-warning hover:bg-primary-light hover:text-black rounded-lg text-sm transition-all
     [&.is-active]:text-black [&.is-active]:font-semibold [&.is-active]:bg-primary-light;
   }
 
-  .btn-primary-tab{
+  .btn-primary-tab {
     @apply inline-block p-3 text-blue-600 [&.is-active]:text-blue-400;
   }
 
@@ -59,7 +59,7 @@
     @apply border border-border focus:outline-none focus:ring-1 focus:ring-primary-light;
   }
 
-  .selector-base{
+  .selector-base {
     @apply rounded-lg bg-background-light px-3 py-2 text-white;
     @apply border border-border focus:outline-none focus:ring-1 focus:ring-primary-light;
     @apply disabled:bg-background-dark disabled:text-text-dark disabled:border-0;
@@ -68,10 +68,14 @@
   .input-base {
     @apply bg-background-light text-text px-3 py-2 rounded-lg;
     @apply border border-border focus:outline-none focus:ring-1 focus:ring-primary-light;
-    @apply disabled:bg-background-dark disabled:text-text-dark disabled:border-0;
+    @apply disabled:bg-background-dark disabled:text-text-dark disabled:border-0 placeholder:text-text-dark;
   }
 
-  .input-label{
+  .input-label {
     @apply mx-2 text-lg text-text-dark;
+  }
+
+  .checkbox-primary {
+    @apply h-5 w-5 cursor-pointer transition-all rounded-lg;
   }
 }
