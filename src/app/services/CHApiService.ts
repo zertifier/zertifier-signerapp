@@ -8,7 +8,9 @@ import {
   finalize,
   from,
   Observable,
+  of,
   shareReplay,
+  switchMap,
   take,
   throwError
 } from 'rxjs';
@@ -40,7 +42,7 @@ export class CHApiService {
     const key = JSON.stringify({vatId, params, service: "LNR_V2", ch})
     if (!this.#inFlight[key]) {
       this.#inFlight[key] = this.#postWithFallback(
-        this.#chRepo.getAllUrls("LNR_V2", ch).map(u => u + "/vatId"),
+        this.#chRepo.getAllUrls("LNR_V2", ch).map(u => `${u}/${vatId}`),
         {},
         params)
         .pipe(
@@ -59,8 +61,11 @@ export class CHApiService {
         )
       ),
       take(1), // first success wins
-      defaultIfEmpty(
-        throwError(() => new Error('All clearing houses failed'))
+      defaultIfEmpty(null),
+      switchMap(result =>
+        result
+          ? of(result)
+          : throwError(() => new Error('All clearing houses failed'))
       )
     );
   }
