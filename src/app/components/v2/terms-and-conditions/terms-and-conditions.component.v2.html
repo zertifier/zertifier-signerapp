@@ -1,22 +1,38 @@
-@let content = c();
 <div class="flex flex-col gap-3">
-  <h1 class="text-2xl font-bold">Terms and Conditions</h1>
+  <h1 class="text-2xl grow font-bold">Terms and Conditions</h1>
+
 
   <app-form-divider label="Actions"></app-form-divider>
 
-  <div class="flex flex-row gap-3">
-    <app-action-button (onClick)="state.buildTac()" [isDisabled]="state.isLoading()">
-      @if (state.isLoading()) {
-        Building and Signing…
-      } @else {
-        Build and sign
-      }
-    </app-action-button>
-    <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋</app-action-button>
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-baseline flex-4">
+      <label class="w-20 input-label">Save url:</label>
+      <input type="text" placeholder="https://www.my-domain.com/vc1" [ngModel]="fileUrl()" disabled
+             class="grow input-base"/>
+    </div>
+
+    <div class="flex flex-row items-baseline flex-5">
+      <label class="w-20 input-label">Did:</label>
+      <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
+             class="grow input-base"/>
+    </div>
   </div>
 
-  @if (content) {
+  <div class="flex flex-row items-baseline">
+    <app-side-decorator class="flex flex-row gap-3 text-yellow-400 items-center grow" leftDecor=". ݁₊ ⊹" rightDecor="⊹ ₊ ݁.">
+      <app-action-button (onClick)="state.buildTac()" [isDisabled]="state.isLoading()">
+        @if (state.isLoading()) {
+          Signing…
+        } @else {
+          Sign
+        }
+      </app-action-button>
+    </app-side-decorator>
+    <app-stepper></app-stepper>
+  </div>
+
+  @if (vc()) {
     <app-form-divider label="Result"></app-form-divider>
-    <app-result-block [content]="content"></app-result-block>
+    <app-result-block [content]="vc()"></app-result-block>
   }
 </div>

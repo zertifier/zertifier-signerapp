@@ -1,17 +1,30 @@
-@let content = c();
 <div class="flex flex-col gap-3">
   <h1 class="text-2xl font-bold">Service Offering</h1>
 
   <app-form-divider label="Input"></app-form-divider>
 
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-baseline flex-4">
+      <label class="w-28 input-label">Save url:</label>
+      <input type="text" placeholder="https://www.my-domain.com/vc1" [ngModel]="fileUrl()" disabled
+             class="grow input-base"/>
+    </div>
+
+    <div class="flex flex-row items-baseline flex-5">
+      <label class="w-28 input-label">Did:</label>
+      <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
+             class="grow input-base"/>
+    </div>
+  </div>
+
   <div class="flex flex-row gap-3">
-    <div class="flex flex-row items-center flex-1">
+    <div class="flex flex-row items-center flex-4">
       <label class="w-28 input-label">Terms url:</label>
       <input type="text" placeholder="http://www.terms.com" [(ngModel)]="tacUrl"
              class="grow input-base"/>
     </div>
 
-    <div class="flex flex-row items-center flex-1">
+    <div class="flex flex-row items-center flex-5">
       <label class="w-28 input-label">Terms hash:</label>
       <input type="text" placeholder="SHA-256" [(ngModel)]="tacHash"
              class="grow input-base"/>
@@ -25,11 +38,11 @@
   </div>
 
   <div class="flex flex-row gap-3">
-    <app-form-selector class="flex-1" label="Request type:" labelClass="w-28"
+    <app-form-selector class="flex-4" label="Request type:" labelClass="w-28"
                        [selected]="requestType"
                        [collection]="REQUEST_TYPES"></app-form-selector>
 
-    <div class="flex flex-row items-center flex-1">
+    <div class="flex flex-row items-center flex-5">
       <label class="w-28 input-label">Format MIME:</label>
       <input type="text" placeholder="application/json" [(ngModel)]="formatType"
              class="grow input-base"/>
@@ -44,25 +57,29 @@
 
   <div class="flex flex-row items-center">
     <label class="w-28 input-label">Description:</label>
-    <input type="text" placeholder="This service is ..." [(ngModel)]="description"
-           class="grow input-base"/>
+    <textarea type="text" placeholder="This service is ..." [(ngModel)]="description"
+           class="grow input-base"></textarea>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>
 
-  <div class="flex flex-row gap-3">
-    <app-action-button (onClick)="build()" [isDisabled]="state.isLoading()">
-      @if (state.isLoading()) {
-        Building and Signing…
-      } @else {
-        Build and sign
-      }
-    </app-action-button>
-    <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋</app-action-button>
+  <div class="flex flex-row items-baseline">
+    <app-side-decorator class="flex flex-row gap-3 text-yellow-400 items-center grow" leftDecor=". ݁₊ ⊹"
+                        rightDecor="⊹ ₊ ݁.">
+      <app-action-button (onClick)="build()" [isDisabled]="state.isLoading()">
+        @if (state.isLoading()) {
+          Signing…
+        } @else {
+          Sign
+        }
+      </app-action-button>
+    </app-side-decorator>
+    <app-stepper></app-stepper>
   </div>
 
-  @if (content) {
+
+  @if (vc()) {
     <app-form-divider label="Result"></app-form-divider>
-    <app-result-block [content]="content"></app-result-block>
+    <app-result-block [content]="vc()"></app-result-block>
   }
 </div>

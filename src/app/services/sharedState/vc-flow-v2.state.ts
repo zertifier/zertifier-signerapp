@@ -37,6 +37,10 @@ export class VcFlowV2State {
     this.countryCode.set("ES-CT");
   }
 
+  startFlow(){
+
+  }
+
   fetchLnr() {
     withLoading(
       this.credentialProvider

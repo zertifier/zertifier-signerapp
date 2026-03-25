@@ -1,92 +1,101 @@
-@let content = c();
-@let offer = vpOffer();
-@let cert = decryptedCertificate();
 <div class="flex flex-col gap-3">
-  <h1 class="text-2xl  font-bold">Verifiable credential</h1>
+  <h1 class="text-2xl grow font-bold">Required user data</h1>
 
   <app-form-divider label="Input"></app-form-divider>
 
-  <div class="flex flex-row items-baseline">
-    <label class="w-20 input-label">Certificate:</label>
-    <input type="file" (change)="onFileSelect($event)" accept=".pfx"
-           class="grow input-base">
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-baseline flex-4">
+      <label class="w-20 input-label">Certificate:</label>
+      <input type="file" (change)="onFileSelect($event)" accept=".pfx"
+             class="grow input-base">
+    </div>
+
+    <div class="flex flex-row items-baseline flex-5">
+      <label class="w-20 input-label">Password:</label>
+      <input type="password" placeholder="i_love_dataspaces69" [(ngModel)]="state.pass"
+             class="grow input-base"/>
+    </div>
   </div>
 
-  <div class="flex flex-row items-baseline">
-    <label class="w-20 input-label">Password:</label>
-    <input type="password" placeholder="i_love_dataspaces69" [(ngModel)]="state.pass"
-           class="grow input-base"/>
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-baseline flex-4">
+      <label class="w-20 input-label">Save url:</label>
+      <input type="text" placeholder="https://www.my-domain.com/vc1" [(ngModel)]="state.baseUrl"
+             class="grow input-base"/>
+    </div>
+
+    <div class="flex flex-row items-baseline flex-5">
+      <label class="w-20 input-label">Did:</label>
+      <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
+             class="grow input-base"/>
+    </div>
   </div>
 
-  <div class="flex flex-row items-baseline">
-    <label class="w-20 input-label">Url:</label>
-    <input type="text" placeholder="https://www.my-domain.com/vc1" [(ngModel)]="state.baseUrl"
-           class="grow input-base"/>
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-center flex-4">
+      <label class="w-20 input-label">Vat ID:</label>
+      <input type="text" placeholder="A123456B" [(ngModel)]="state.vatId"
+             class="grow input-base"/>
+    </div>
+
+    <app-form-selector class="flex-5" label="Issuer:" labelClass="w-20"
+                       [selected]="state.ch"
+                       [collection]="APPROVED_CHS"></app-form-selector>
   </div>
 
-  <div class="flex flex-row items-baseline">
-    <label class="w-20 input-label">Did:</label>
-    <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
-           class="grow input-base"/>
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-center flex-4">
+      <label class="w-20 input-label">Country:</label>
+      <input type="text" placeholder="ES-es" [(ngModel)]="state.countryCode"
+             class="grow input-base"/>
+    </div>
+
+    <div class="flex flex-row items-center flex-5">
+      <label class="w-20 input-label">Name:</label>
+      <input type="text" placeholder="Cows and co." [(ngModel)]="state.legalName"
+             class="grow input-base"/>
+    </div>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>
 
-  <div class="flex flex-row gap-3">
-    <app-action-button (onClick)="state.decryptCert()" [isDisabled]="state.isLoading()">
-      @if (state.isLoading()) {
-        Decrypting…
-      } @else {
-        Decrypt certificate
-      }
-    </app-action-button>
-    <app-action-button (onClick)="state.copyToClipboard(cert?.certInfo)" [isDisabled]="!cert?.certInfo">📋
-    </app-action-button>
-
+  <div class="flex flex-row items-baseline">
+    <app-side-decorator class="flex flex-row text-green-400 items-center gap-3 grow" leftDecor=". ݁₊ ⊹"
+                        rightDecor="⊹ ₊ ݁.">
+      <app-action-button (onClick)="startFlow()" [isDisabled]="state.isLoading()">
+        @if (state.isLoading()) {
+          Doing magic…
+        } @else {
+          Get compliance
+        }
+      </app-action-button>
+      <p class="text-green-400">✿</p>
+      <app-action-button (onClick)="decryptCert()" [isDisabled]="state.isLoading()">
+        @if (state.isLoading()) {
+          Deciphering scrolls…
+        } @else {
+          Decrypt certificate
+        }
+      </app-action-button>
+    </app-side-decorator>
+    <app-stepper [isBackDisabled]="true"></app-stepper>
   </div>
 
-  @if (offer) {
-    <div>
-      <app-form-divider label="Publish and Offer"></app-form-divider>
-
-      <div class="flex flex-row gap-4 items-center">
-        <app-form-selector label="To:" labelClass=""
-                           [selected]="selectedDomain"
-                           [collection]="publishDomains"></app-form-selector>
-
-        <app-action-button (onClick)="publishOffer()" [isDisabled]="state.isLoading()">
-          @if (state.isLoading()) {
-            Publishing…
-          } @else {
-            Publish
-          }
-        </app-action-button>
-
-        <app-action-button (onClick)="getCompliance()" [isDisabled]="state.isLoading() || !vpOffer()">
-          @if (state.isLoading()) {
-            Fetching compliance…
-          } @else {
-            Fetch compliance
-          }
-        </app-action-button>
-        <app-action-button (onClick)="state.copyToClipboard(content)" [isDisabled]="!content">📋
-        </app-action-button>
-      </div>
-
-      <app-form-divider label="Result"></app-form-divider>
-
-      <div class="flex flex-row gap-3">
+  @if (decryptedCertificate() || compliance()) {
+    <app-form-divider label="Result"></app-form-divider>
+    <div class="flex flex-row gap-3">
+      @if (compliance()) {
         <div class="flex-1">
-          <app-form-divider label="- offer"></app-form-divider>
-          <app-result-block [content]="offer"></app-result-block>
+          <app-form-divider label="- result compliance"></app-form-divider>
+          <app-result-block [content]="compliance()"></app-result-block>
         </div>
-        @if (content) {
-          <div class="flex-1">
-            <app-form-divider label="- compliance"></app-form-divider>
-            <app-result-block [content]="content"></app-result-block>
-          </div>
-        }
-      </div>
+      }
+      @if (decryptedCertificate()) {
+        <div class="flex-1">
+          <app-form-divider label="- certificate info"></app-form-divider>
+          <app-result-block [content]="decryptedCertificate()"></app-result-block>
+        </div>
+      }
     </div>
   }
 </div>

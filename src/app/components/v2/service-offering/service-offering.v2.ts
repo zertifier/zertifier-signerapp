@@ -1,13 +1,15 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {ResultBlock} from '../../../ui/result-block/result-block';
 import {FormsModule} from '@angular/forms';
 import {FormDivider} from '../../../ui/form-divider/form-divider';
 import {ActionButton} from '../../../ui/action-button/action-button';
 import {FormSelector} from '../../../ui/form-selector/form-selector';
-import {MainWindowGroupState} from '../../../services/sharedState/main-window.group.state';
 import {REQUEST_TYPES, RequestTypes, SOInput} from '../../../core/types/credential.types';
 import {ToastService} from '../../../services/ToastService';
 import {requireValue} from '../../../util/util';
+import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
+import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
+import {Stepper} from '../../../ui/stepper/stepper';
 
 @Component({
   selector: 'app-service-offering',
@@ -16,13 +18,15 @@ import {requireValue} from '../../../util/util';
     FormDivider,
     ResultBlock,
     ActionButton,
-    FormSelector
+    FormSelector,
+    SideDecorator,
+    Stepper
   ],
   templateUrl: './service-offering.v2.html',
   styleUrl: './service-offering.v2.css',
 })
 export class ServiceOfferingV2 implements OnInit {
-  state = inject(MainWindowGroupState);
+  state = inject(VcFlowV2State);
   name = signal<string | undefined>(undefined);
   description = signal<string | undefined>(undefined);
   tacUrl = signal<string | undefined>(undefined);
@@ -30,7 +34,11 @@ export class ServiceOfferingV2 implements OnInit {
   formatType = signal<string>('application/json');
   requestType = signal<RequestTypes>('API');
   subject = signal<string | undefined>(undefined);
-  c = this.state.credentialProvider.so;
+  vc = this.state.credentialProvider.so;
+  fileUrl = computed(() => {
+    return this.state.baseUrl() ? this.state.buildFilePath("so") : null;
+    }
+  )
   protected readonly REQUEST_TYPES = REQUEST_TYPES;
   #toast = inject(ToastService);
 

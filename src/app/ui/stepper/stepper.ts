@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
@@ -10,6 +10,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 export class Stepper {
   router = inject(Router);
   route = inject(ActivatedRoute);
+  isBackDisabled = input<boolean>(false);
+  isNextDisabled = input<boolean>(false);
 
   next() {
     const currentIndex = this.route.snapshot.data['stepIndex'];

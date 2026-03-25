@@ -1,1 +1,69 @@
-<p>offer.v2 works!</p>
+<div class="flex flex-col gap-3">
+  <h1 class="text-2xl grow font-bold">Compliance</h1>
+
+
+  <app-form-divider label="Actions"></app-form-divider>
+
+  <div class="flex flex-row gap-4">
+    <div class="flex flex-row items-baseline flex-4">
+      <label class="w-20 input-label">Save url:</label>
+      <input type="text" placeholder="https://www.my-domain.com/vc1" [ngModel]="fileUrl()" disabled
+             class="grow input-base"/>
+    </div>
+
+    <div class="flex flex-row items-baseline flex-5">
+      <label class="w-20 input-label">Did:</label>
+      <input type="text" placeholder="did:web:www.my-domain.com:docs:vc" [ngModel]="state.did()" disabled
+             class="grow input-base"/>
+    </div>
+  </div>
+
+  <div class="flex flex-row items-baseline">
+    <app-side-decorator class="flex flex-row gap-3 text-green-400 items-center grow" leftDecor=". ݁₊ ⊹"
+                        rightDecor="⊹ ₊ ݁.">
+      <app-action-button (onClick)="offer()" [isDisabled]="state.isLoading()">
+        @if (state.isLoading()) {
+          Complaining…
+        } @else {
+          Get compliance
+        }
+      </app-action-button>
+      <p class="text-green-400">-></p>
+      <app-form-selector label="To:" labelClass=""
+                         [selected]="selectedDomain"
+                         [collection]="publishDomains"></app-form-selector>
+
+      <app-action-button (onClick)="publish()" [isDisabled]="state.isLoading()">
+        @if (state.isLoading()) {
+          Publishing…
+        } @else {
+          Publish
+        }
+      </app-action-button>
+    </app-side-decorator>
+    <app-stepper [isNextDisabled]="true"></app-stepper>
+  </div>
+  @if (vc()) {
+    <app-form-divider label="Result"></app-form-divider>
+    <app-result-block [content]="vc()"></app-result-block>
+  }
+
+
+  @if (vc() || presentation()) {
+    <app-form-divider label="Result"></app-form-divider>
+    <div class="flex flex-row gap-3">
+      @if (presentation()) {
+        <div class="flex-1">
+          <app-form-divider label="- result compliance"></app-form-divider>
+          <app-result-block [content]="presentation()"></app-result-block>
+        </div>
+      }
+      @if (vc()) {
+        <div class="flex-1">
+          <app-form-divider label="- certificate info"></app-form-divider>
+          <app-result-block [content]="vc()"></app-result-block>
+        </div>
+      }
+    </div>
+  }
+</div>

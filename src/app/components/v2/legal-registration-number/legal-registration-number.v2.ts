@@ -1,11 +1,13 @@
-import {Component, inject} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {FormSelector} from '../../../ui/form-selector/form-selector';
 import {FormDivider} from '../../../ui/form-divider/form-divider';
 import {ResultBlock} from '../../../ui/result-block/result-block';
 import {ActionButton} from '../../../ui/action-button/action-button';
-import {MainWindowGroupState} from '../../../services/sharedState/main-window.group.state';
 import {APPROVED_CHS} from '../../../core/types/clearingHouse.types';
+import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
+import {Stepper} from '../../../ui/stepper/stepper';
+import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 
 @Component({
   selector: 'app-legal-registration-number',
@@ -14,13 +16,19 @@ import {APPROVED_CHS} from '../../../core/types/clearingHouse.types';
     FormDivider,
     ResultBlock,
     ActionButton,
-    FormSelector
+    FormSelector,
+    Stepper,
+    SideDecorator
   ],
   templateUrl: './legal-registration-number.v2.html',
   styleUrl: './legal-registration-number.v2.css',
 })
 export class LegalRegistrationNumberV2 {
-  state = inject(MainWindowGroupState);
-  c = this.state.credentialProvider.lnr;
+  state = inject(VcFlowV2State);
+  vc = this.state.credentialProvider.lnr;
+  fileUrl = computed(() => {
+      return this.state.baseUrl() ? this.state.buildFilePath("lnr") : null;
+    }
+  )
   protected readonly APPROVED_CHS = APPROVED_CHS;
 }

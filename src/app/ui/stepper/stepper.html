@@ -1,10 +1,10 @@
 <div class="flex flex-row gap-2">
-  <button (click)="previous()"
-          class="mx-auto text-blue-100 bg-red-900 hover:bg-red-600 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all">
+  <button (click)="previous()" [disabled]="isBackDisabled()"
+          class="mx-auto text-blue-100 bg-red-900 hover:bg-red-600 disabled:bg-gray-700 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all">
     Back
   </button>
-  <button (click)="next()"
-          class="mx-auto text-blue-100 bg-green-900 hover:bg-green-600 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all">
+  <button (click)="next()" [disabled]="isNextDisabled()"
+          class="mx-auto text-blue-100 bg-green-900 hover:bg-green-600 disabled:bg-gray-700 font-medium rounded-lg text-sm py-2 px-4 flex justify-center transition-all">
     Next
   </button>
 </div>
