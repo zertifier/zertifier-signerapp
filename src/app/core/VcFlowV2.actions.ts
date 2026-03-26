@@ -12,6 +12,7 @@ import {DogshitConfig} from './data/dogshit.config';
 import {joinPath} from '../util/strings.util';
 import {HttpParams} from '@angular/common/http';
 import {CredentialsBuilder_v1} from '../services/credentials-builder_v1.service';
+import {decodeJwt} from 'jose';
 
 
 @Injectable()
@@ -61,7 +62,7 @@ export class VcFlowV2Actions {
     return this.#signVC(pkey, this.#credBuilder.lp(didUrl, input), didUrl);
   }
 
-  buildVP(vcArr:VCv1[]){
+  buildVP(vcArr: VCv1[]) {
     return this.#credBuilder.vp(vcArr);
   }
 
@@ -70,8 +71,8 @@ export class VcFlowV2Actions {
       .fetch_lnr_v2(
         input.vatId,
         new HttpParams()
-          .set("vcId", decodeURIComponent(input.url))
-          .set("subjectId", input.url + "#subject")
+          .set("vcId", input.url)
+          .set("subjectId", `${input.url}#subject`)
         , ch);
   }
 
@@ -126,5 +127,10 @@ export class VcFlowV2Actions {
 
   #signVC(pKey: CryptoKey, offer: VCv1, didUrl: string) {
     return from(this.#signerService.signWithProof_v1(offer, didUrl, pKey));
+  }
+
+  decodeJWT(jwt: string | undefined) {
+    if(!jwt) return undefined;
+    return decodeJwt(jwt)
   }
 }

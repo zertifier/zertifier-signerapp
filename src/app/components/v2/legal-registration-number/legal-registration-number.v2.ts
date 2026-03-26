@@ -27,6 +27,7 @@ import {ToastService} from '../../../services/ToastService';
 export class LegalRegistrationNumberV2 {
   state = inject(VcFlowV2State);
   vc = this.state.lrn;
+  vcDecoded = this.state.lrnDecoded;
   fileUrl = computed(() => {
       return this.state.baseUrl() ? this.state.buildFilePath("lrn") : null;
     }

@@ -16,8 +16,8 @@ export interface PublishedFile {
 
 export type PublishInput = {
   cert: DecryptedCertificate,
-  lrn: object,
-  tac: object,
-  lp: object,
-  so?: object,
+  lrn: any,
+  tac: any,
+  lp: any,
+  so?: any,
 };

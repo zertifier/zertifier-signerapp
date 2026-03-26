@@ -19,7 +19,8 @@ export class VcFlowV2State {
   pass = signal<string | undefined>(undefined);
   isLoading = signal<boolean>(false);
   ch = signal<ApprovedCHs | undefined>("ARUBA");
-  lrn = signal<object | undefined>(undefined);
+  lrn = signal<string | undefined>(undefined);
+  lrnDecoded = computed(()=>this.#vcFlowV2Actions.decodeJWT(this.lrn()))
   lp = signal<VCv1 | undefined>(undefined);
   tac = signal<VCv1 | undefined>(undefined);
   so = signal<VCv1 | undefined>(undefined);
@@ -66,6 +67,7 @@ export class VcFlowV2State {
     this.soName.set("Community Analysis Alghorithm");
     this.soDescription.set(`Provides a secure, aggregated view of energy consumption and generation at community level.
     It computes totals and averages, identifies top consumers and surplus generators, and highlights behavioral extremes (percentiles).`);
+    this.pass.set('B55272140');
   }
 
   startFlow() {

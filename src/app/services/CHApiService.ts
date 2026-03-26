@@ -41,9 +41,8 @@ export class CHApiService {
   fetch_lnr_v2(vatId: string, params: HttpParams, ch?: ApprovedCHs) {
     const key = JSON.stringify({vatId, params, service: "LNR_V2", ch})
     if (!this.#inFlight[key]) {
-      this.#inFlight[key] = this.#postWithFallback(
+      this.#inFlight[key] = this.#getWithFallback(
         this.#chRepo.getAllUrls("LNR_V2", ch).map(u => `${u}/${vatId}`),
-        {},
         params)
         .pipe(
           shareReplay(1),
