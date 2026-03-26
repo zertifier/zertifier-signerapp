@@ -8,6 +8,11 @@ import {decodeJwt} from 'jose';
 export class DecodeJwt implements PipeTransform {
   transform(value?: string) {
     if (!value) return undefined;
-    return decodeJwt(value)
+    try{
+      return decodeJwt(value)
+    } catch(err){
+      console.error("Error decoding JWT", err)
+      return undefined;
+    }
   }
 }
