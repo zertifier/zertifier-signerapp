@@ -20,13 +20,12 @@ export class VcFlowV2State {
   isLoading = signal<boolean>(false);
   ch = signal<ApprovedCHs | undefined>("ARUBA");
   lrn = signal<string | undefined>(undefined);
-  lp = signal<VCv1 | undefined>(undefined);
-  tac = signal<VCv1 | undefined>(undefined);
-  so = signal<VCv1 | undefined>(undefined);
+  lp = signal<string | undefined>(undefined);
+  tac = signal<string | undefined>(undefined);
+  so = signal<string | undefined>(undefined);
   compliance = signal<string | undefined>(undefined);
   cert = signal<DecryptedCertificate | undefined>(undefined);
   isIncludeSO = signal<boolean>(true);
-
   soName = signal<string | undefined>(undefined);
   soDescription = signal<string | undefined>(undefined);
   soTacUrl = signal<string | undefined>(undefined);
@@ -47,11 +46,12 @@ export class VcFlowV2State {
     const lrn = this.lrn();
     const lp = this.lp();
     const tac = this.tac();
-    if (!(lrn && lp && tac)) return null;
+    const didUrl = this.did();
+    if (!(lrn && lp && tac && didUrl)) return null;
     // TODO somehow streamline gathering process
     const vps = [lrn, lp, tac, this.so()]
-      .filter((a: any): a is NonNullable<VCv1> => !!a);
-    return this.#vcFlowV2Actions.buildVP(vps);
+      .filter((a: any): a is NonNullable<string> => !!a);
+    return this.#vcFlowV2Actions.buildVP(didUrl, vps);
   })
   #toast = inject(ToastService);
   #dsConfig = inject(DogshitConfig);
@@ -207,8 +207,5 @@ export class VcFlowV2State {
 
   buildFilePath(filename: string) {
     return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames[filename])
-  }
-  decodeJwt(jwt?:string){
-    this.#vcFlowV2Actions.decodeJWT(jwt);
   }
 }

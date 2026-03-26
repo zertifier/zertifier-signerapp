@@ -11,8 +11,7 @@ import {PublishedFile, PublishInput} from './types/publisher.types';
 import {DogshitConfig} from './data/dogshit.config';
 import {joinPath} from '../util/strings.util';
 import {HttpParams} from '@angular/common/http';
-import {CredentialsBuilder_v1} from '../services/credentials-builder_v1.service';
-import {decodeJwt} from 'jose';
+import {CredentialsBuilder_v2} from '../services/credentials-builder_v2.service';
 
 
 @Injectable()
@@ -22,12 +21,12 @@ export class VcFlowV2Actions {
   #signerService = inject(SignerService);
   #publishService = inject(PublishService);
   #dsConfig = inject(DogshitConfig);
-  #credBuilder = inject(CredentialsBuilder_v1);
+  #credBuilder = inject(CredentialsBuilder_v2);
 
   fetchCompliance(vp: object, input: VPInput, ch?: ApprovedCHs) {
     return this.#chApiService.fetch(
       vp,
-      new HttpParams().set("vcid", decodeURIComponent(input.url)),
+      new HttpParams().set("vcid", input.url),
       'COMPLIANCE_V2_STANDARD', ch);
   }
 
@@ -62,8 +61,8 @@ export class VcFlowV2Actions {
     return this.#signVC(pkey, this.#credBuilder.lp(didUrl, input), didUrl);
   }
 
-  buildVP(vcArr: VCv1[]) {
-    return this.#credBuilder.vp(vcArr);
+  buildVP(didUrl:string, vcArr: string[]) {
+    return this.#credBuilder.vp(didUrl, vcArr);
   }
 
   fetchLrn_v2(input: LNRInput, ch?: ApprovedCHs) {
@@ -93,21 +92,21 @@ export class VcFlowV2Actions {
       },
       {
         path: joinPath(baseUrl, this.#dsConfig.fileNames['legalPerson']),
-        content: JSON.stringify(toPublish.lp)
+        content: toPublish.lp
       },
       {
         path: joinPath(baseUrl, this.#dsConfig.fileNames['tac']),
-        content: JSON.stringify(toPublish.tac)
+        content: toPublish.tac
       },
       {
         path: joinPath(baseUrl, this.#dsConfig.fileNames['lnr']),
-        content: JSON.stringify(toPublish.lrn)
+        content: toPublish.lrn
       }
     ];
     if (toPublish.so) {
       files.push({
         path: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
-        content: JSON.stringify(toPublish.so)
+        content: toPublish.so
       })
     }
     return files;
@@ -126,11 +125,6 @@ export class VcFlowV2Actions {
   }
 
   #signVC(pKey: CryptoKey, offer: VCv1, didUrl: string) {
-    return from(this.#signerService.signWithProof_v1(offer, didUrl, pKey));
-  }
-
-  decodeJWT(jwt: string | undefined) {
-    if(!jwt) return undefined;
-    return decodeJwt(jwt)
+    return from(this.#signerService.signWithEnvelope_v2(offer, didUrl, pKey));
   }
 }
