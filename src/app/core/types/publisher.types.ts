@@ -19,5 +19,6 @@ export type PublishInput = {
   lrn: any,
   tac: any,
   lp: any,
+  vp?: any,
   so?: any,
 };

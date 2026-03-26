@@ -103,6 +103,12 @@ export class VcFlowV2Actions {
         content: toPublish.lrn
       }
     ];
+    if (toPublish.vp) {
+      files.push({
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['vp']),
+        content: toPublish.vp
+      })
+    }
     if (toPublish.so) {
       files.push({
         path: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
