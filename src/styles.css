@@ -78,4 +78,8 @@
   .checkbox-primary {
     @apply h-5 w-5 cursor-pointer transition-all rounded-lg;
   }
+
+  .btn-copy{
+    @apply bg-green-400/30 rounded-lg absolute top-2 left-2 p-1 hover:bg-green-400 transition-all;
+  }
 }

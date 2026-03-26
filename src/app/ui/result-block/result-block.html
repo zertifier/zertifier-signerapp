@@ -1,6 +1,10 @@
-<div>
-  <pre class="text-sm bg-blue-950 text-green-200 mx-4 my-2 p-4
+<div class="relative mx-4 my-2">
+  <button type="button" class="btn-copy"
+          (click)="copyToClipboard()">📋
+  </button>
+  <pre class="text-sm bg-blue-950 text-green-200 p-3
       rounded-lg overflow-auto">
-        <code class="whitespace-pre-wrap break-all">{{ content() | json }}</code>
+        <code
+          class="whitespace-pre-wrap break-all">{{ typeof content() === 'string' ? content() : (content() | json) }}</code>
   </pre>
 </div>
