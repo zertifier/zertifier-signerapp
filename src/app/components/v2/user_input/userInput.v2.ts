@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, ElementRef, inject, viewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {FormSelector} from '../../../ui/form-selector/form-selector';
 import {FormDivider} from '../../../ui/form-divider/form-divider';
@@ -29,7 +29,9 @@ export class UserInputV2 {
   state = inject(VcFlowV2State);
   compliance = this.state.compliance;
   decryptedCertificate = this.state.cert;
+  passInput = viewChild<ElementRef>("passInput");
   protected readonly APPROVED_CHS = APPROVED_CHS;
+  protected readonly REQUEST_TYPES = REQUEST_TYPES;
   #toast = inject(ToastService);
 
   onFileSelect(event: any) {
@@ -37,6 +39,12 @@ export class UserInputV2 {
     if (f) {
       this.state.file.set(f);
     }
+  }
+
+  togglePasswordVisibility() {
+    const input = this.passInput()?.nativeElement;
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
   }
 
   startFlow() {
@@ -62,6 +70,4 @@ export class UserInputV2 {
       }
     });
   }
-
-  protected readonly REQUEST_TYPES = REQUEST_TYPES;
 }
