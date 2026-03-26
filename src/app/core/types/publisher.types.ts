@@ -3,9 +3,9 @@ import {HttpHeaders} from '@angular/common/http';
 import {DecryptedCertificate} from './crypto.types';
 
 export interface FilePublisher {
-  publish(baseUrl: string, files: PublishedFile[], headers?: HttpHeaders): Observable<void>;
+  publish(baseUrl: string, files: PublishedFile[], headers?: HttpHeaders): Observable<null>;
 
-  validate(baseUrl: string, files: PublishedFile[]): Observable<void>;
+  validate(baseUrl: string, files: PublishedFile[]): Observable<null>;
 }
 
 export interface PublishedFile {

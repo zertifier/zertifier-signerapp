@@ -52,7 +52,7 @@ export class CredentialsProvider_v1 {
     // TODO hardcoded domain
     return this.#publishService
       .publish(this.#dsConfig.publishDomains['Zertifier'], [{
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v1['compliance']),
         content: JSON.stringify(requireValue(this.compliance(), "Verifiable presentation"))
       }]);
   }
@@ -122,33 +122,33 @@ export class CredentialsProvider_v1 {
     const lnr = requireValue(this.lnr(), "Legal Registration Number");
     const tac = requireValue(this.lp(), "Legal participant");
     const lp = requireValue(this.tac(), "Terms and conditions");
-    const certUrl = joinPath(baseUrl, this.#dsConfig.fileNames['cert']);
+    const certUrl = joinPath(baseUrl, this.#dsConfig.fileNames_v1['cert']);
     const files: PublishedFile[] = [
       {
         path: certUrl,
         content: certPem
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['did']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v1['did']),
         content: JSON.stringify(this.#buildDidJson(didUrl, certUrl))
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['lp']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v1['lp']),
         content: JSON.stringify(lp)
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['tac']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v1['tac']),
         content: JSON.stringify(tac)
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['lnr']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v1['lnr']),
         content: JSON.stringify(lnr)
       }
     ];
     const so = this.so();
     if (so) {
       files.push({
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v1['so']),
         content: JSON.stringify(so)
       })
     }

@@ -154,7 +154,7 @@ export class MainWindowGroupState {
   }
 
   buildFilePath(filename: string) {
-    return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames[filename])
+    return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames_v1[filename])
   }
 
 }

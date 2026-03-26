@@ -23,7 +23,7 @@ export class VcFlowV2Actions {
   #dsConfig = inject(DogshitConfig);
   #credBuilder = inject(CredentialsBuilder_v2);
 
-  fetchCompliance(vp: object, input: VPInput, ch?: ApprovedCHs) {
+  fetchCompliance(vp: string, input: VPInput, ch?: ApprovedCHs) {
     return this.#chApiService.fetch(
       vp,
       new HttpParams().set("vcid", input.url),
@@ -35,7 +35,7 @@ export class VcFlowV2Actions {
     return this.#publishService.publish(
       this.#dsConfig.publishDomains['Zertifier'],
       [{
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['compliance']),
         content: compliance
       }]);
   }
@@ -49,6 +49,10 @@ export class VcFlowV2Actions {
     );
   }
 
+  signVp(pKey: CryptoKey, did: string, vcid: string, jwsArr: string[]) {
+    return this.#signVC(pKey, this.#credBuilder.vp(did, vcid, jwsArr), did);
+  }
+
   signSO(pKey: CryptoKey, didUrl: string, input: SOInput) {
     return this.#signVC(pKey, this.#credBuilder.so(didUrl, input), didUrl);
   }
@@ -59,10 +63,6 @@ export class VcFlowV2Actions {
 
   signLP(pkey: CryptoKey, didUrl: string, input: LPInput) {
     return this.#signVC(pkey, this.#credBuilder.lp(didUrl, input), didUrl);
-  }
-
-  buildVP(didUrl:string, vcArr: string[]) {
-    return this.#credBuilder.vp(didUrl, vcArr);
   }
 
   fetchLrn_v2(input: LNRInput, ch?: ApprovedCHs) {
@@ -80,26 +80,26 @@ export class VcFlowV2Actions {
   }
 
   #buildFilesToPublish(toPublish: PublishInput, baseUrl: string, didUrl: string) {
-    const certUrl = joinPath(baseUrl, this.#dsConfig.fileNames['cert']);
+    const certUrl = joinPath(baseUrl, this.#dsConfig.fileNames_v2['cert']);
     const files: PublishedFile[] = [
       {
         path: certUrl,
         content: toPublish.cert.pemCert
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['did']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['did']),
         content: JSON.stringify(this.#buildDidJson(toPublish.cert, didUrl, certUrl))
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['legalPerson']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['lp']),
         content: toPublish.lp
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['tac']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['tac']),
         content: toPublish.tac
       },
       {
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['lnr']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['lrn']),
         content: toPublish.lrn
       }
     ];
@@ -111,7 +111,7 @@ export class VcFlowV2Actions {
     }
     if (toPublish.so) {
       files.push({
-        path: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
+        path: joinPath(baseUrl, this.#dsConfig.fileNames_v2['so']),
         content: toPublish.so
       })
     }

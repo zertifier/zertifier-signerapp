@@ -2,7 +2,7 @@ import {computed, inject, Injectable, signal} from '@angular/core';
 import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
-import {RequestTypes, SOInput, VCv1} from '../../core/types/credential.types';
+import {RequestTypes, SOInput} from '../../core/types/credential.types';
 import {EMPTY, switchMap, tap} from 'rxjs';
 import {requireValue, withLoading} from '../../util/util';
 import {joinPath, urlToDid} from '../../util/strings.util';
@@ -42,22 +42,12 @@ export class VcFlowV2State {
     return undefined;
   });
   #vcFlowV2Actions = inject(VcFlowV2Actions);
-  presentation = computed(() => {
-    const lrn = this.lrn();
-    const lp = this.lp();
-    const tac = this.tac();
-    const didUrl = this.did();
-    if (!(lrn && lp && tac && didUrl)) return null;
-    // TODO somehow streamline gathering process
-    const vps = [lrn, lp, tac, this.so()]
-      .filter((a: any): a is NonNullable<string> => !!a);
-    return this.#vcFlowV2Actions.buildVP(didUrl, vps);
-  })
+  presentation = signal<string | undefined>(undefined);
   #toast = inject(ToastService);
   #dsConfig = inject(DogshitConfig);
 
   constructor() {
-    this.baseUrl.set("https://www.zertifier.com/docs/vc/zertifier/main");
+    this.baseUrl.set("https://www.zertifier.com/docs/vc2/zertifier/main");
     this.vatId.set("ESB05303755");
     this.legalName.set("ZERTIFIER SL");
     this.countryCode.set("ES-CT");
@@ -89,6 +79,26 @@ export class VcFlowV2State {
       }, this.ch()), this.isLoading)
       .pipe(
         tap((resp: any) => this.lrn.set(resp))
+      );
+  }
+
+  signVP() {
+    const vps = [
+      requireValue(this.lrn(), "Legal registration number"),
+      requireValue(this.lp(), "Legal Person"),
+      requireValue(this.tac(), "Terms and conditions"),
+      this.so()]
+      .filter((a: any): a is NonNullable<string> => !!a);
+
+    return withLoading(
+      this.#vcFlowV2Actions.signVp(
+        requireValue(this.cert()?.pKey, "Private key"),
+        this.buildFilePath('vp'),
+        requireValue(this.did(), "Did.json url"),
+        vps),
+      this.isLoading)
+      .pipe(
+        tap((resp: any) => this.presentation.set(resp))
       );
   }
 
@@ -188,11 +198,11 @@ export class VcFlowV2State {
 
   builtSOInput(baseUrl: string): SOInput {
     return {
-      url: joinPath(baseUrl, this.#dsConfig.fileNames['so']),
+      url: joinPath(baseUrl, this.#dsConfig.fileNames_v2['so']),
       subject: requireValue(this.soSubject(), "Service Subject"),
       name: this.soName(),
       description: this.soDescription(),
-      providedByUrl: `${joinPath(baseUrl, this.#dsConfig.fileNames['legalPerson'])}#subject`,
+      providedByUrl: `${joinPath(baseUrl, this.#dsConfig.fileNames_v2['lp'])}#subject`,
       tac: {
         "gx:URL": requireValue(this.soTacUrl(), "Terms and condition url"),
         "gx:hash": requireValue(this.soTacHash(), "Terms and condition hash")
@@ -206,6 +216,6 @@ export class VcFlowV2State {
   }
 
   buildFilePath(filename: string) {
-    return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames[filename])
+    return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames_v2[filename])
   }
 }

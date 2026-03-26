@@ -28,7 +28,7 @@ export class LegalPersonV2 {
   state = inject(VcFlowV2State);
   vc = this.state.lp;
   fileUrl = computed(() => {
-      return this.state.baseUrl() ? this.state.buildFilePath("legalPerson") : null;
+      return this.state.baseUrl() ? this.state.buildFilePath("lp") : null;
     }
   )
   #toast = inject(ToastService);
