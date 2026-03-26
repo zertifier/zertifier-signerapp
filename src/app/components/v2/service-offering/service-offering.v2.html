@@ -58,7 +58,7 @@
   <div class="flex flex-row items-center">
     <label class="w-28 input-label">Description:</label>
     <textarea type="text" placeholder="This service is ..." [(ngModel)]="state.soDescription"
-           class="grow input-base"></textarea>
+              class="grow input-base"></textarea>
   </div>
 
   <app-form-divider label="Actions"></app-form-divider>
@@ -77,9 +77,11 @@
     <app-stepper></app-stepper>
   </div>
 
-
   @if (vc()) {
     <app-form-divider label="Result"></app-form-divider>
-    <app-result-block [content]="vc()"></app-result-block>
+    <div class="flex flex-row gap-3">
+      <app-result-block class="flex-1" [content]="vc()"></app-result-block>
+      <app-result-block class="flex-1" [content]="vc() | decodeJwt"></app-result-block>
+    </div>
   }
 </div>

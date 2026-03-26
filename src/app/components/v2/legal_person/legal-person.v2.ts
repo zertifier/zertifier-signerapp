@@ -7,6 +7,7 @@ import {Stepper} from '../../../ui/stepper/stepper';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 import {ToastService} from '../../../services/ToastService';
+import {DecodeJwt} from '../../../util/decodeJwt.pipe';
 
 
 @Component({
@@ -17,7 +18,8 @@ import {ToastService} from '../../../services/ToastService';
     ResultBlock,
     ActionButton,
     Stepper,
-    SideDecorator
+    SideDecorator,
+    DecodeJwt
   ],
   templateUrl: './legal-person.v2.html',
   styleUrl: './legal-person.v2.css',

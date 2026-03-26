@@ -48,6 +48,9 @@
 
   @if (vc()) {
     <app-form-divider label="Result"></app-form-divider>
-    <app-result-block [content]="vc()"></app-result-block>
+    <div class="flex flex-row gap-3">
+      <app-result-block class="flex-1" [content]="vc()"></app-result-block>
+      <app-result-block class="flex-1" [content]="vc() | decodeJwt"></app-result-block>
+    </div>
   }
 </div>

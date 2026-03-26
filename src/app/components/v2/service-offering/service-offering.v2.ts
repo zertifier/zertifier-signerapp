@@ -9,6 +9,7 @@ import {ToastService} from '../../../services/ToastService';
 import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 import {Stepper} from '../../../ui/stepper/stepper';
+import {DecodeJwt} from '../../../util/decodeJwt.pipe';
 
 @Component({
   selector: 'app-service-offering',
@@ -19,7 +20,8 @@ import {Stepper} from '../../../ui/stepper/stepper';
     ActionButton,
     FormSelector,
     SideDecorator,
-    Stepper
+    Stepper,
+    DecodeJwt
   ],
   templateUrl: './service-offering.v2.html',
   styleUrl: './service-offering.v2.css',
