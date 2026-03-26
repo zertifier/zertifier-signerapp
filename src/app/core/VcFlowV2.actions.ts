@@ -50,7 +50,10 @@ export class VcFlowV2Actions {
   }
 
   signVp(pKey: CryptoKey, did: string, vcid: string, jwsArr: string[]) {
-    return this.#signVC(pKey, this.#credBuilder.vp(did, vcid, jwsArr), did);
+    return this.#signVC(pKey, this.#credBuilder.vp(did, vcid, jwsArr), did, {
+      cty: "vp",
+      typ: "vp+jwt"
+    });
   }
 
   signSO(pKey: CryptoKey, didUrl: string, input: SOInput) {
@@ -130,7 +133,7 @@ export class VcFlowV2Actions {
     });
   }
 
-  #signVC(pKey: CryptoKey, offer: VCv1, didUrl: string) {
-    return from(this.#signerService.signWithEnvelope_v2(offer, didUrl, pKey));
+  #signVC(pKey: CryptoKey, offer: VCv1, didUrl: string, headersOverwrite?: object) {
+    return from(this.#signerService.signWithEnvelope_v2(offer, didUrl, pKey, headersOverwrite));
   }
 }

@@ -27,8 +27,18 @@ export class SignerService {
     return this.credentialsBuilder.addProof(vc, proof);
   }
 
-  async signWithEnvelope_v2(vc: VCv1, didUrl: string, pKey: CryptoKey) {
-    const signed = await new SignJWT(vc).sign(pKey);
+  async signWithEnvelope_v2(vc: VCv1, didUrl: string, pKey: CryptoKey, headersOverwrite?: object) {
+    const signed = await new SignJWT(vc)
+      .setProtectedHeader({
+        alg: 'RS256',
+        iss: didUrl,
+        kid: `${didUrl}#verification`,
+        iat: new Date().getTime(),
+        cty: "vc+ld",
+        typ: "vc+ld+jwt",
+        ...headersOverwrite
+      })
+      .sign(pKey);
     console.log("envoloping vc: ",signed);
     return signed;
   }
