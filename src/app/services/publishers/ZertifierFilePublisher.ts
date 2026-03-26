@@ -39,7 +39,7 @@ export class ZertifierFilePublisher implements FilePublisher {
         )
       )
     ).pipe(
-      ignoreElements()
+      map(()=> null)
     );
   }
 
