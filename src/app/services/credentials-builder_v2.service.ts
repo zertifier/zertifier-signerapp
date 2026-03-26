@@ -1,16 +1,17 @@
 import {Injectable} from '@angular/core';
 import {DIDInput, LPInput, SOInput, TACInput, VP} from '../core/types/credential.types';
-import {SO_TEMPLATE, TAC_TEMPLATE} from '../core/data/CredentialTemplates';
+import {SO_TEMPLATE} from '../core/data/CredentialTemplates';
 
 @Injectable({providedIn: "root"})
 export class CredentialsBuilder_v2 {
 
-  vp(did: string, jwsArr: string[]): VP {
+  vp(did: string, vcid:string, jwsArr: string[]): VP {
     return {
       "@context": [
         "https://www.w3.org/ns/credentials/v2",
         "https://www.w3.org/ns/credentials/examples/v2"
       ],
+      "@id": vcid,
       "type": "VerifiablePresentation",
       "issuer": did,
       "validFrom": new Date().toISOString(),
@@ -23,7 +24,6 @@ export class CredentialsBuilder_v2 {
   }
 
   so(didUrl: string, input: SOInput) {
-    if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
     return {
       ...SO_TEMPLATE,
       "id": input.url,
@@ -44,7 +44,6 @@ export class CredentialsBuilder_v2 {
   }
 
   tac(didUrl: string, input: TACInput) {
-    if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
     return {
       "@context": [
         "https://www.w3.org/ns/credentials/v2",
@@ -65,7 +64,6 @@ export class CredentialsBuilder_v2 {
   }
 
   lp(didUrl: string, input: LPInput) {
-    if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
     return {
       "@context": [
         "https://www.w3.org/ns/credentials/v2",
