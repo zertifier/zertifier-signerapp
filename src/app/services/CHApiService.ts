@@ -53,6 +53,26 @@ export class CHApiService {
     return this.#inFlight[key]
   }
 
+  #getWithFallback(urls: string[], params: HttpParams) {
+    return from(urls).pipe(
+      concatMap(url =>
+        this.#httpClient.get(url, {
+          params,
+          responseType: "text"
+        }).pipe(
+          catchError(() => EMPTY) // swallow error, try next
+        )
+      ),
+      take(1), // first success wins
+      defaultIfEmpty(null),
+      switchMap(result =>
+        result
+          ? of(result)
+          : throwError(() => new Error('All clearing houses failed'))
+      )
+    );
+  }
+
   #postWithFallback(urls: string[], body: object, params: HttpParams) {
     return from(urls).pipe(
       concatMap(url =>
