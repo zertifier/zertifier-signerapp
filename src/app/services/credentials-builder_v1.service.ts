@@ -4,7 +4,7 @@ import {DIDInput, LPInput, SOInput, TACInput, VCv1, VP} from '../core/types/cred
 import {LP_TEMPLATE, SO_TEMPLATE, TAC_TEMPLATE, VP_TEMPLATE} from '../core/data/CredentialTemplates';
 
 @Injectable({providedIn: "root"})
-export class CredentialsBuilder {
+export class CredentialsBuilder_v1 {
 
   vp(vcArr: VCv1[]): VP {
     return {
@@ -50,7 +50,7 @@ export class CredentialsBuilder {
 
   lp(didUrl: string, input: LPInput) {
     if (!didUrl || !input) throw new Error("Cant build credentials, received empty data!!!")
-    if (!input.lnrSubject) throw new Error("Legal Registration Number Subject URL is required")
+    if (!input.lrnSubject) throw new Error("Legal Registration Number Subject URL is required")
     return {
       ...LP_TEMPLATE,
       "id": input.url,
@@ -66,7 +66,7 @@ export class CredentialsBuilder {
           "gx:countrySubdivisionCode": input.countryCode
         },
         "gx:legalRegistrationNumber": {
-          "id": `${input.lnrSubject}`
+          "id": `${input.lrnSubject}`
         },
         "id": `${input.url}#subject`
       },

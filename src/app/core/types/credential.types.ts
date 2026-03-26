@@ -58,7 +58,7 @@ export type VP = VCv1 & { verifiableCredential: VCv1[] }
 
 export interface LPInput {
   url: string;
-  lnrSubject: string;
+  lrnSubject: string;
   countryCode: string;
   legalName: string;
 }

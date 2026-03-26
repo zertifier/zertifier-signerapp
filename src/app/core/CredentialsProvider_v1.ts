@@ -3,7 +3,7 @@ import {SignerService} from '../services/SignerService';
 import {CertificateProvider} from './CertificateProvider';
 import {from, tap} from 'rxjs';
 import {CHApiService} from "../services/CHApiService";
-import {CredentialsBuilder} from '../services/CredentialsBuilder';
+import {CredentialsBuilder_v1} from '../services/credentials-builder_v1.service';
 import {LNRInput, LPInput, SOInput, TACInput, VCv1, VPInput} from './types/credential.types';
 import {ApprovedCHs} from './types/clearingHouse.types';
 import {CertFileInput, DecryptedCertificate} from './types/crypto.types';
@@ -15,7 +15,7 @@ import {requireValue} from '../util/util';
 import {HttpParams} from '@angular/common/http';
 
 @Injectable()
-export class CredentialsProvider {
+export class CredentialsProvider_v1 {
   lnr = signal<object | null>(null);
   lp = signal<VCv1 | null>(null);
   tac = signal<VCv1 | null>(null);
@@ -25,7 +25,7 @@ export class CredentialsProvider {
   #chApiService = inject(CHApiService);
   #certProvider = inject(CertificateProvider);
   #signerService = inject(SignerService);
-  #credBuilder = inject(CredentialsBuilder);
+  #credBuilder = inject(CredentialsBuilder_v1);
   presentation = computed(() => {
     const lnr_l = this.lnr();
     const lp_l = this.lp();
@@ -170,7 +170,7 @@ export class CredentialsProvider {
 
   #signVC(offer: VCv1, didUrl: string) {
     return from(this.#signerService
-      .signCredential(offer,
+      .signWithProof_v1(offer,
         didUrl, requireValue(this.cert()?.pKey, "Private key")));
   }
 }

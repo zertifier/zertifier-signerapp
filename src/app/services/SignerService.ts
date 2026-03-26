@@ -1,8 +1,8 @@
 import {inject, Injectable} from '@angular/core';
 import * as jsonld from 'jsonld';
 import {Options} from 'jsonld';
-import {CompactSign, CryptoKey} from 'jose';
-import {CredentialsBuilder} from './CredentialsBuilder';
+import {CompactSign, CryptoKey, SignJWT} from 'jose';
+import {CredentialsBuilder_v1} from './credentials-builder_v1.service';
 import {VCv1} from '../core/types/credential.types';
 import Normalize = Options.Normalize;
 
@@ -18,13 +18,19 @@ export interface VerifiableCredentialProof {
   providedIn: "root"
 })
 export class SignerService {
-  credentialsBuilder = inject(CredentialsBuilder);
+  credentialsBuilder = inject(CredentialsBuilder_v1);
 
-  async signCredential(vc: VCv1, didUrl: string, pKey: CryptoKey) {
+  async signWithProof_v1(vc: VCv1, didUrl: string, pKey: CryptoKey) {
     const hash = await this.#hash(vc);
     const signature = await this.#sign(hash, pKey);
     const proof = this.credentialsBuilder.proof(didUrl, signature);
     return this.credentialsBuilder.addProof(vc, proof);
+  }
+
+  async signWithEnvelope_v2(vc: VCv1, didUrl: string, pKey: CryptoKey) {
+    const signed = await new SignJWT(vc).sign(pKey);
+    console.log("envoloping vc: ",signed);
+    return signed;
   }
 
   async #hash(doc: jsonld.JsonLdDocument) {

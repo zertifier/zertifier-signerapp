@@ -1,5 +1,5 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
-import {CredentialsProvider} from '../../core/CredentialsProvider';
+import {CredentialsProvider_v1} from '../../core/CredentialsProvider_v1';
 import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
@@ -26,7 +26,7 @@ export class MainWindowGroupState {
     return undefined;
   });
 
-  credentialProvider = inject(CredentialsProvider);
+  credentialProvider = inject(CredentialsProvider_v1);
   #toast = inject(ToastService);
   #dsConfig = inject(DogshitConfig);
 
@@ -68,7 +68,7 @@ export class MainWindowGroupState {
         requireValue(this.did(), "Did.json url"),
         {
           url: this.buildFilePath('lp'),
-          lnrSubject: `${this.buildFilePath('lnr')}${this.#dsConfig.subjectPostfix}`,
+          lrnSubject: `${this.buildFilePath('lnr')}${this.#dsConfig.subjectPostfix}`,
           countryCode: requireValue(this.countryCode(), "Country Code"),
           legalName: requireValue(this.legalName(), "Legal name"),
         }),
