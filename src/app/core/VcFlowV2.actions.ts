@@ -31,13 +31,13 @@ export class VcFlowV2Actions {
       'COMPLIANCE_V2_STANDARD', ch);
   }
 
-  publishCompliance(compliance: object, baseUrl: string) {
+  publishCompliance(compliance: string, baseUrl: string) {
     // TODO hardcoded domain
     return this.#publishService.publish(
       this.#dsConfig.publishDomains['Zertifier'],
       [{
         path: joinPath(baseUrl, this.#dsConfig.fileNames['compliance']),
-        content: JSON.stringify(compliance)
+        content: compliance
       }]);
   }
 

@@ -6,7 +6,7 @@
   <div class="flex flex-row gap-4">
     <div class="flex flex-row items-baseline flex-4">
       <label class="w-20 input-label">Certificate:</label>
-      <input type="file"  (change)="onFileSelect($event)" accept=".pfx"
+      <input type="file" (change)="onFileSelect($event)" accept=".pfx"
              class="grow input-base">
     </div>
 
@@ -15,7 +15,8 @@
       <input type="password" #passInput placeholder="i_love_dataspaces69" [(ngModel)]="state.pass"
              class="grow input-base"/>
       <button type="button" (click)="togglePasswordVisibility()"
-              class="absolute right-1 bg-black/40 p-1 rounded-lg hover:bg-gray-600 transition-all">👁</button>
+              class="absolute right-1 bg-black/40 p-1 rounded-lg hover:bg-gray-600 transition-all">👁
+      </button>
     </div>
   </div>
 
@@ -136,17 +137,14 @@
     <app-form-divider label="Result"></app-form-divider>
     <div class="flex flex-row gap-3">
       @if (compliance()) {
-        <div class="flex-1">
-          <app-form-divider label="- result compliance"></app-form-divider>
-          <app-result-block [content]="compliance()"></app-result-block>
-        </div>
-      }
-      @if (decryptedCertificate()) {
-        <div class="flex-1">
-          <app-form-divider label="- certificate info"></app-form-divider>
-          <app-result-block [content]="decryptedCertificate()"></app-result-block>
-        </div>
+        <app-result-block class="flex-1" [content]="compliance()"></app-result-block>
+        <app-result-block class="flex-1" [content]="compliance() | decodeJwt"></app-result-block>
       }
     </div>
+    @if (decryptedCertificate()) {
+      <div class="flex-1">
+        <app-result-block [content]="decryptedCertificate()"></app-result-block>
+      </div>
+    }
   }
 </div>

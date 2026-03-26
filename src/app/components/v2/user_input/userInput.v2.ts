@@ -10,6 +10,7 @@ import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 import {REQUEST_TYPES} from '../../../core/types/credential.types';
 import {ToastService} from '../../../services/ToastService';
+import {DecodeJwt} from '../../../util/decodeJwt.pipe';
 
 @Component({
   selector: 'app-compliance',
@@ -20,7 +21,8 @@ import {ToastService} from '../../../services/ToastService';
     ActionButton,
     FormSelector,
     Stepper,
-    SideDecorator
+    SideDecorator,
+    DecodeJwt
   ],
   templateUrl: './userInput.v2.html',
   styleUrl: './userInput.v2.css',

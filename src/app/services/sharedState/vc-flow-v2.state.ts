@@ -20,11 +20,10 @@ export class VcFlowV2State {
   isLoading = signal<boolean>(false);
   ch = signal<ApprovedCHs | undefined>("ARUBA");
   lrn = signal<string | undefined>(undefined);
-  lrnDecoded = computed(()=>this.#vcFlowV2Actions.decodeJWT(this.lrn()))
   lp = signal<VCv1 | undefined>(undefined);
   tac = signal<VCv1 | undefined>(undefined);
   so = signal<VCv1 | undefined>(undefined);
-  compliance = signal<object | undefined>(undefined);
+  compliance = signal<string | undefined>(undefined);
   cert = signal<DecryptedCertificate | undefined>(undefined);
   isIncludeSO = signal<boolean>(true);
 
@@ -208,5 +207,8 @@ export class VcFlowV2State {
 
   buildFilePath(filename: string) {
     return joinPath(requireValue(this.baseUrl(), "Publish url"), this.#dsConfig.fileNames[filename])
+  }
+  decodeJwt(jwt?:string){
+    this.#vcFlowV2Actions.decodeJWT(jwt);
   }
 }

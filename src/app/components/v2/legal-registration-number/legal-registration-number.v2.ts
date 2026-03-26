@@ -9,6 +9,7 @@ import {VcFlowV2State} from '../../../services/sharedState/vc-flow-v2.state';
 import {Stepper} from '../../../ui/stepper/stepper';
 import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 import {ToastService} from '../../../services/ToastService';
+import {DecodeJwt} from '../../../util/decodeJwt.pipe';
 
 @Component({
   selector: 'app-legal-registration-number',
@@ -19,7 +20,8 @@ import {ToastService} from '../../../services/ToastService';
     ActionButton,
     FormSelector,
     Stepper,
-    SideDecorator
+    SideDecorator,
+    DecodeJwt
   ],
   templateUrl: './legal-registration-number.v2.html',
   styleUrl: './legal-registration-number.v2.css',
@@ -27,7 +29,6 @@ import {ToastService} from '../../../services/ToastService';
 export class LegalRegistrationNumberV2 {
   state = inject(VcFlowV2State);
   vc = this.state.lrn;
-  vcDecoded = this.state.lrnDecoded;
   fileUrl = computed(() => {
       return this.state.baseUrl() ? this.state.buildFilePath("lrn") : null;
     }
