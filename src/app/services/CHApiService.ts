@@ -23,7 +23,7 @@ export class CHApiService {
   #httpClient = inject(HttpClient);
   #inFlight: Record<string, Observable<any>> = {};
 
-  fetch(body: Object, params: HttpParams, service: CHServices, ch?: ApprovedCHs) {
+  fetch(body: Object | string, params: HttpParams, service: CHServices, ch?: ApprovedCHs) {
     const key = JSON.stringify({body, params, service, ch})
     if (!this.#inFlight[key]) {
       this.#inFlight[key] = this.#postWithFallback(
@@ -72,7 +72,7 @@ export class CHApiService {
     );
   }
 
-  #postWithFallback(urls: string[], body: object, params: HttpParams) {
+  #postWithFallback(urls: string[], body: object | string, params: HttpParams) {
     return from(urls).pipe(
       concatMap(url =>
         this.#httpClient.post(url, body, {params}).pipe(
