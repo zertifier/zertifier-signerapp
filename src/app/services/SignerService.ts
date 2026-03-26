@@ -34,8 +34,8 @@ export class SignerService {
         iss: didUrl,
         kid: `${didUrl}#verification`,
         iat: new Date().getTime(),
-        cty: "vc+ld",
-        typ: "vc+ld+jwt",
+        cty: "vc+ld+json",
+        typ: "vc+ld+json+jwt",
         ...headersOverwrite
       })
       .sign(pKey);

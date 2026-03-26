@@ -12,7 +12,7 @@ export class CredentialsBuilder_v2 {
         "https://www.w3.org/ns/credentials/examples/v2"
       ],
       "@id": vcid,
-      "type": "VerifiablePresentation",
+      "@type": "VerifiablePresentation",
       "issuer": did,
       "validFrom": new Date().toISOString(),
       "verifiableCredential": jwsArr.map(jws => ({
@@ -49,7 +49,7 @@ export class CredentialsBuilder_v2 {
         "https://www.w3.org/ns/credentials/v2",
         "https://w3id.org/gaia-x/development#",
       ],
-      "type": [
+      "@type": [
         "VerifiableCredential",
         "gx:Issuer"
       ],
@@ -69,7 +69,7 @@ export class CredentialsBuilder_v2 {
         "https://www.w3.org/ns/credentials/v2",
         "https://w3id.org/gaia-x/development#",
       ],
-      "type": [
+      "@type": [
         "VerifiableCredential",
         "gx:LegalPerson"
       ],
