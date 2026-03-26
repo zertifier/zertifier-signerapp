@@ -65,6 +65,7 @@ export class VcFlowV2State {
       switchMap(() => this.signLP()),
       switchMap(() => this.signTAC()),
       switchMap(() => this.signSO()),
+      switchMap(() => this.signVP()),
       switchMap(() => this.publishOffer()),
       switchMap(() => this.askNicelyForCompliance()),
       switchMap(() => this.publishCompliance())
