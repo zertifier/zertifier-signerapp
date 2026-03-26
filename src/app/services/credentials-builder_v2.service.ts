@@ -18,7 +18,7 @@ export class CredentialsBuilder_v2 {
       "verifiableCredential": jwsArr.map(jws => ({
         "@context": "https://www.w3.org/ns/credentials/v2",
         "type": "EnvelopedVerifiableCredential",
-        "id": `data:application/vc+jwt,${jws}`
+        "@id": `data:application/vc+ld+json+jwt,${jws}`
       }))
     }
   }
@@ -38,7 +38,7 @@ export class CredentialsBuilder_v2 {
         },
         "gx:termsAndConditions": input.tac,
         "gx:dataAccountExport": input.dataAccountExport,
-        "id": input.subject
+        "@id": input.subject
       },
     }
   }
@@ -56,10 +56,10 @@ export class CredentialsBuilder_v2 {
       "validFrom": new Date().toISOString(),
       "credentialSubject": {
         "gaiaxTermsAndConditions": "4bd7554097444c960292b4726c2efa1373485e8a5565d94d41195214c5e0ceb3",
-        "id": `${input.url}#subject`
+        "@id": `${input.url}#subject`
       },
       "issuer": didUrl,
-      "id": input.url,
+      "@id": input.url,
     }
   }
 
@@ -79,17 +79,17 @@ export class CredentialsBuilder_v2 {
       "credentialSubject": {
         "gx:legalName": input.legalName,
         "gx:headquartersAddress": {
-          "type": "gx:Address",
+          "@type": "gx:Address",
           "gx:countryCode": input.countryCode
         },
         "gx:legalAddress": {
-          "type": "gx:Address",
+          "@type": "gx:Address",
           "gx:countryCode": input.countryCode
         },
         "gx:registrationNumber": {
-          "id": `${input.lrnSubject}`
+          "@id": `${input.lrnSubject}`
         },
-        "id": `${input.url}#subject`
+        "@id": `${input.url}#subject`
       },
     }
   }
