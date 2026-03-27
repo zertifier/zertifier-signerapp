@@ -39,7 +39,7 @@ export class SignerService {
         ...headersOverwrite
       })
       .sign(pKey);
-    console.log("envoloping vc: ",signed);
+    console.log("Enveloped vc: ", signed);
     return signed;
   }
 

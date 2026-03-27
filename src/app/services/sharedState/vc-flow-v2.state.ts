@@ -3,7 +3,7 @@ import {ToastService} from '../ToastService';
 import {ApprovedCHs} from '../../core/types/clearingHouse.types';
 import {DogshitConfig} from '../../core/data/dogshit.config';
 import {RequestTypes, SOInput} from '../../core/types/credential.types';
-import {EMPTY, switchMap, tap} from 'rxjs';
+import {EMPTY, of, switchMap, tap} from 'rxjs';
 import {requireValue, withLoading} from '../../util/util';
 import {joinPath, urlToDid} from '../../util/strings.util';
 import {VcFlowV2Actions} from '../../core/VcFlowV2.actions';
@@ -105,7 +105,7 @@ export class VcFlowV2State {
 
   signSO() {
     if (!this.isIncludeSO()) {
-      return EMPTY;
+      return of(null);
     }
     return withLoading(
       this.#vcFlowV2Actions.signSO(
