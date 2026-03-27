@@ -43,20 +43,20 @@ export class ClearingHouseRepo {
         proxy: "/deltadao/compliance/v1/api/credential-offers",
       },
       "COMPLIANCE_V2_STANDARD": {
-        url: "https://delta-dao.com/notary/v2/api/credential-offers/standard-compliance",
-        proxy: "/deltadao/notary/v2/api/credential-offers/standard-compliance",
+        url: "https://delta-dao.com/compliance/v2/api/credential-offers/standard-compliance",
+        proxy: "/deltadao/compliance/v2/api/credential-offers/standard-compliance",
       },
       "LABEL_V2_1": {
-        url: "https://delta-dao.com/notary/v2/api/credential-offers/label-level-1",
-        proxy: "/deltadao/notary/v2/api/credential-offers/label-level-1",
+        url: "https://delta-dao.com/compliance/v2/api/credential-offers/label-level-1",
+        proxy: "/deltadao/compliance/v2/api/credential-offers/label-level-1",
       },
       "LABEL_V2_2": {
-        url: "https://delta-dao.com/notary/v2/api/credential-offers/label-level-2",
-        proxy: "/deltadao/notary/v2/api/credential-offers/label-level-2",
+        url: "https://delta-dao.com/compliance/v2/api/credential-offers/label-level-2",
+        proxy: "/deltadao/compliance/v2/api/credential-offers/label-level-2",
       },
       "LABEL_V2_3": {
-        url: "https://delta-dao.com/notary/v2/api/credential-offers/label-level-3",
-        proxy: "/deltadao/notary/v2/api/credential-offers/label-level-3",
+        url: "https://delta-dao.com/compliance/v2/api/credential-offers/label-level-3",
+        proxy: "/deltadao/compliance/v2/api/credential-offers/label-level-3",
       }
     }
   }
