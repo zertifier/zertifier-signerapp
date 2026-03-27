@@ -52,7 +52,7 @@ export class VcFlowV2Actions {
   signVp(pKey: CryptoKey, did: string, vcid: string, jwsArr: string[]) {
     return this.#signVC(pKey, this.#credBuilder.vp(did, vcid, jwsArr), did, {
       cty: "vp+ld+json",
-      typ: "vp+ld+json+jwt"
+      typ: "vp+ld+jwt"
     });
   }
 
