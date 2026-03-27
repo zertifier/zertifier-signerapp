@@ -18,7 +18,7 @@ export class CredentialsBuilder_v2 {
       "verifiableCredential": jwsArr.map(jws => ({
         "@context": "https://www.w3.org/ns/credentials/v2",
         "type": "EnvelopedVerifiableCredential",
-        "@id": `data:application/vc+ld+json+jwt;${jws}`
+        "@id": `data:application/vc+ld+json+jwt,${jws}`
       }))
     }
   }
