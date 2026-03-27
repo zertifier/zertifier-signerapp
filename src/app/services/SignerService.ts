@@ -31,9 +31,10 @@ export class SignerService {
     const signed = await new SignJWT(vc)
       .setProtectedHeader({
         alg: 'RS256',
-        iss: didUrl,
+        // iss: didUrl,
         kid: `${didUrl}#verification`,
-        iat: new Date().getTime(),
+        // iat: new Date().getTime(),
+        // iat: Math.floor(Date.now() / 1000),
         cty: "vc+ld+json",
         typ: "vc+ld+json+jwt",
         ...headersOverwrite
