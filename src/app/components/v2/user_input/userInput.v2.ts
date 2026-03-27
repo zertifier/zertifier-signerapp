@@ -73,18 +73,4 @@ export class UserInputV2 {
       }
     });
   }
-
-  test(){
-    const vp = this.state.presentation();
-    if(!vp){
-      console.error(" > test Vp not found!");
-      return;
-    }
-    console.log(" > Test vp: ", vp);
-    try {
-      console.log("decoded headers", decodeProtectedHeader(vp));
-    } catch(err) {
-      console.error(err);
-    }
-  }
 }
