@@ -11,6 +11,7 @@ import {SideDecorator} from '../../../ui/side-decorator/side-decorator';
 import {REQUEST_TYPES} from '../../../core/types/credential.types';
 import {ToastService} from '../../../services/ToastService';
 import {DecodeJwt} from '../../../util/decodeJwt.pipe';
+import {CompactSign, CryptoKey, decodeProtectedHeader, SignJWT} from 'jose';
 
 @Component({
   selector: 'app-compliance',
@@ -72,4 +73,19 @@ export class UserInputV2 {
       }
     });
   }
+
+  test(){
+    const vp = this.state.presentation();
+    if(!vp){
+      console.error(" > test Vp not found!");
+      return;
+    }
+    console.log(" > Test vp: ", vp);
+    try {
+      decodeProtectedHeader(vp);
+    } catch(err) {
+      console.error(err);
+    }
+  }
+
 }
