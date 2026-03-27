@@ -190,7 +190,8 @@ export class VcFlowV2State {
           cert: requireValue(this.cert(), "Decrypted certificate"),
           tac: requireValue(this.tac(), "Terms and conditions"),
           lp: requireValue(this.lp(), "Legal Registration Number"),
-          so: this.so()
+          so: this.so(),
+          vp: this.presentation()
         },
         requireValue(this.baseUrl(), "Publish url"),
         requireValue(this.did(), "Did.json url"))
