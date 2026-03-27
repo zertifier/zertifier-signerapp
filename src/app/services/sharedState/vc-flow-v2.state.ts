@@ -94,8 +94,8 @@ export class VcFlowV2State {
     return withLoading(
       this.#vcFlowV2Actions.signVp(
         requireValue(this.cert()?.pKey, "Private key"),
-        this.buildFilePath('vp'),
         requireValue(this.did(), "Did.json url"),
+        this.buildFilePath('vp'),
         vps),
       this.isLoading)
       .pipe(
