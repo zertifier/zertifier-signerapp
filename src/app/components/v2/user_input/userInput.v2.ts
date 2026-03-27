@@ -82,10 +82,9 @@ export class UserInputV2 {
     }
     console.log(" > Test vp: ", vp);
     try {
-      decodeProtectedHeader(vp);
+      console.log("decoded headers", decodeProtectedHeader(vp));
     } catch(err) {
       console.error(err);
     }
   }
-
 }
