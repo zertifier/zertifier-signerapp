@@ -6,7 +6,7 @@ import {CertificateBuilder} from './CertificateBuilder';
 import {DecryptedCertificate, DecryptedJWK} from '../../core/types/crypto.types';
 
 @Injectable({providedIn: "root"})
-export class CertificateDecryptor {
+export class CertificateDecryptor_v1 {
   #builder = inject(CertificateBuilder);
 
   async decrypt(file: File, password: string): Promise<DecryptedCertificate> {
@@ -41,7 +41,7 @@ export class CertificateDecryptor {
     const wrapped = forge.pki.wrapRsaPrivateKey(asn1);
     const pkcs8Pem = forge.pki.privateKeyInfoToPem(wrapped)
 
-    try {
+/*    try {
       return await jose.importPKCS8(pkcs8Pem, 'RS256');
     } catch (e) {
       // fallback to RSA-PSS
@@ -51,13 +51,18 @@ export class CertificateDecryptor {
       return await jose.importPKCS8(pkcs8Pem, 'PS256');
     } catch (e) {
       console.error("Error decrypting certificate with PS256", {cause: e})
+    }*/
+    if (pksc1.n.bitLength() < 2048) {
+      console.warn('Weak key detected');
     }
+    console.log('pkcs8pem', pkcs8Pem);
     try {
       const encoded = pkcs8Pem.replace(/(?:-----(?:BEGIN|END) PRIVATE KEY-----|\s)/g, '')
       const keyData = this.decodeBase64(encoded);
       return crypto.subtle.importKey(`pkcs8`,
         new Uint8Array(keyData),
-        {name: 'RSASSA-PKCS1-v1_5', hash: `SHA-${'RS256'.slice(-3)}`},
+        // {name: 'RSASSA-PKCS1-v1_5', hash: `SHA-${'RS256'.slice(-3)}`},
+        {name: 'RSA-PSS', hash: `SHA-${'RS256'.slice(-3)}`},
         false,
         ['sign'])
     } catch (e) {

@@ -35,3 +35,7 @@ export type CertFileInput = {
   file: File;
   pass: string;
 }
+
+export interface CertificateDecryptor{
+  decrypt(file: File, password: string): Promise<DecryptedCertificate>
+}

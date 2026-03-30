@@ -25,7 +25,7 @@ export class VcFlowV2State {
   so = signal<string | undefined>(undefined);
   compliance = signal<string | undefined>(undefined);
   cert = signal<DecryptedCertificate | undefined>(undefined);
-  isIncludeSO = signal<boolean>(true);
+  isIncludeSO = signal<boolean>(false);
   soName = signal<string | undefined>(undefined);
   soDescription = signal<string | undefined>(undefined);
   soTacUrl = signal<string | undefined>(undefined);
