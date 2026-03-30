@@ -43,11 +43,38 @@ export class CertificateDecryptor {
 
     try {
       return await jose.importPKCS8(pkcs8Pem, 'RS256');
-    } catch {
+    } catch (e) {
       // fallback to RSA-PSS
-      return await jose.importPKCS8(pkcs8Pem, 'PS256');
+      console.error("Error decrypting certificate with RS256", {cause: e})
     }
+    try {
+      return await jose.importPKCS8(pkcs8Pem, 'PS256');
+    } catch (e) {
+      console.error("Error decrypting certificate with PS256", {cause: e})
+    }
+    try {
+      const encoded = pkcs8Pem.replace(/(?:-----(?:BEGIN|END) PRIVATE KEY-----|\s)/g, '')
+      const keyData = this.decodeBase64(encoded);
+      return crypto.subtle.importKey(`pkcs8`,
+        new Uint8Array(keyData),
+        {name: 'RSASSA-PKCS1-v1_5', hash: `SHA-${'RS256'.slice(-3)}`},
+        false,
+        ['sign'])
+    } catch (e) {
+      console.error("Error decrypting manually", e);
+      throw e;
+    }
+
     //return await jose.importPKCS8(pkcs8Pem, 'RS256');
+  }
+
+  decodeBase64(encoded: string): Uint8Array {
+    if ((Uint8Array as any).fromBase64) {
+      return (Uint8Array as any).fromBase64(encoded);
+    }
+
+    // fallback
+    return Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
   }
 
   #extractPrivateKey(cert_p12: forge.pkcs12.Pkcs12Pfx) {
