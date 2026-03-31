@@ -31,7 +31,7 @@ export class SignerService {
     const signed = await new SignJWT(vc)
       .setProtectedHeader({
         alg: 'RS256',
-        // iss: didUrl,
+        iss: didUrl,
         kid: `${didUrl}#verification`,
         // iat: new Date().getTime(),
         // iat: Math.floor(Date.now() / 1000),
@@ -40,7 +40,7 @@ export class SignerService {
         ...headersOverwrite
       })
       .setIssuedAt()
-      .setIssuer(didUrl)
+      // .setIssuer(didUrl)
       .sign(pKey);
     console.log("Enveloped vc: ", signed);
     return signed;
