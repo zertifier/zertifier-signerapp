@@ -51,21 +51,32 @@ export class VcFlowV2Actions {
 
   signVp(pKey: CryptoKey, did: string, vcid: string, jwsArr: string[]) {
     return this.#signVC(pKey, this.#credBuilder.vp(did, vcid, jwsArr), did, {
-      cty: "vp+json",
-      typ: "vp+jwt"
+      // cty: "vp+json",
+      cty: "application/vp+json",
+      // typ: "vp+jwt"
+      typ: "application/vp+jwt"
     });
   }
 
   signSO(pKey: CryptoKey, didUrl: string, input: SOInput) {
-    return this.#signVC(pKey, this.#credBuilder.so(didUrl, input), didUrl);
+    return this.#signVC(pKey, this.#credBuilder.so(didUrl, input), didUrl, {
+      cty: "application/vp+json",
+      typ: "application/vp+jwt"
+    });
   }
 
   signTAC(pKey: CryptoKey, didUrl: string, input: TACInput) {
-    return this.#signVC(pKey, this.#credBuilder.tac(didUrl, input), didUrl);
+    return this.#signVC(pKey, this.#credBuilder.tac(didUrl, input), didUrl, {
+      cty: "application/vp+json",
+      typ: "application/vp+jwt"
+    });
   }
 
   signLP(pkey: CryptoKey, didUrl: string, input: LPInput) {
-    return this.#signVC(pkey, this.#credBuilder.lp(didUrl, input), didUrl);
+    return this.#signVC(pkey, this.#credBuilder.lp(didUrl, input), didUrl, {
+      cty: "application/vp+json",
+      typ: "application/vp+jwt"
+    });
   }
 
   fetchLrn_v2(input: LNRInput, ch?: ApprovedCHs) {
