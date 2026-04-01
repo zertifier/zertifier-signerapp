@@ -35,8 +35,9 @@ export class SignerService {
         kid: `${didUrl}#verification`,
         // iat: new Date().getTime(),
         // iat: Math.floor(Date.now() / 1000),
-        cty: "vc+json",
+        cty: "vc",
         typ: "vc+jwt",
+        iat: new Date(vc["validFrom"]).getTime(),
         ...headersOverwrite
       })
       .setIssuedAt()

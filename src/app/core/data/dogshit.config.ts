@@ -4,8 +4,8 @@ import {environment} from '../../../environments/environment';
 // TODO not used everywhere too laaaazy for now
 @Injectable({providedIn: 'root'})
 export class DogshitConfig {
-  subjectPostfix = '#subject';
-  didVerificationMethod = '#verification';
+  subjectPostfix = 'subject';
+  didVerificationMethod = 'verification';
   fileNames_v1: Record<string, string> = {
     "tac": "termsAndConditions.json",
     "lp": "legalParticipant.json",
@@ -31,4 +31,12 @@ export class DogshitConfig {
   publishDomains: Record<string, string> = {
     "Zertifier": environment.zertifierProxyFileApiUrl || '',
   }
+
+  jwtConstants: Record<string, string> = {
+    "CTY": "vc",
+    "TYP": "vc+jwt",
+    "VC_MIMO": "application/vc+jwt",
+    "VP_MIMO": "application/vp+jwt"
+  }
+
 }

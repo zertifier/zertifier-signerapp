@@ -51,31 +51,31 @@ export class VcFlowV2Actions {
 
   signVp(pKey: CryptoKey, did: string, vcid: string, jwsArr: string[]) {
     return this.#signVC(pKey, this.#credBuilder.vp(did, vcid, jwsArr), did, {
-      // cty: "vp+json",
-      cty: "application/vp+json",
+      cty: this.#dsConfig.jwtConstants['CTY'],
+      typ: this.#dsConfig.jwtConstants['TYP'],
+      // cty: "vp",
       // typ: "vp+jwt"
-      typ: "application/vp+jwt"
     });
   }
 
   signSO(pKey: CryptoKey, didUrl: string, input: SOInput) {
     return this.#signVC(pKey, this.#credBuilder.so(didUrl, input), didUrl, {
-      cty: "application/vp+json",
-      typ: "application/vp+jwt"
+      // cty: "application/vp+json",
+      // typ: "application/vp+jwt"
     });
   }
 
   signTAC(pKey: CryptoKey, didUrl: string, input: TACInput) {
     return this.#signVC(pKey, this.#credBuilder.tac(didUrl, input), didUrl, {
-      cty: "application/vp+json",
-      typ: "application/vp+jwt"
+      // cty: "application/vp+json",
+      // typ: "application/vp+jwt"
     });
   }
 
   signLP(pkey: CryptoKey, didUrl: string, input: LPInput) {
     return this.#signVC(pkey, this.#credBuilder.lp(didUrl, input), didUrl, {
-      cty: "application/vp+json",
-      typ: "application/vp+jwt"
+      // cty: "application/vp+json",
+      // typ: "application/vp+jwt"
     });
   }
 
@@ -85,7 +85,7 @@ export class VcFlowV2Actions {
         input.vatId,
         new HttpParams()
           .set("vcId", input.url)
-          .set("subjectId", `${input.url}#subject`)
+          .set("subjectId", `${input.url}#${this.#dsConfig.subjectPostfix}`)
         , ch);
   }
 

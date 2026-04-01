@@ -1,11 +1,13 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {DIDInput, LPInput, SOInput, TACInput, VP} from '../core/types/credential.types';
 import {SO_TEMPLATE} from '../core/data/CredentialTemplates';
+import {DogshitConfig} from '../core/data/dogshit.config';
 
 @Injectable({providedIn: "root"})
 export class CredentialsBuilder_v2 {
+  dsConfig = inject(DogshitConfig);
 
-  vp(did: string, vcid:string, jwsArr: string[]): VP {
+  vp(did: string, vcid: string, jwsArr: string[]): VP {
     return {
       "@context": [
         "https://www.w3.org/ns/credentials/v2",
@@ -19,7 +21,7 @@ export class CredentialsBuilder_v2 {
         "@context": "https://www.w3.org/ns/credentials/v2",
         "type": "EnvelopedVerifiableCredential",
         // Changed id -> @id
-        "id": `data:application/vc+jwt,${jws}`
+        "id": `data:${this.dsConfig.jwtConstants['VC_MIMO']},${jws}`
       }))
     }
   }
@@ -52,15 +54,35 @@ export class CredentialsBuilder_v2 {
       ],
       "type": [
         "VerifiableCredential",
-        "gx:Issuer"
+        "gx:GaiaXTermsAndConditions"
       ],
+      "id": input.url,
+      "issuer": didUrl,
       "validFrom": new Date().toISOString(),
       "credentialSubject": {
-        "gaiaxTermsAndConditions": "4bd7554097444c960292b4726c2efa1373485e8a5565d94d41195214c5e0ceb3",
-        "id": `${input.url}#subject`
-      },
-      "issuer": didUrl,
+        "id": `${input.url}#${this.dsConfig.subjectPostfix}`,
+        "gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD)."
+      }
+    }
+  }
+
+  issuer(didUrl: string, input: TACInput) {
+    return {
+      "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://w3id.org/gaia-x/development#",
+      ],
+      "type": [
+        "VerifiableCredential",
+        "gx:Issuer"
+      ],
       "id": input.url,
+      "issuer": didUrl,
+      "validFrom": new Date().toISOString(),
+      "credentialSubject": {
+        "id": `${input.url}#${this.dsConfig.subjectPostfix}`,
+        "gx:gaiaxTermsAndConditions": "067dcac5efd18c1927deb1ffed3feab6d0ad044c0a9a263e6d5d8bdc43224515"
+      }
     }
   }
 
@@ -78,6 +100,7 @@ export class CredentialsBuilder_v2 {
       "issuer": didUrl,
       "validFrom": new Date().toISOString(),
       "credentialSubject": {
+        "id": `${input.url}#${this.dsConfig.subjectPostfix}`,
         "gx:legalName": input.legalName,
         "gx:headquartersAddress": {
           "type": "gx:Address",
@@ -89,14 +112,12 @@ export class CredentialsBuilder_v2 {
         },
         "gx:registrationNumber": {
           "id": `${input.lrnSubject}`
-        },
-        "id": `${input.url}#subject`
+        }
       },
     }
   }
 
   did(input: DIDInput) {
-    const verificationMethodId = `${input.id}#${input.verificationMethodId || 'verification'}`;
     return {
       '@context': [
         'https://www.w3.org/ns/did/v1',
@@ -105,11 +126,11 @@ export class CredentialsBuilder_v2 {
       'id': input.id,
       'verificationMethod': [
         {
-          'id': verificationMethodId,
+          'id': `${input.id}#${this.dsConfig.didVerificationMethod}`,
           'type': 'JsonWebKey',
           'controller': input.id,
           'publicKeyJwk': {
-            'kid': 'verification',
+            'kid': this.dsConfig.didVerificationMethod,
             'kty': input.kty || 'RSA',
             'n': input.pub_n,
             'e': input.pub_e || 'AQAB',
@@ -120,10 +141,7 @@ export class CredentialsBuilder_v2 {
         },
       ],
       'assertionMethod': [
-        verificationMethodId,
-      ],
-      'authentication': [
-        verificationMethodId,
+        `${input.id}#${this.dsConfig.didVerificationMethod}`,
       ]
     };
   }

@@ -127,7 +127,7 @@ export class VcFlowV2State {
         requireValue(this.did(), "Did.json url"),
         {
           url: this.buildFilePath('lp'),
-          lrnSubject: `${this.buildFilePath('lrn')}${this.#dsConfig.subjectPostfix}`,
+          lrnSubject: `${this.buildFilePath('lrn')}#${this.#dsConfig.subjectPostfix}`,
           countryCode: requireValue(this.countryCode(), "Country Code"),
           legalName: requireValue(this.legalName(), "Legal name"),
         }),
@@ -204,7 +204,7 @@ export class VcFlowV2State {
       subject: requireValue(this.soSubject(), "Service Subject"),
       name: this.soName(),
       description: this.soDescription(),
-      providedByUrl: `${joinPath(baseUrl, this.#dsConfig.fileNames_v2['lp'])}#subject`,
+      providedByUrl: `${joinPath(baseUrl, this.#dsConfig.fileNames_v2['lp'])}#${this.#dsConfig.subjectPostfix}`,
       tac: {
         "gx:URL": requireValue(this.soTacUrl(), "Terms and condition url"),
         "gx:hash": requireValue(this.soTacHash(), "Terms and condition hash")

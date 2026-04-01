@@ -68,7 +68,7 @@ export class MainWindowGroupState {
         requireValue(this.did(), "Did.json url"),
         {
           url: this.buildFilePath('lp'),
-          lrnSubject: `${this.buildFilePath('lnr')}${this.#dsConfig.subjectPostfix}`,
+          lrnSubject: `${this.buildFilePath('lnr')}#${this.#dsConfig.subjectPostfix}`,
           countryCode: requireValue(this.countryCode(), "Country Code"),
           legalName: requireValue(this.legalName(), "Legal name"),
         }),
