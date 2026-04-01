@@ -14,7 +14,7 @@ export class CredentialsBuilder_v2 {
         "https://www.w3.org/ns/credentials/examples/v2"
       ],
       "id": vcid,
-      "type": "EnvelopedVerifiablePresentation",
+      "type": "VerifiablePresentation",
       "issuer": did,
       "validFrom": new Date().toISOString(),
       "verifiableCredential": jwsArr.map(jws => ({
