@@ -85,7 +85,7 @@ export class VcFlowV2State {
 
   signVP() {
     const vps = [
-      requireValue(this.lrn(), "Legal registration number"),
+      // requireValue(this.lrn(), "Legal registration number"),
       requireValue(this.lp(), "Legal Person"),
       requireValue(this.tac(), "Terms and conditions"),
       this.so()]
